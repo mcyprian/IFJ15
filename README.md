@@ -6,10 +6,13 @@ Faculty of Information Technology (FIT) of Brno University of Technology
 
 Project for subject Formal Languages and Compilers
 
+## Description:
+	Something something...
+
 ## Collaborators:
 
-    Michal Cyprian
-    Michal Ďurista
-    Tomáš Ščavnický
-    Rado Sroka
-    Tomáš Sýkora
+	Michal Cyprian	login
+	Michal Ďurista	login
+	Rado Sroka	xsroka00 xsroka00@stud.fit.vutbr.cz, radovan.sroka@gmail.com, rsroka@redhat.com
+	Tomáš Sýkora	login
+	Tomáš Ščavnický	login
