@@ -16,3 +16,13 @@ Project for subject Formal Languages and Compilers
 	Rado Sroka	xsroka00 xsroka00@stud.fit.vutbr.cz, radovan.sroka@gmail.com, rsroka@redhat.com
 	Tomáš Sýkora	login
 	Tomáš Ščavnický	login
+
+## Use:
+	First:
+	git clone ...
+	cd IFJ15
+	. ./init.sh
+
+	Next time:
+	make
+
