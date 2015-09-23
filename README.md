@@ -14,7 +14,7 @@ Project for subject Formal Languages and Compilers
 	Michal Cyprian	xcypri01 xcypri01@stud.fit.vutbr.cz
 	Michal Ďurista	login
 	Rado Sroka	xsroka00 xsroka00@stud.fit.vutbr.cz, radovan.sroka@gmail.com, rsroka@redhat.com
-	Tomáš Sýkora	login
+	Tomáš Sýkora	xsykor25 xsykor25@stud.fit.vutbr.cz, tms.sykora@gmail.com
 	Tomáš Ščavnický	xscavn00 xscavn00@stud.fit.vutbr.cz, tomas.scavnicky@gmail.com
 
 ## Use:
