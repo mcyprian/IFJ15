@@ -19,10 +19,22 @@ Project for subject Formal Languages and Compilers
 
 ## Use:
 	First:
-	git clone ...
-	cd IFJ15
-	. ./init.sh
+		git clone https://github.com/mcyprian/IFJ15.git
+		cd IFJ15
+		./init.sh
+	
+	Normal use:
+		- make some changes
+		- add changes to index (git add something)
+		- make commit
+		- push
 
-	Next time:
-	make
+## Useful commands:
+	git status - show what was changed
+	git add <files> - add changed or new files to index and after that, they are ready for commit
+	git commit - make a commit
+	git push - upload changes to the Github
+	git clean -df - remove all generated files which are not in the index or commited
 
+	./init.sh - script which generates Makefiles and compile all
+	make - compile everything what was changed, e.g. after your change  	
