@@ -18,7 +18,7 @@
  * @param  initial_length initial length of buffer
  * @return Zero on success, one on malloc error.
  */
-int init_buffer(TDynamic_buffer *b, unsigned initial_length) {
+int init_buffer(TDynamic_buffer *b, size_t initial_length) {
     b->buffer = malloc(initial_length);
     if (b->buffer == NULL) {
         fprintf(stderr, "Failed to alloc initial memory for buffer\n");
@@ -34,7 +34,7 @@ int init_buffer(TDynamic_buffer *b, unsigned initial_length) {
  * @param size new size of memory block
  * @return Zero on success, one on realloc error
  */
-int realloc_buffer(TDynamic_buffer *b, unsigned size) {
+int realloc_buffer(TDynamic_buffer *b, size_t size) {
     char *tmp;
     b->length *= 2;    // TODO: Use function to get new size?
     b->length += size;
@@ -97,7 +97,7 @@ char *read_buffer(TDynamic_buffer *b) {
  * @param  initial_length new inital length of buffer
  * @return Zero on success, one on malloc error
  */
-int empty_buffer(TDynamic_buffer *b, unsigned initial_length) {
+int empty_buffer(TDynamic_buffer *b, size_t initial_length) {
     char *tmp;
     tmp = realloc(b->buffer, initial_length);
     if (tmp == NULL) {
