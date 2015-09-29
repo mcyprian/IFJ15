@@ -1,3 +1,7 @@
+Please Install check-devel on your system for testing reason.
+
+
+
 ===================
 IFJ15
 ===================
