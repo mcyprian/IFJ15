@@ -7,6 +7,8 @@ cmake .
 
 make
 
+make test
+
 unset CC
 
 set +v
