@@ -68,7 +68,6 @@ char *get_str(TDynamic_buffer *b, unsigned num);
 
 /** Reinitialeze buffer to start writing to the begginig.
  * @param b pointer to TDynamic buffer
- * @param  initial_length new inital length of buffer
  * @return Zero on success, one on malloc error
  */
-int empty_buffer(TDynamic_buffer *b, size_t initial_length);
+int empty_buffer(TDynamic_buffer *b);
