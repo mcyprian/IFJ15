@@ -8,8 +8,10 @@
 START_TEST (test_init)
 {
 	TDynamic_buffer buff;
+	ck_assert_int_eq(init_buffer(&buff, 0), 0);
 	ck_assert_int_eq(init_buffer(&buff, -1), 1);
 	ck_assert_int_eq(init_buffer(NULL, 100), 1);
+	ck_assert_int_eq(init_buffer(NULL, -10000), 1);
 	free_buffer(&buff);
 	
 }
@@ -29,12 +31,12 @@ START_TEST (test_add_c)
 	unsigned int cnt = 100000;
 	for(unsigned int i = 0; i < cnt ; i++){
 		ck_assert_int_eq(add_char(&buff, 'a'), 0);
-		ck_assert_int_ge(buff.length, buff.index);
+		ck_assert_int_ge(buff.length, buff.writing_index);
 		if(i == 5)ck_assert_str_eq(buff.buffer, "aaaaaa");
 	}
 
-	ck_assert_int_eq(buff.index, cnt);
-	ck_assert_int_eq(buff.index, strlen(buff.buffer));
+	ck_assert_int_eq(buff.writing_index, cnt);
+	ck_assert_int_eq(buff.writing_index, strlen(buff.buffer));
 	free_buffer(&buff);
 
 }
@@ -49,27 +51,73 @@ START_TEST (test_add_str)
 	ck_assert_int_eq(add_str(NULL, "abcd"), 1);
 	ck_assert_int_eq(add_str(&buff, NULL), 1);
 	ck_assert_int_eq(add_str(NULL, "abcd"), 1);
-	ck_assert_int_eq(add_str(&buff, "ab\0cd"), 1);
+	ck_assert_int_eq(add_str(&buff, "ab\0cd"), 0);
 
         unsigned int cnt = 100000;
         for(unsigned int i = 0; i < cnt ; i++){
                 ck_assert_int_eq(add_str(&buff, "abcd"), 0);
-		ck_assert_int_ge(buff.length, buff.index);
+		ck_assert_int_ge(buff.length, buff.writing_index);
                 if(i == 4)ck_assert_str_eq(buff.buffer, "abcdabcdabcdabcdabcd");
         }
 
-        ck_assert_int_eq(buff.index, cnt*4);
-        ck_assert_int_eq(buff.index, strlen(buff.buffer));
+        ck_assert_int_eq(buff.writing_index, cnt*4);
+        ck_assert_int_eq(buff.writing_index, strlen(buff.buffer));
         free_buffer(&buff);
+
+	ck_assert_int_eq(init_buffer(&buff, 1), 0);
+	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
+	ck_assert_int_eq(buff.length, 16);
+	free_buffer(&buff);
+
 
 }
 END_TEST
+
+START_TEST (test_empty)
+ {
+	TDynamic_buffer buff;
+	ck_assert_int_eq(init_buffer(&buff, 1), 0); 
+	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
+	
+	ck_assert_int_eq(empty_buffer(NULL, 5), 1);
+	ck_assert_int_eq(empty_buffer(&buff, -5), 1);
+	ck_assert_int_eq(empty_buffer(NULL, -5), 1);
+
+	ck_assert_int_eq(empty_buffer(&buff, 2), 0);
+	ck_assert_str_eq(buff.buffer, "");
+	ck_assert_int_eq(buff.length, 2);
+
+	free_buffer(&buff);
+}
+END_TEST
+
+START_TEST (test_read) //consult 
+{
+	TDynamic_buffer buff;
+	ck_assert_int_eq(init_buffer(&buff, 1), 0);
+	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
+
+	ck_assert_int_eq(read_buffer(NULL), 1);
+	ck_assert_str_eq(read_buffer(&buff), buff.buffer);
+	
+	ck_assert_ptr_eq(get_str(NULL, 1), NULL);
+	ck_assert_ptr_eq(get_str(&buff, -1), NULL);
+	ck_assert_ptr_eq(get_str(NULL, -1), NULL);
+	ck_assert_ptr_eq(get_str(&buff, 1), &buff.buffer[0]);
+	ck_assert_ptr_eq(get_str(&buff, 0), &buff.buffer[1]);
+	ck_assert_ptr_eq(get_str(&buff, 2), &buff.buffer[3]);
+	ck_assert_str_eq(get_str(&buff, 1), &buff.buffer[4]);
+
+	free_buffer(&buff);	
+}
+END_TEST
+
 
 
 Suite * dynbuff_suite(void)
 {
 	Suite *s;
-	TCase *tc_init, *tc_add_c, *tc_add_str;
+	TCase *tc_init, *tc_add_c, *tc_add_str, *tc_empty, *tc_read;
 	s = suite_create("DynamicBuffer");
       
 	tc_init = tcase_create("Init");
@@ -83,6 +131,14 @@ Suite * dynbuff_suite(void)
 	tc_add_str = tcase_create("Add_STR");
 	tcase_add_test(tc_add_str, test_add_str);
 	suite_add_tcase(s, tc_add_str);	
+
+	tc_empty = tcase_create("EMPTY");
+	tcase_add_test(tc_empty, test_empty);
+	suite_add_tcase(s, tc_empty);
+
+	tc_read = tcase_create("READ");
+	tcase_add_test(tc_read, test_read);
+	suite_add_tcase(s, tc_read);
 
 	return s;
 }
