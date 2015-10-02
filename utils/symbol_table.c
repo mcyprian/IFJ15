@@ -10,19 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-enum token_types {IDENTIFIER, OPERATOR, KEYWORD};
-
-typedef struct {
-	int token_type;
-	char *lexeme_identifier;
-}Tlexeme_data;
-
-typedef struct tree {
-	Tlexeme_data lexeme;
-	int key;
-	struct tree *right, *left;
-}Ttree;
+#include "symbol_table.h"
 
 void Symbol_Table_Init(Ttree *tree) {
 
