@@ -1,1 +1,1 @@
-add_executable(example example_main.c example_lib.c)
+add_executable(interpreter main.c io.c)
