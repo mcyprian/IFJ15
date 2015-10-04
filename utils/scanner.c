@@ -1,79 +1,73 @@
 /**
-*autor Tomas Scavnicky
+* autor Tomas Scavnicky, Michal Durista
 *
-* zatial rozozna len operatory + - * / , > >= < <= a ==
-* vstup: textovy subort, treba ho vytvorit v danom adresari a zadat do funkcie fopen() v main()
-*
-*
+* zatial rozozna len operatory + - * / , > >= < <= == a << (pridat !=)
+* vstup: prvy argument
 */
 
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-#define PLUS 42
-#define MUL 43
-#define MINUS 45
-#define DIV	47
-#define SEMICOLON 59
-#define LESS 60
-#define GREATER 62
-#define EQUALS 61
-
-enum {START, LETTER, POTENTIAL_DOUBLE_OPERATOR, DOUBLE_OPERATOR, WHITE_SYMBOL};
+enum {START, IDENTIFIER, OPERATOR};
 
 int scan(FILE *fin) {
 	int c;
 	int state = START;
-	int previous;
+	char opbuffer[2];
 	char buffer[3];
+	bool double_op = false;
 
 	while ((c = fgetc(fin)) != EOF) {
 		switch (state) {
+
+			case IDENTIFIER:
+
+				break;
+
+			case OPERATOR:
+				if ((double_op && c == '=') || (opbuffer[0] == '<' && c == '<')) { // dvojity operator >= <= == !=
+					opbuffer[1] = c;
+
+					printf("%s OPERATOR\n", opbuffer);
+					memset(opbuffer, 0, sizeof(opbuffer));
+					
+					state = START;
+					double_op = false;
+					break;
+					
+				} else {
+					printf("%s OPERATOR\n", opbuffer);
+					memset(opbuffer, 0, sizeof(opbuffer));
+					state = START;
+				}
+
 			case START:
-				if ((c > 41 && c < 46) || c == '/' || c ==';') { 	// vysporiadat sa s ciarkou
-					printf("%c OPERATOR\n", c);
-				
-				} else if (c > 59 && c < 63) { // > = <
-					state = POTENTIAL_DOUBLE_OPERATOR;
-					buffer[0] = c;
+				if ((c > 41 && c < 46) || c == '/' || c ==';' || (c > 59 && c < 63)) { 	// vysporiadat sa s ciarkou
+					double_op = (c > 59 && c < 63);
+					opbuffer[0] = c;
+					state = OPERATOR;
+				} else if ((c > 64 && c < 91) || (c > 96 && c < 123)) {
+					// tu uz potrebujem dynamicky buffer
+					state = IDENTIFIER;
+					break;
 				}
 				break;
-
-			case POTENTIAL_DOUBLE_OPERATOR:
-				if (c == '=') {
-					buffer[1] = c;
-					printf("%s OPERATOR\n", buffer);
-
-				} 
-				else {
-					printf("%c OPERATOR\n", buffer[0]);
-					if ((c > 41 && c < 46) || c == '/' || c ==';') { 	// vysporiadat sa s ciarkou
-						printf("%c OPERATOR\n", c);
-					}
-				}
-				state = START;
-				break;
-		}
+		}	
 	
 	}
 	return 0;
 }
 
 int main(int argc, char* argv[]) {
-	
 	if (argc == 2) {
-		FILE *f = fopen(argv[1], "r");	//zadat nazov suboru na scanovanie
+		FILE *f = fopen(argv[1], "r");
 	
 		scan(f);
 
 		fclose(f);	
 	}
-	
-
 	return 0;
 }
-
-
-
-
