@@ -22,7 +22,6 @@
 
 enum {START, LETTER, POTENTIAL_DOUBLE_OPERATOR, DOUBLE_OPERATOR, WHITE_SYMBOL};
 
-
 int scan(FILE *fin) {
 	int c;
 	int state = START;
@@ -31,8 +30,6 @@ int scan(FILE *fin) {
 
 	while ((c = fgetc(fin)) != EOF) {
 		switch (state) {
-
-
 			case START:
 				if ((c > 41 && c < 46) || c == '/' || c ==';') { 	// vysporiadat sa s ciarkou
 					printf("%c OPERATOR\n", c);
@@ -57,24 +54,22 @@ int scan(FILE *fin) {
 				}
 				state = START;
 				break;
-
-			
-
 		}
 	
 	}
 	return 0;
 }
 
-
-
-int main() {
+int main(int argc, char* argv[]) {
 	
-	FILE *f = fopen("xyz.c", "r");	//zadat nazov suboru na scanovanie
+	if (argc == 2) {
+		FILE *f = fopen(argv[1], "r");	//zadat nazov suboru na scanovanie
 	
-	scan(f);
+		scan(f);
 
-	fclose(f);
+		fclose(f);	
+	}
+	
 
 	return 0;
 }
