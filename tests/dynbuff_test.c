@@ -10,9 +10,10 @@ START_TEST (test_init)
 {
 	TDynamic_buffer buff;
 	ck_assert_int_eq(init_buffer(&buff, 0), INTERNAL_ERROR);
-	ck_assert_int_eq(init_buffer(&buff, -1), INTERNAL_ERROR);
 	ck_assert_int_eq(init_buffer(NULL, 100), INTERNAL_ERROR);
 	ck_assert_int_eq(init_buffer(NULL, -10000), INTERNAL_ERROR);
+	
+	ck_assert_int_eq(init_buffer(&buff, 100), 0);
 	free_buffer(&buff);
 	
 }
@@ -58,16 +59,16 @@ START_TEST (test_add_str)
         for(unsigned int i = 0; i < cnt ; i++){
                 ck_assert_int_eq(add_str(&buff, "abcd"), 0);
 		ck_assert_int_ge(buff.length, buff.writing_index);
-                if(i == 4)ck_assert_str_eq(buff.buffer, "abcdabcdabcdabcdabcd");
+                if(i == 4)ck_assert_str_eq(buff.buffer, "ababcdabcdabcdabcdabcd");
         }
 
-        ck_assert_int_eq(buff.writing_index, cnt*4);
+        ck_assert_int_eq(buff.writing_index, cnt*4+2);
         ck_assert_int_eq(buff.writing_index, strlen(buff.buffer));
         free_buffer(&buff);
 
 	ck_assert_int_eq(init_buffer(&buff, 1), 0);
 	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
-	ck_assert_int_eq(buff.length, 16);
+	ck_assert_int_eq(buff.length, 10);
 	free_buffer(&buff);
 
 
@@ -78,12 +79,11 @@ START_TEST (test_empty)
  {
 	TDynamic_buffer buff;
 	ck_assert_int_eq(init_buffer(&buff, 1), 0); 
-	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
+	ck_assert_int_eq(add_str(&buff, "12345678"), 0);
 	
 	ck_assert_int_eq(empty_buffer(NULL), INTERNAL_ERROR);
 	ck_assert_int_eq(empty_buffer(&buff), 0);
 	ck_assert_str_eq(buff.buffer, "");
-	ck_assert_int_eq(buff.length, 2);
 
 	free_buffer(&buff);
 }
@@ -95,16 +95,16 @@ START_TEST (test_read) //consult
 	ck_assert_int_eq(init_buffer(&buff, 1), 0);
 	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
 
-	ck_assert_int_eq(read_buffer(NULL), NULL);
+	ck_assert_ptr_eq(read_buffer(NULL), NULL);
 	ck_assert_str_eq(read_buffer(&buff), buff.buffer);
 	
 	ck_assert_ptr_eq(get_str(NULL, 1), NULL);
 	ck_assert_ptr_eq(get_str(&buff, -1), NULL);
 	ck_assert_ptr_eq(get_str(NULL, -1), NULL);
 	ck_assert_ptr_eq(get_str(&buff, 1), &buff.buffer[0]);
-	ck_assert_ptr_eq(get_str(&buff, 0), &buff.buffer[1]);
-	ck_assert_ptr_eq(get_str(&buff, 2), &buff.buffer[3]);
-	ck_assert_str_eq(get_str(&buff, 1), &buff.buffer[4]);
+	ck_assert_ptr_eq(get_str(&buff, 0), NULL);
+	ck_assert_ptr_eq(get_str(&buff, 2), &buff.buffer[1]);
+	ck_assert_str_eq(get_str(&buff, 1), &buff.buffer[3]);
 
 	free_buffer(&buff);	
 }

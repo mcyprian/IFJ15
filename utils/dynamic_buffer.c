@@ -84,7 +84,7 @@ char *get_str(TDynamic_buffer *b, unsigned num) {
 }
 
 int empty_buffer(TDynamic_buffer *b) {
-    args_assert(b == NULL, INTERNAL_ERROR);
+    args_assert(b != NULL, INTERNAL_ERROR);
     b->writing_index = 0;
     b->reading_index = 0;
     b->buffer[b->writing_index] = '\0';
