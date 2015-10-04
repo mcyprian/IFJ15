@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <error_macros.h>
 #include <dynamic_buffer.h>
 #include <check.h>
 
@@ -8,10 +9,10 @@
 START_TEST (test_init)
 {
 	TDynamic_buffer buff;
-	ck_assert_int_eq(init_buffer(&buff, 0), 0);
-	ck_assert_int_eq(init_buffer(&buff, -1), 1);
-	ck_assert_int_eq(init_buffer(NULL, 100), 1);
-	ck_assert_int_eq(init_buffer(NULL, -10000), 1);
+	ck_assert_int_eq(init_buffer(&buff, 0), INTERNAL_ERROR);
+	ck_assert_int_eq(init_buffer(&buff, -1), INTERNAL_ERROR);
+	ck_assert_int_eq(init_buffer(NULL, 100), INTERNAL_ERROR);
+	ck_assert_int_eq(init_buffer(NULL, -10000), INTERNAL_ERROR);
 	free_buffer(&buff);
 	
 }
@@ -23,9 +24,9 @@ START_TEST (test_add_c)
         TDynamic_buffer buff;
         ck_assert_int_eq(init_buffer(&buff, 1), 0);
 
-	ck_assert_int_eq(add_char(NULL, 'a'), 1);
-        ck_assert_int_eq(add_char(&buff, '\0'), 1);
-	ck_assert_int_eq(add_char(NULL, '\0'), 1);
+	ck_assert_int_eq(add_char(NULL, 'a'), INTERNAL_ERROR);
+        ck_assert_int_eq(add_char(&buff, '\0'), INTERNAL_ERROR);
+	ck_assert_int_eq(add_char(NULL, '\0'), INTERNAL_ERROR);
 	
         
 	unsigned int cnt = 100000;
@@ -48,9 +49,9 @@ START_TEST (test_add_str)
         TDynamic_buffer buff;
         ck_assert_int_eq(init_buffer(&buff, 1), 0);
 
-	ck_assert_int_eq(add_str(NULL, "abcd"), 1);
-	ck_assert_int_eq(add_str(&buff, NULL), 1);
-	ck_assert_int_eq(add_str(NULL, "abcd"), 1);
+	ck_assert_int_eq(add_str(NULL, "abcd"), INTERNAL_ERROR);
+	ck_assert_int_eq(add_str(&buff, NULL), INTERNAL_ERROR);
+	ck_assert_int_eq(add_str(NULL, "abcd"), INTERNAL_ERROR);
 	ck_assert_int_eq(add_str(&buff, "ab\0cd"), 0);
 
         unsigned int cnt = 100000;
@@ -79,11 +80,8 @@ START_TEST (test_empty)
 	ck_assert_int_eq(init_buffer(&buff, 1), 0); 
 	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
 	
-	ck_assert_int_eq(empty_buffer(NULL, 5), 1);
-	ck_assert_int_eq(empty_buffer(&buff, -5), 1);
-	ck_assert_int_eq(empty_buffer(NULL, -5), 1);
-
-	ck_assert_int_eq(empty_buffer(&buff, 2), 0);
+	ck_assert_int_eq(empty_buffer(NULL), INTERNAL_ERROR);
+	ck_assert_int_eq(empty_buffer(&buff), 0);
 	ck_assert_str_eq(buff.buffer, "");
 	ck_assert_int_eq(buff.length, 2);
 
@@ -97,7 +95,7 @@ START_TEST (test_read) //consult
 	ck_assert_int_eq(init_buffer(&buff, 1), 0);
 	ck_assert_int_eq(add_str(&buff, "abcdefgh"), 0);
 
-	ck_assert_int_eq(read_buffer(NULL), 1);
+	ck_assert_int_eq(read_buffer(NULL), NULL);
 	ck_assert_str_eq(read_buffer(&buff), buff.buffer);
 	
 	ck_assert_ptr_eq(get_str(NULL, 1), NULL);

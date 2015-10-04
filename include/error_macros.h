@@ -14,6 +14,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+enum {LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR, GET_TYPE_ERROR,
+      OTHER_SEM_ERROR, INPUT_ERROR, UNINIT_ERROR, DIV_ZERO_ERROR, RUNTIME_ERROR,
+      INTERNAL_ERROR = 99};
+
 /** Prints warning message to stderr
  * @param var vatiable to be checked
  * @param value value indicating unexpected situation
@@ -40,7 +44,7 @@
             if(v)                                                      \
                 fprintf(stderr, "[LEXICAL ERROR] (%s:%s:%d) " msg "\n",\
                         __FILE__, __func__, __LINE__);                 \
-                return 1;                                              \
+                return LEXICAL_ERROR;                                  \
         }                                                              \
     } while (0)
 
@@ -57,7 +61,7 @@
             if(v)                                                      \
                 fprintf(stderr, "[SYNTAX ERROR] (%s:%s:%d) " msg "\n", \
                         __FILE__, __func__, __LINE__);                 \
-                return 2;                                              \
+                return SYNTAX_ERROR;                                   \
         }                                                              \
     } while (0)
 
@@ -74,7 +78,7 @@
             if(v)                                                        \
                 fprintf(stderr, "[SEMANTIC ERROR] (%s:%s:%d) " msg "\n", \
                         __FILE__, __func__, __LINE__);                   \
-                return 3;                                                \
+                return SEMANTIC_ERROR`;                                  \
         }                                                                \
     } while (0)
 
@@ -92,7 +96,7 @@
             if(v)                                                        \
                 fprintf(stderr, "[SEMANTIC ERROR] (%s:%s:%d) " msg "\n", \
                         __FILE__, __func__, __LINE__);                   \
-                return 4;                                                \
+                return TYPE_ERROR;                                       \
         }                                                                \
     } while (0)
 
@@ -109,7 +113,7 @@
             if(v)                                                        \
                 fprintf(stderr, "[TYPE ERROR] (%s:%s:%d) " msg "\n",     \
                         __FILE__, __func__, __LINE__);                   \
-                return 5;                                                \
+                return GET_TYPE_ERROR;                                   \
         }                                                                \
     } while (0)
 
@@ -126,7 +130,7 @@
             if(v)                                                        \
                 fprintf(stderr, "[SEMANTIC ERROR] (%s:%s:%d) " msg "\n", \
                         __FILE__, __func__, __LINE__);                   \
-                return 6;                                                \
+                return OTHER_SEM_ERROR;                                  \
         }                                                                \
     } while (0)
 
@@ -143,7 +147,7 @@
         if ((var) == (value)) {                                         \
                 fprintf(stderr, "[RUNTIME ERROR] (%s:%s:%d) " msg "\n", \
                         __FILE__, __func__, __LINE__);                  \
-                exit (7);                                               \
+                exit (INPUT_ERROR);                                     \
         }                                                               \
     } while (0)
 
@@ -160,7 +164,7 @@
         if ((var) == (value)) {                                         \
                 fprintf(stderr, "[UNINIT ERROR] (%s:%s:%d) " msg "\n",  \
                         __FILE__, __func__, __LINE__);                  \
-                exit(8);                                                \
+                exit(UNINIT_ERROR);                                     \
         }                                                               \
     } while (0)
 
@@ -177,7 +181,7 @@
         if ((var) == (value)) {                                         \
                 fprintf(stderr, "[DIV ERROR] (%s:%s:%d) " msg "\n",     \
                         __FILE__, __func__, __LINE__);                  \
-                exit(9);                                                \
+                exit(DIV_ZERO_ERROR);                                   \
         }                                                               \
     } while (0)
 
@@ -194,7 +198,7 @@
             if(v)                                                       \
                 fprintf(stderr, "[RUNTIME ERROR] (%s:%s:%d) " msg "\n"  \
                         __FILE__, __func__, __LINE__);                  \
-                return 10;                                              \
+                return RUNTIME_ERROR;                                   \
         }                                                               \
     } while (0)
 
@@ -211,7 +215,7 @@
         if ((var) == (value)) {                                         \
             fprintf(stderr, "[INTERNAL ERROR] (%s:%s:%d) " msg "\n",    \
                     __FILE__, __func__, __LINE__);                      \
-            exit(99);                                                   \
+            exit(INTERNAL_ERROR);                                       \
         }                                                               \
     } while (0)
 
