@@ -27,17 +27,19 @@ int init_buffer(TDynamic_buffer *b, size_t initial_length) {
 
 int realloc_buffer(TDynamic_buffer *b, size_t size) {
     args_assert(b != NULL, INTERNAL_ERROR);
-    char *tmp;
+    char *tmp = NULL;
     b->length *= 2;    // TODO: Use function to get new size?
     b->length += size;
     tmp = realloc(b->buffer, b->length);
-    catch_internal_error(tmp, NULL, "Failed to realloc memory for buffer.");
-    b->buffer = tmp;
+	
+	catch_internal_error(tmp, NULL, "Failed to realloc memory for buffer.");
+	b->buffer = tmp;
     return 0;
 }
 
 void free_buffer(TDynamic_buffer *b) {
-    free(b->buffer);
+    if(b != NULL)
+		free(b->buffer);
 }
 
 int add_char(TDynamic_buffer *b, char c) {

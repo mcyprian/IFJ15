@@ -215,7 +215,7 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
         if ((var) == (value)) {                                         \
             fprintf(stderr, "[INTERNAL ERROR] (%s:%s:%d) " msg "\n",    \
                     __FILE__, __func__, __LINE__);                      \
-            exit(INTERNAL_ERROR);                                       \
+            return(INTERNAL_ERROR);                                       \
         }                                                               \
     } while (0)
 
