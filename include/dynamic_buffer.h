@@ -7,6 +7,9 @@
  * Header file for dynamic_buffer.c module
  */
 
+#ifndef DYNAMIC_BUFFER_H
+#define DYNAMIC_BUFFER_H
+
 typedef struct {
     unsigned length;
     unsigned writing_index;
@@ -59,15 +62,24 @@ char *read_buffer(TDynamic_buffer *b);
  */
 char get_char(TDynamic_buffer *b);
 
-/**Reads string of length num from buffer
+/** Reads string of length num from buffer
  * @oaram b pointer to TDyanmic buffer
  * @param num number of characters to be read
  * @return pointer to beggining of str or NULL on error
  */
 char *get_str(TDynamic_buffer *b, unsigned num);
 
+/** Move writing index to next position.
+ * @param b pointer to TDynamic_buffer
+ * @return pointer to finished token, NULL on error. 
+ */
+char *save_token(TDynamic_buffer *b);
+
 /** Reinitialeze buffer to start writing to the begginig.
  * @param b pointer to TDynamic buffer
  * @return Zero on success, INTERNAL_ERROR on error
  */
 int empty_buffer(TDynamic_buffer *b);
+
+
+#endif // !DYNAMIC_BUFFER_H

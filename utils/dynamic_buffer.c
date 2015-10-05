@@ -28,10 +28,9 @@ int init_buffer(TDynamic_buffer *b, size_t initial_length) {
 int realloc_buffer(TDynamic_buffer *b, size_t size) {
     args_assert(b != NULL, INTERNAL_ERROR);
     char *tmp = NULL;
-    b->length *= 2;    // TODO: Use function to get new size?
+    b->length *= 2;
     b->length += size;
-    tmp = realloc(b->buffer, b->length);
-	
+    tmp = realloc(b->buffer, b->length);	
 	catch_internal_error(tmp, NULL, "Failed to realloc memory for buffer.");
 	b->buffer = tmp;
     return 0;
@@ -45,7 +44,7 @@ void free_buffer(TDynamic_buffer *b) {
 int add_char(TDynamic_buffer *b, char c) {
     args_assert(b != NULL && c != '\0', INTERNAL_ERROR);
     if (b->writing_index + 2 > b->length) 
-        realloc_buffer(b, 2);
+        catch_internal_error(realloc_buffer(b, 2), INTERNAL_ERROR, "Failed to realloc buffer.");
     b->buffer[b->writing_index] = c;
     b->writing_index++;
     b->buffer[b->writing_index] = '\0';
@@ -56,15 +55,14 @@ int add_str(TDynamic_buffer *b, char* word) {
     args_assert(b != NULL && word != NULL, INTERNAL_ERROR);
     unsigned len = strlen(word);
     if (b->writing_index + len + 1 > b->length)
-        realloc_buffer(b, len);
+        catch_internal_error(realloc_buffer(b, len), INTERNAL_ERROR, "Failed to realloc buffer.");
     strcpy(&b->buffer[b->writing_index], word);
     b->writing_index += len;
     return 0;
 }
 
 char *read_buffer(TDynamic_buffer *b) {
-    if (b == NULL)
-        return NULL;
+    args_assert(b != NULL, NULL);
     return b->buffer;
 }
 
@@ -83,6 +81,18 @@ char *get_str(TDynamic_buffer *b, unsigned num) {
     else
         b->reading_index += num;
     return (b->buffer + b->reading_index - num);
+}
+
+char *save_token(TDynamic_buffer *b) {
+    args_assert(b != NULL, NULL);
+    static char *start = NULL;
+    b->writing_index++;
+    char* previous = start;
+    start = &b->buffer[b->writing_index];
+    if (previous == NULL) 
+        return b->buffer;
+    else 
+        return previous;
 }
 
 int empty_buffer(TDynamic_buffer *b) {
