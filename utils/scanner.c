@@ -5,26 +5,19 @@
 * vstup: prvy argument
 */
 
+#include scanner.h
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-enum {START, IDENTIFIER, OPERATOR};
-
-int scan(FILE *fin) {
+int tokenize(FILE *fin) {
 	int c;
 	int state = START;
-	char opbuffer[2];
-	char buffer[3];
+	char opbuffer[2];	// nahradi dynamicky buffer
 	bool double_op = false;
 
 	while ((c = fgetc(fin)) != EOF) {
 		switch (state) {
 
 			case IDENTIFIER:
-
+				state = START;
 				break;
 
 			case OPERATOR:
@@ -57,17 +50,6 @@ int scan(FILE *fin) {
 				break;
 		}	
 	
-	}
-	return 0;
-}
-
-int main(int argc, char* argv[]) {
-	if (argc == 2) {
-		FILE *f = fopen(argv[1], "r");
-	
-		scan(f);
-
-		fclose(f);	
 	}
 	return 0;
 }
