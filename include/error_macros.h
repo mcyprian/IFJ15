@@ -219,17 +219,4 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
         }                                                               \
     } while (0)
 
-/** Checks if condition is met.
- * @param condition condition to be checked
- * @return ret_val on assertion failed
- */
-#define args_assert(condition, ret_val)                                        \
-    do {                                                                       \
-        if (!(condition)) {                                                    \
-            fprintf(stderr, "[ASSERTION FAILED] (%s:%s:%d) Unexpected values"  \
-                    " of function arguments.\n",__FILE__, __func__, __LINE__); \
-             return ret_val;                                                   \
-        }                                                                      \
-    } while(0)
-            
 #endif // !ERROR_MACROS_H

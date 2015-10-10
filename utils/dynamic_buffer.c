@@ -13,6 +13,7 @@
 #include <string.h>
 #include <dynamic_buffer.h>
 #include <error_macros.h>
+#include <debug.h>
 
 int init_buffer(TDynamic_buffer *b, size_t initial_length) {
     args_assert(b != NULL && initial_length > 0, INTERNAL_ERROR);
