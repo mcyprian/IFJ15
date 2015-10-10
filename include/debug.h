@@ -17,7 +17,7 @@
  */
 #define debug_print(fmt, ...)                                                  \
     do {                                                                       \
-	fprintf(stderr, "[DEBUG] (%s:%d:%s) " fmt, __FILE__, __LINE__,         \
+	fprintf(stderr, "[DEBUG_PRINT] (%s:%d:%s) " fmt, __FILE__, __LINE__,         \
                     __func__, __VA_ARGS__);                                    \
     } while(0)
 

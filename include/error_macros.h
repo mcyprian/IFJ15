@@ -181,7 +181,7 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
         if ((var) == (value)) {                                         \
                 fprintf(stderr, "[DIV ERROR] (%s:%s:%d) " msg "\n",     \
                         __FILE__, __func__, __LINE__);                  \
-                exit(DIV_ZERO_ERROR);                                   \
+                return DIV_ZERO_ERROR;                                   \
         }                                                               \
     } while (0)
 
