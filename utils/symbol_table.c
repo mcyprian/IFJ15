@@ -10,16 +10,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "symbol_table.h"
+#include <error_macros.h>
+#include <debug.h>
+#include <symbol_table.h>
 
-void Symbol_Table_Init(Ttree *tree) {
+void symbol_table_init(Ttree *tree) {
 
 	tree = NULL;
 }
 
-int Get_Key(char *lexeme_identifier) {
+int get_key(char *lexeme_identifier) {
+	
+	args_assert(lexeme_identifier != NULL, INTERNAL_ERROR);
 
-	int i, key;
+	int i, key = 0;
 
 	for( i=0; lexeme_identifier[i]!='\0'; i++) {
 		key += lexeme_identifier[i];
@@ -28,58 +32,58 @@ int Get_Key(char *lexeme_identifier) {
 	return key;
 }
 
-Ttree* Search_Token(Ttree **tree, char *lexeme_identifier) {
+Ttree* search_token(Ttree **tree, char *lexeme_identifier) {
+	
+	args_assert(lexeme_identifier != NULL, INTERNAL_ERROR);
 
-	int key = Get_Key(lexeme_identifier);
+	int key = get_key(lexeme_identifier);
 
 	if (*tree == NULL) {
 		return NULL;
 	}
 	else if( key < (*tree)->key) {
-		Search_Token(&((*tree)->left), lexeme_identifier);
+		search_token(&((*tree)->left), lexeme_identifier);
 	}
 	else if( key > (*tree)->key) {
-		Search_Token(&((*tree)->right), lexeme_identifier);
+		search_token(&((*tree)->right), lexeme_identifier);
 	}
 	else if( key == (*tree)->key) {
 		return *tree;
 	}
 }
 
-int Add_Lexeme(Ttree **tree, char *lexeme_identifier) {
+int add_lexeme(Ttree **tree, char *lexeme_identifier) {
+	
+	args_assert(lexeme_identifier != NULL, INTERNAL_ERROR);
 
-	Ttree *temporary = NULL;
-	int key = Get_Key(lexeme_identifier);
-	Tlexeme_data lexeme = { .token_type = IDENTIFIER, .lexeme_identifier = lexeme_identifier };
+	Ttree *tmp = NULL;
+	int key = get_key(lexeme_identifier);
+	Tlexeme_data lexeme = { .token_data_type = IDENTIFIER, .lexeme_identifier = lexeme_identifier };
 
 	if(*tree == NULL) {
-		temporary = (Ttree *)malloc(sizeof(Ttree));
-		if(temporary == NULL) {
-			fprintf(stderr, "Malloc error!");
-			return -1;
-		}
-
-		temporary->left = temporary->right = NULL;
-		temporary->lexeme = lexeme;
-		temporary->key = key;
-		*tree = temporary;
+		tmp = (Ttree *)malloc(sizeof(Ttree));
+		catch_internal_error(tmp, NULL, "Failed to allocate memory.");
+		tmp->left = tmp->right = NULL;
+		tmp->lexeme = lexeme;
+		tmp->key = key;
+		*tree = tmp;
 
 		return key;
 	}
 
 	if(key < (*tree)->key) {
-		Add_Lexeme(&((*tree)->left), lexeme_identifier);
+		add_lexeme(&((*tree)->left), lexeme_identifier);
 	}
 
 	else if(key > (*tree)->key) {
-		Add_Lexeme(&((*tree)->right), lexeme_identifier);
+		add_lexeme(&((*tree)->right), lexeme_identifier);
 	}
 }
 
-void Del_Symbol_Table(Ttree *tree) {
+void del_symbol_table(Ttree *tree) {
 	if(tree){
-		Del_Symbol_Table(tree->right);
-		Del_Symbol_Table(tree->left);
+		del_symbol_table(tree->right);
+		del_symbol_table(tree->left);
 		free(tree);
 	}
 }
