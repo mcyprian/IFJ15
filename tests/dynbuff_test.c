@@ -110,12 +110,32 @@ START_TEST (test_read) //consult
 }
 END_TEST
 
+START_TEST (test_token)
+{
+	TDynamic_buffer buff;
+	ck_assert_int_eq(init_buffer(&buff, 1), 0);
 
+	char * ptr = NULL;
+
+	for(int i = 0 ; i < 10 ; i++)
+		ck_assert_int_eq(add_char(&buff, 'a'), 0);	
+	ck_assert_ptr_eq(ptr = save_token(&buff), read_buffer(&buff));
+
+	for(int i = 0 ; i < 10 ; i++)
+		ck_assert_int_eq(add_char(&buff, 'b'), 0);
+	ck_assert_int_eq(*save_token(&buff), 'b');
+
+	ck_assert_str_eq(get_str(&buff, 11), "aaaaaaaaaa");
+	ck_assert_str_eq(get_str(&buff, 11), "bbbbbbbbbb");
+
+	free_buffer(&buff);
+}
+END_TEST
 
 Suite * dynbuff_suite(void)
 {
 	Suite *s;
-	TCase *tc_init, *tc_add_c, *tc_add_str, *tc_empty, *tc_read;
+	TCase *tc_init, *tc_add_c, *tc_add_str, *tc_empty, *tc_read, *tc_save;
 	s = suite_create("DynamicBuffer");
       
 	tc_init = tcase_create("Init");
@@ -137,6 +157,10 @@ Suite * dynbuff_suite(void)
 	tc_read = tcase_create("READ");
 	tcase_add_test(tc_read, test_read);
 	suite_add_tcase(s, tc_read);
+
+	tc_save = tcase_create("SAVE");
+	tcase_add_test(tc_save, test_token);
+	suite_add_tcase(s, tc_save);
 
 	return s;
 }
