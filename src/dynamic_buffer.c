@@ -16,6 +16,7 @@
 #include <debug.h>
 
 int init_buffer(TDynamic_buffer *b, size_t initial_length) {
+    debug_print("%s\n", "BUFFER INIT");
     args_assert(b != NULL && initial_length > 0, INTERNAL_ERROR);
     b->buffer = malloc(initial_length);
     catch_internal_error(b->buffer, NULL, "Failed to allocate memory for buffer."); 
@@ -31,6 +32,7 @@ int realloc_buffer(TDynamic_buffer *b, size_t size) {
     char *tmp = NULL;
     b->length *= 2;
     b->length += size;
+    debug_print("%s: %d\n", "REALLOCATED TO", b->length);
     tmp = realloc(b->buffer, b->length);	
 	catch_internal_error(tmp, NULL, "Failed to realloc memory for buffer.");
 	b->buffer = tmp;
@@ -38,6 +40,7 @@ int realloc_buffer(TDynamic_buffer *b, size_t size) {
 }
 
 void free_buffer(TDynamic_buffer *b) {
+    debug_print("%s\n", "FREE BUFFER", b->length);
     if(b != NULL)
 		free(b->buffer);
 }
@@ -97,6 +100,7 @@ char *save_token(TDynamic_buffer *b) {
 }
 
 int empty_buffer(TDynamic_buffer *b) {
+    debug_print("%s\n", "EMPTY BUFFER", b->length);
     args_assert(b != NULL, INTERNAL_ERROR);
     b->writing_index = 0;
     b->reading_index = 0;
