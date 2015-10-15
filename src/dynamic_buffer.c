@@ -40,7 +40,7 @@ int realloc_buffer(TDynamic_buffer *b, size_t size) {
 }
 
 void free_buffer(TDynamic_buffer *b) {
-    debug_print("%s\n", "FREE BUFFER", b->length);
+    debug_print("%s\n", "FREE BUFFER");
     if(b != NULL)
 		free(b->buffer);
 }
@@ -100,7 +100,7 @@ char *save_token(TDynamic_buffer *b) {
 }
 
 int empty_buffer(TDynamic_buffer *b) {
-    debug_print("%s\n", "EMPTY BUFFER", b->length);
+    debug_print("%s\n", "EMPTY BUFFER");
     args_assert(b != NULL, INTERNAL_ERROR);
     b->writing_index = 0;
     b->reading_index = 0;
