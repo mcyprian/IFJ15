@@ -1,3 +1,4 @@
+#include <scanner.h>
 #include <stdio.h>
 #include <io.h>
 
@@ -24,8 +25,10 @@ int main(int argc, char ** argv){
 		goto DEFAULT;
 	}
 
-	if((iRet = read_from_file(f, &buff)) != RETURN_OK)
-		goto CLOSE_FILE;
+	// if((iRet = read_from_file(f, &buff)) != RETURN_OK)
+	// 	goto CLOSE_FILE;
+
+	tokenize(f, &buff);
 
 CLOSE_FILE:
 	fclose(f);

@@ -11,8 +11,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <dynamic_buffer.h>
 
-enum {START, IDENTIFIER, OPERATOR};
+enum {START, IDENTIFIER, INTEGER, DOUBLE, EQUALS, LESS, GREATER, EXCLAMATION, ARROW};
 
-
-int tokenize(FILE *fin);
+int tokenize(FILE *fin, TDynamic_buffer *b);
