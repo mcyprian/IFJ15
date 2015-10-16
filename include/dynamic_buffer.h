@@ -71,9 +71,16 @@ char *get_str(TDynamic_buffer *b, unsigned num);
 
 /** Move writing index to next position.
  * @param b pointer to TDynamic_buffer
- * @return pointer to finished token, NULL on error. 
+ * @return index to beggining of finished token, INTERNAL_ERROR on error. 
  */
-char *save_token(TDynamic_buffer *b);
+unsigned save_token(TDynamic_buffer *b);
+
+/** Dereferance given index in dynamic buffer.
+ * @param b pointer to TDynamic_buffer
+ * @index index returned from save_token
+ * @return pointer to token string stored in b
+ */
+char *get_token(TDynamic_buffer *b, unsigned index);
 
 /** Reinitialeze buffer to start writing to the begginig.
  * @param b pointer to TDynamic buffer
