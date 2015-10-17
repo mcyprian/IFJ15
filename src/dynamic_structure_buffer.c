@@ -18,13 +18,15 @@ int init_structure_buffer(TDynamic_structure_buffer *b, size_t initial_length, s
 	debug_print("%s\n", "STRUCT BUFFER INIT");
 	args_assert(b != NULL && initial_length > 0, INTERNAL_ERROR);
 
+	initial_length++;
+
 	b->buffer = calloc(initial_length,  size_of_type);
 	catch_internal_error(b->buffer, NULL, "Failed to allocate memory for buffer.1");
 
 	b->flags = calloc(initial_length, 1);
 	catch_internal_error(b->flags, NULL, "Failed to allocate memory for buffer.2");
 	
-	b->next_free = 0;
+	b->next_free = 1;
 	b->length = initial_length;
 	b->size_of_type = size_of_type;
 
@@ -62,9 +64,8 @@ void free_structure_buffer(TDynamic_structure_buffer *b){
 	}
 }
 
-int get_free_element_index(TDynamic_structure_buffer *b, unsigned long * index){
+int get_free_element_index(TDynamic_structure_buffer *b, index_t * index){
 	args_assert(b != NULL && index != NULL, INTERNAL_ERROR);
-	debug_print("next = %d, len = %d\n", b->next_free, b->length);
 
 	if(b->next_free >= b->length)
 		catch_internal_error(realloc_structure_buffer(b), INTERNAL_ERROR, "Failed to realloc buffer.");
@@ -80,7 +81,7 @@ int get_free_element_index(TDynamic_structure_buffer *b, unsigned long * index){
 	return RETURN_OK;	
 }
 
-int dereference_structure(TDynamic_structure_buffer *b, unsigned long  index, void ** structure){
+int dereference_structure(TDynamic_structure_buffer *b, index_t  index, void ** structure){
 	args_assert(b != NULL && structure != NULL, INTERNAL_ERROR);
 
 	catch_internal_error(index >= b->length, 1, "Bad index.");
@@ -90,7 +91,7 @@ int dereference_structure(TDynamic_structure_buffer *b, unsigned long  index, vo
 	return RETURN_OK;
 }
 
-int free_element(TDynamic_structure_buffer *b, unsigned long index){
+int free_element(TDynamic_structure_buffer *b, index_t index){
 	args_assert(b != NULL, INTERNAL_ERROR);	
 
 	catch_internal_error(index >= b->length, 1, "Bad index.");

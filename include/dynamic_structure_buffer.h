@@ -7,14 +7,20 @@
  * Header file for dynamic_structure
  */
 
+ 
 #ifndef DYNAMIC_STRUCTURE_BUFFER_H
 #define DYNAMIC_STRUCTURE_BUFFER_H
 
+#include <stdio.h>
+#include <datatypes.h>
+
+#define ZERO_INDEX 0
+
 typedef struct {
    size_t size_of_type;
-    unsigned long length;
-    unsigned long next_free;
-    void * buffer;
+   index_t length;
+   index_t next_free;
+   void * buffer;
    char * flags;
 } TDynamic_structure_buffer;
 
@@ -42,7 +48,7 @@ void free_structure_buffer(TDynamic_structure_buffer *b);
  * @param Index Place for saving index of free structure
  * @return Returns INTERNAL_ERROR of RETURN_OK
  */
-int get_free_element_index(TDynamic_structure_buffer *b, unsigned long * index);
+int get_free_element_index(TDynamic_structure_buffer *b, index_t * index);
 
 /** Get pointer to structure on indexfrom buffer
  * @param b Pointer to TDynamic_structure_buffer
@@ -50,14 +56,14 @@ int get_free_element_index(TDynamic_structure_buffer *b, unsigned long * index);
  * @param structure Place for saving address of structure
  * @return Returns INTERNAL_ERROR of RETURN_OK
  */
-int dereference_structure(TDynamic_structure_buffer *b, unsigned long  index, void ** structure);
+int dereference_structure(TDynamic_structure_buffer *b, index_t  index, void ** structure);
 
 /** Move writing index to next position.
  * @param b pointer to TDynamic_buffer
  * @param index Index of structure
  * @return Return INTERNAL_ERROR of RETURN_OK
  */
-int free_element(TDynamic_structure_buffer *b, unsigned long index);
+int free_element(TDynamic_structure_buffer *b, index_t index);
 
 #endif // !DYNAMIC_STRUCTURE_H
 

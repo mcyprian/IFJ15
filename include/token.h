@@ -10,9 +10,9 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <datatypes.h>
 #include <dynamic_structure_buffer.h>
 
-typedef unsigned long index_t;
 
 typedef struct {
     index_t token_index;           // Index to token string in dynamic_buffer
