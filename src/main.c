@@ -1,6 +1,7 @@
-#include <scanner.h>
 #include <stdio.h>
-#include <io.h>
+#include <debug.h>
+#include <error_macros.h>
+#include <scanner.h>
 
 int main(int argc, char ** argv){
 
@@ -25,14 +26,8 @@ int main(int argc, char ** argv){
 		goto DEFAULT;
 	}
 
-	// if((iRet = read_from_file(f, &buff)) != RETURN_OK)
-	// 	goto CLOSE_FILE;
-
 	tokenize(f, &buff);
-
-CLOSE_FILE:
 	fclose(f);
-	
 DEFAULT:
 	free_buffer(&buff);
 	debug_print("%s: %d\n", "RETURN", iRet );
