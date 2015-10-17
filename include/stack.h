@@ -18,6 +18,12 @@ typedef struct {
     unsigned long length;
 } TStack;
 
+/** Initialize stack
+ * @param stack to be inicialized
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
+int init_stack(TStack *stack);
+
 /** Pushes TToken on given index to the top of stack
  * @param b pointer to dynamic_structure_buffer
  * @param stack item is going to be pushed into

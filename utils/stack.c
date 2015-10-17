@@ -14,6 +14,13 @@
 #include <debug.h>
 #include <error_macros.h>
 
+int init_stack(TStack *stack) {
+    args_assert(stack != NULL, INTERNAL_ERROR);
+    stack->top = ZERO_INDEX;
+    stack->length = 0;
+    return RETURN_OK;
+}
+
 int push(TDynamic_structure_buffer *b, TStack *stack, index_t item) {
     args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
     TToken *tmp = NULL;
@@ -32,7 +39,7 @@ int push(TDynamic_structure_buffer *b, TStack *stack, index_t item) {
 }
 
 index_t pop(TDynamic_structure_buffer *b, TStack *stack) {
-    args_assert(b != NULL &&  stack != NULL, NULL);
+    args_assert(b != NULL &&  stack != NULL, INTERNAL_ERROR);
     TToken *tmp = NULL;
     index_t old_top = stack->top;
     if (dereference_structure(b, stack->top, (void**)&tmp) ==  INTERNAL_ERROR)
@@ -46,7 +53,7 @@ index_t pop(TDynamic_structure_buffer *b, TStack *stack) {
 }
 
 int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, int *values) {
-    args_assert(b != NULL && stack != NULL && n > 0, NULL);
+    args_assert(b != NULL && stack != NULL && n > 0, INTERNAL_ERROR);
     TToken *tmp = NULL;
     index_t next = ZERO_INDEX;
     catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,
