@@ -15,8 +15,8 @@
 #include <debug.h>
 
 int init_structure_buffer(TDynamic_structure_buffer *b, size_t initial_length, size_t size_of_type){
-	debug_print("%s\n", "STRUCT BUFFER INIT");
 	args_assert(b != NULL && initial_length > 0, INTERNAL_ERROR);
+	debug_print("%s\n", "STRUCT BUFFER INIT");
 
 	initial_length++;
 
