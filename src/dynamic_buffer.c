@@ -87,16 +87,16 @@ char *get_str(TDynamic_buffer *b, unsigned num) {
     return (b->buffer + b->reading_index - num);
 }
 
-unsigned save_token(TDynamic_buffer *b) {
+index_t save_token(TDynamic_buffer *b) {
     args_assert(b != NULL, INTERNAL_ERROR);
-    static unsigned start = 0;
+    static index_t start = 0;
     b->writing_index++;
-    unsigned previous = start;
+    index_t previous = start;
     start = b->writing_index;
     return previous;
 }
 
-char *get_token(TDynamic_buffer *b, unsigned index) {
+char *get_token(TDynamic_buffer *b, index_t index) {
     args_assert(b != NULL, NULL);
     return b->buffer + index;
 }

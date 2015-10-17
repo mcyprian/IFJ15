@@ -10,10 +10,12 @@
 #ifndef DYNAMIC_BUFFER_H
 #define DYNAMIC_BUFFER_H
 
+#include <token.h>
+
 typedef struct {
-    unsigned length;
-    unsigned writing_index;
-    unsigned reading_index;
+    unsigned long length;
+    index_t  writing_index;
+    index_t reading_index;
     char *buffer;
 } TDynamic_buffer;
 
@@ -73,14 +75,14 @@ char *get_str(TDynamic_buffer *b, unsigned num);
  * @param b pointer to TDynamic_buffer
  * @return index to beggining of finished token, INTERNAL_ERROR on error. 
  */
-unsigned save_token(TDynamic_buffer *b);
+index_t save_token(TDynamic_buffer *b);
 
 /** Dereferance given index in dynamic buffer.
  * @param b pointer to TDynamic_buffer
  * @index index returned from save_token
  * @return pointer to token string stored in b
  */
-char *get_token(TDynamic_buffer *b, unsigned index);
+char *get_token(TDynamic_buffer *b, index_t index);
 
 /** Reinitialeze buffer to start writing to the begginig.
  * @param b pointer to TDynamic buffer
