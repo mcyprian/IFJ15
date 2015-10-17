@@ -32,7 +32,7 @@ int realloc_buffer(TDynamic_buffer *b, size_t size) {
     char *tmp = NULL;
     b->length *= 2;
     b->length += size;
-    debug_print("%s: %d\n", "REALLOCATED TO", b->length);
+    debug_print("%s: %lu\n", "REALLOCATED TO", b->length);
     tmp = realloc(b->buffer, b->length);	
 	catch_internal_error(tmp, NULL, "Failed to realloc memory for buffer.");
 	b->buffer = tmp;
