@@ -1,38 +1,36 @@
 #include <stack.h>
+#include <dynamic_structure_buffer.h>
+#include <token.h>
+#include <error_macros.h>
+
+#define NUM 10
 
 int main() {
-    TDynamic_buffer b;
-    init_structure_buffer(&b, 5, sizeof(TItem));
+    TDynamic_structure_buffer b;
+    init_structure_buffer(&b, 5, sizeof(TToken));
+    TStack stack = {.top = ZERO_INDEX, .length = 0};
     TToken *item;
     index_t index;
-    index_t items[3];
-    int values[5];
+    int values[NUM];
 
-    for (int i = 0; i < 3; i++) {
-        new_item(&b, index, item)
+    for (int i = 0; i < NUM; i++) {
+        new_item(&b, index, item);
         item->token_type = i*10;
         push(&b, &stack, index);
-        items[i] = index;
     }
-    
-    get_types(&b, &stack, 3, values);
+   
+    get_types(&b, &stack, NUM, values);
 
-    for (int i = 0; i < 3; i++)
-        printf("%d ", values[i]);"
+    for (int i = 0; i < NUM; i++)
+        printf("%d ", values[i]);
     putchar('\n');
 
-    dereferance_structure(&b, pop(&b, &stack), (void**)(&item));
-    printf("Top of stack: %d\n", item->token_type);
-    printf("Stack length: %d\n", stack.length);
-
-    dereferance_structure(&b, pop(&b, &stack), (void**)(&item));
-    printf("Top of stack: %d\n", item->token_type);
-
-    printf("Stack length: %d\n", stack.length);
-
-    dereferance_structure(&b, pop(&b, &stack), (void**)(&item));
-    printf("Top of stack: %d\n", item->token_type);
-    printf("Stack length: %d\n", stack.length);
+    for (int i = 0; i < NUM; i++) {
+        dereference_structure(&b, pop(&b, &stack), (void**)(&item));
+        printf("Top of stack: %d\n", item->token_type);
+        printf("Stack length: %lu\n", stack.length);
+    }
+    free_structure_buffer(&b);
 
     return 0;
 }

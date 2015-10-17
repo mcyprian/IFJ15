@@ -20,7 +20,7 @@ int push(TDynamic_structure_buffer *b, TStack *stack, index_t item) {
     if (stack->top == ZERO_INDEX) 
         stack->top = item;
     else {
-        catch_internal_error(dereference_structure(&b, item, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+        catch_internal_error(dereference_structure(b, item, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
         if (tmp->expr_next != ZERO_INDEX)
             tmp->expr_next = stack->top;
         else
@@ -35,7 +35,7 @@ index_t pop(TDynamic_structure_buffer *b, TStack *stack) {
     args_assert(b != NULL &&  stack != NULL, NULL);
     TToken *tmp = NULL;
     index_t old_top = stack->top;
-    if (dereference_structure(&b, stack->top, (void**)&tmp) ==  INTERNAL_ERROR)
+    if (dereference_structure(b, stack->top, (void**)&tmp) ==  INTERNAL_ERROR)
         return ZERO_INDEX;
     if (tmp->expr_next != ZERO_INDEX)
         stack->top = tmp->expr_next;
@@ -45,11 +45,11 @@ index_t pop(TDynamic_structure_buffer *b, TStack *stack) {
     return old_top;
 }
 
-int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, unsigned *values) {
+int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, int *values) {
     args_assert(b != NULL && stack != NULL && n > 0, NULL);
     TToken *tmp = NULL;
     index_t next = ZERO_INDEX;
-    catch_internal_error(dereference_structure(&b, stack->top, (void**)&tmp), INTERNAL_ERROR,
+    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,
             "Failed to dereference structure buffer.");
     for (int i = 0; i < n; i++) {
         if (tmp->expr_next != ZERO_INDEX) {
@@ -61,8 +61,8 @@ int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, unsigned *valu
             if ((next = tmp->token_next) == ZERO_INDEX)
                 return INTERNAL_ERROR;
         }
-        if (dereference_structure(&b, next, (void**)&tmp) ==  INTERNAL_ERROR)
+        if (dereference_structure(b, next, (void**)&tmp) ==  INTERNAL_ERROR)
             return INTERNAL_ERROR;
     }
-    return values;
+    return RETURN_OK;
 }

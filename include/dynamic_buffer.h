@@ -11,6 +11,7 @@
 #define DYNAMIC_BUFFER_H
 
 #include <token.h>
+#include <datatypes.h>
 
 typedef struct {
     unsigned long length;

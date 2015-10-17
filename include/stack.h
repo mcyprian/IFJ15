@@ -10,6 +10,9 @@
 #ifndef STACK_H
 #define STACK_H
 
+#include <datatypes.h>
+#include <dynamic_structure_buffer.h>
+
 typedef struct {
     index_t top;
     unsigned long length;
@@ -38,6 +41,6 @@ index_t pop(TDynamic_structure_buffer *b, TStack *stack);
  * @param values array to write results
  * @return RETURN_OK on success, INTERNAL_ERROR on error
  */
-int get_values(TDynamic_structure_buffer *b, TStack *stack, int n, unsigned *values);
+int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, int *values);
 
 #endif // !STACK_H
