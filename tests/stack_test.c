@@ -49,7 +49,7 @@ START_TEST (test_expr) {
     index_t first_index;
     int values[NUM];
     
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
         new_item(&b, index, item);
         item->token_type = i*10;
         push(&b, &stack, index);
@@ -57,8 +57,7 @@ START_TEST (test_expr) {
             first_index = index;
 
     }
-    item->expr_next = first_index;
-    item->expr_type = 33;
+    ck_assert_int_eq(reduce(&b, &stack, 3, 33), RETURN_OK);
 
     get_types(&b, &stack, 2, values);
     ck_assert_int_eq(values[0], 33);
@@ -68,13 +67,17 @@ START_TEST (test_expr) {
     item->token_type = 9;
     push(&b, &stack, index);
 
-    get_types(&b, &stack, 2, values);
+    get_types(&b, &stack, 3, values);
     ck_assert_int_eq(values[0], 9);
     ck_assert_int_eq(values[1], 33);
+    ck_assert_int_eq(values[2], 0);
 
-    item->expr_next = first_index;
-    item->expr_type = 9;
+    reduce(&b, &stack, 2, 9);
     get_types(&b, &stack, 2, values);
+    ck_assert_int_eq(values[0], 9);
+    ck_assert_int_eq(values[1], 0);
+
+    ck_assert_int_eq(reduce(&b, &stack, 3, 0), INTERNAL_ERROR); // There are 2 items on stack, must fail
     ck_assert_int_eq(values[0], 9);
     ck_assert_int_eq(values[1], 0);
 

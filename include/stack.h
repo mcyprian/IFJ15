@@ -49,4 +49,13 @@ index_t pop(TDynamic_structure_buffer *b, TStack *stack);
  */
 int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, int *values);
 
+/** Reduces n item on top of the stack to expr of given type
+ * @param b pointer to dynamic_structure_buffer
+ * @param stack pointer to stack
+ * @param n number of item to be reduced
+ * @param expr_type type of new expression
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
+int reduce(TDynamic_structure_buffer *b, TStack *stack, int n, int expr_type);
+
 #endif // !STACK_H

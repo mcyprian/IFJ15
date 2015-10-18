@@ -73,3 +73,29 @@ int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, int *values) {
     }
     return RETURN_OK;
 }
+
+int reduce(TDynamic_structure_buffer *b, TStack *stack, int n, int expr_type) {
+    args_assert(b != NULL && stack != NULL && n > 0, INTERNAL_ERROR);
+    TToken *tmp = NULL;
+    index_t next = ZERO_INDEX;
+    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,
+            "Failed to dereference structure buffer.");
+    for (int i = 0; i < n; i++) {
+        if (tmp->expr_next != ZERO_INDEX) {
+            if ((next = tmp->expr_next) == ZERO_INDEX)
+                return INTERNAL_ERROR;
+        } else {
+            if ((next = tmp->token_next) == ZERO_INDEX)
+                return INTERNAL_ERROR;
+        }
+        if (dereference_structure(b, next, (void**)&tmp) ==  INTERNAL_ERROR)
+            return INTERNAL_ERROR;
+    }                                        // next holds index to n + 1 element on stack
+    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,
+            "Failed to dereference structure buffer.");
+    tmp->expr_next = next;  // TODO in case expr->anything we lost information aobut previous expr.
+    tmp->expr_type = expr_type;
+    return RETURN_OK;
+}
+
+
