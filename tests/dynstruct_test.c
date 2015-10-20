@@ -10,7 +10,7 @@ typedef struct {
     long next;
 } TItem;
 
-#define COUNT 10
+#define COUNT 100000
 START_TEST (test_init)
 {
 	TDynamic_structure_buffer b; 
@@ -79,7 +79,6 @@ START_TEST (get_elem_test)
     index_t index;
     index_t length;
 
-    ck_assert_int_eq(get_free_element_index(&b, &index), INTERNAL_ERROR);
     init_structure_buffer(&b, COUNT, sizeof(TItem));
     length = b.length;
  
@@ -101,7 +100,6 @@ START_TEST (free_elem_test)
 {
     TDynamic_structure_buffer b;
     index_t index;
-    index_t length;
 
     ck_assert_int_eq(free_element(&b, index), INTERNAL_ERROR);
     init_structure_buffer(&b, COUNT, sizeof(TItem));
