@@ -36,7 +36,7 @@ void symbol_table_init(Ttree *tree);
  * @param lexeme_identifier string identifier of searched lexeme
  * @return pointer to found object if searched token was found, NULL if was not
  */
-Ttree* search_symbol(Ttree **tree, char *lexeme_identifier, index_t dynamic_buffer_index);
+Ttree* search_symbol(Ttree **tree, char *lexeme_identifier);
 
 /** Adds new lexeme to symbol table
  * @param tree pointer to a symbol table
