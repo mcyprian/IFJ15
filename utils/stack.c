@@ -16,6 +16,7 @@
 
 int init_stack(TStack *stack) {
     args_assert(stack != NULL, INTERNAL_ERROR);
+    debug_print("%s\n", "STACK INIT");
     stack->top = ZERO_INDEX;
     stack->length = 0;
     return RETURN_OK;
@@ -23,6 +24,7 @@ int init_stack(TStack *stack) {
 
 int push(TDynamic_structure_buffer *b, TStack *stack, index_t item) {
     args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
+    debug_print("%s %lu\n", "PUSH ", item);
     TToken *tmp = NULL;
     if (stack->top == ZERO_INDEX) 
         stack->top = item;
@@ -40,7 +42,10 @@ int push(TDynamic_structure_buffer *b, TStack *stack, index_t item) {
 
 index_t pop(TDynamic_structure_buffer *b, TStack *stack) {
     args_assert(b != NULL &&  stack != NULL, INTERNAL_ERROR);
+    debug_print("%s %lu\n", "POP ", stack->top);
     TToken *tmp = NULL;
+    if (stack->top == ZERO_INDEX)
+        return ZERO_INDEX;
     index_t old_top = stack->top;
     if (dereference_structure(b, stack->top, (void**)&tmp) ==  INTERNAL_ERROR)
         return ZERO_INDEX;
@@ -54,6 +59,7 @@ index_t pop(TDynamic_structure_buffer *b, TStack *stack) {
 
 int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, int *values) {
     args_assert(b != NULL && stack != NULL && n > 0, INTERNAL_ERROR);
+    debug_print("%s %d\n", "GET TYPES OF ", n);
     TToken *tmp = NULL;
     index_t next = ZERO_INDEX;
     catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,

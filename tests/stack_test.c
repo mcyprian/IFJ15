@@ -9,14 +9,17 @@
 
 START_TEST (test_main) {
     TDynamic_structure_buffer b;
-    init_structure_buffer(&b, NUM, sizeof(TToken));
     TStack stack;
+    
+    init_structure_buffer(&b, NUM, sizeof(TToken));
     init_stack(&stack);
     ck_assert_int_eq(stack.length, 0);
     ck_assert_int_eq(stack.top, ZERO_INDEX);
     TToken *item;
     index_t index;
     int values[NUM];
+
+    ck_assert_int_eq(pop(&b, &stack), ZERO_INDEX);
 
     for (int i = 0; i < NUM; i++) {
         new_item(&b, index, item);
