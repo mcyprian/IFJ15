@@ -34,29 +34,29 @@ unsigned long hash_key(unsigned char *str) {
 	return hash;
 }
 
-Ttree* search_symbol(Ttree **tree, char *lexeme_identifier, index_t dynamic_buffer_index) {
+Ttree* search_symbol(Ttree **tree, char *lexeme_identifier) {
 	
 	args_assert(lexeme_identifier != NULL, INTERNAL_ERROR);
 
 	Ttree *tmp;
 
-	int key = hash_key(lexeme_identifier);
+	int key = hash_key(lexeme_identifier), s;
 
 	if (*tree == NULL) {
 		return NULL;
 	}
 	else if( key < (*tree)->key) {
-		search_symbol(&((*tree)->left), lexeme_identifier, dynamic_buffer_index);
+		search_symbol(&((*tree)->left), lexeme_identifier);
 	}
 	else if( key > (*tree)->key) {
-		search_symbol(&((*tree)->right), lexeme_identifier, dynamic_buffer_index);
+		search_symbol(&((*tree)->right), lexeme_identifier);
 	}
 	else if( key == (*tree)->key) {
-		if((*tree)->dynamic_buffer_index == dynamic_buffer_index)
+		if((s = strcmp(lexeme_identifier, (*tree)->lexeme.lexeme_identifier)) == 0)
 			return *tree;
 		else {
 			tmp = (*tree)->next;
-			while(tmp->dynamic_buffer_index != dynamic_buffer_index && tmp != NULL)
+			while(((s = strcmp(lexeme_identifier, tmp->lexeme.lexeme_identifier)) != 0) && tmp != NULL)
 				tmp = tmp->next;
 			if(tmp != NULL)
 				return tmp;
