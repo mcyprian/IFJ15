@@ -8,9 +8,15 @@ int main(int argc, char ** argv){
 	debug_print("%s\n", "INIT");
 	int iRet = RETURN_OK;
 	
-	TDynamic_buffer buff;
 
-	if((iRet = init_buffer(&buff, 1000)) != RETURN_OK)
+	TDynamic_structure_buffer struct_buff;
+
+	TDynamic_buffer test_buff;
+
+	if((iRet = init_buffer(&test_buff, 1000)) != RETURN_OK)
+		goto DEFAULT;
+
+	if ((iRet = init_structure_buffer(&struct_buff, 5, sizeof(TToken))) != RETURN_OK)
 		goto DEFAULT;
 
 	if(argc != 2){
@@ -26,10 +32,16 @@ int main(int argc, char ** argv){
 		goto DEFAULT;
 	}
 
-	tokenize(f, &buff);
+	for (int i = 0; i < 10; i++) 
+	{
+		get_token_(f, &test_buff, &struct_buff);
+	}
+
+	//tokenize(f, &test_buff, &struct_buff);
+
 	fclose(f);
 DEFAULT:
-	free_buffer(&buff);
+	free_buffer(&test_buff);
 	debug_print("%s: %d\n", "RETURN", iRet );
 	return iRet;
 }
