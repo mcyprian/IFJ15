@@ -3,14 +3,14 @@
 #include <dynamic_structure_buffer.h>
 #include <check.h>
 #include <datatypes.h>
+#include <math.h>
 
 typedef struct {
     int data;
     long next;
 } TItem;
 
-#define COUNT 100000
-
+#define COUNT 10
 START_TEST (test_init)
 {
 	TDynamic_structure_buffer b; 
@@ -48,10 +48,81 @@ START_TEST (normal_use_test)
 }
 END_TEST
 
+START_TEST (realloc_test)
+{
+    TDynamic_structure_buffer b;
+    init_structure_buffer(&b, 1, sizeof(TItem));
+    
+    for (unsigned i = 0; i < sizeof(TItem); i++)
+        ck_assert_int_eq(*((char*)(b.buffer) + i), 0);
+    ck_assert_int_eq(b.length, 2);
+    ck_assert_int_eq(realloc_structure_buffer(&b), RETURN_OK);
+    
+    for (unsigned i = 0; i < 2 * sizeof(TItem); i++)
+        ck_assert_int_eq(*((char*)(b.buffer) + i), 0);
+    
+    for (int i = 3; i <= 5; i++) {
+        ck_assert_int_eq(realloc_structure_buffer(&b), RETURN_OK);
+        ck_assert_int_eq(b.length, pow(2, i));
+    }
+    for (int i = 0; i < 32; i++)
+        ck_assert_int_eq(b.flags[i], 0);
+
+    ck_assert_int_eq(realloc_structure_buffer(NULL), INTERNAL_ERROR);
+    free_structure_buffer(&b);
+}
+END_TEST
+
+START_TEST (get_elem_test)
+{
+    TDynamic_structure_buffer b;
+    index_t index;
+    index_t length;
+
+    ck_assert_int_eq(get_free_element_index(&b, &index), INTERNAL_ERROR);
+    init_structure_buffer(&b, COUNT, sizeof(TItem));
+    length = b.length;
+ 
+    ck_assert_int_eq(get_free_element_index(NULL, &index), INTERNAL_ERROR);
+    ck_assert_int_eq(get_free_element_index(&b, 0), INTERNAL_ERROR);
+
+    for (int i = 0; i < COUNT; i++) {
+        ck_assert_int_eq(b.flags[i + 1], 0);
+        ck_assert_int_eq(get_free_element_index(&b, &index), RETURN_OK);
+        ck_assert_int_eq(b.flags[index], 1);
+        ck_assert_int_eq(index, i + 1);
+    }
+    ck_assert_int_eq(length, b.length);
+    free_structure_buffer(&b);
+}
+END_TEST
+
+START_TEST (free_elem_test)
+{
+    TDynamic_structure_buffer b;
+    index_t index;
+    index_t length;
+
+    ck_assert_int_eq(free_element(&b, index), INTERNAL_ERROR);
+    init_structure_buffer(&b, COUNT, sizeof(TItem));
+    ck_assert_int_eq(free_element(&b, index), INTERNAL_ERROR);
+
+    for (int i = 0; i < COUNT; i++) {
+        get_free_element_index(&b, &index);
+        ck_assert_int_eq(b.flags[index], 1); 
+        ck_assert_int_eq(free_element(&b, index), RETURN_OK);
+        ck_assert_int_eq(b.flags[index], 0); 
+    }
+    index++;
+    ck_assert_int_eq(free_element(&b, index), RETURN_OK);
+}
+END_TEST
+
+
 Suite * dynbuff_suite(void)
 {
 	Suite *s;
-	TCase *tc_init, *tc_normal;
+	TCase *tc_init, *tc_normal, *tc_realloc, *tc_get_elem, *tc_free_elem;
 	s = suite_create("DynamicStructureBuffer");
 			  
 	tc_init = tcase_create("Init");
@@ -62,7 +133,18 @@ Suite * dynbuff_suite(void)
 	tcase_add_test(tc_normal, normal_use_test);
 	suite_add_tcase(s, tc_normal);
 
-	return s;
+	tc_realloc = tcase_create("Realloc");
+	tcase_add_test(tc_realloc, realloc_test);
+	suite_add_tcase(s, tc_realloc);
+
+	tc_get_elem = tcase_create("GetElem");
+	tcase_add_test(tc_get_elem, get_elem_test);
+	suite_add_tcase(s, tc_get_elem);
+	
+	tc_free_elem = tcase_create("FreeElem");
+	tcase_add_test(tc_free_elem, free_elem_test);
+	suite_add_tcase(s, tc_free_elem);
+    return s;
 }
 
 int main () 
