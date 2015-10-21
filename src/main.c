@@ -32,7 +32,7 @@ int main(int argc, char ** argv){
 		goto DEFAULT;
 	}
 
-	for (int i = 0; i < 10; i++) 
+	for (int i = 0; i < 50; i++) 
 	{
 		get_token_(f, &test_buff, &struct_buff);
 	}
