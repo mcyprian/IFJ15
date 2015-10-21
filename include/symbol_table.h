@@ -12,7 +12,7 @@
 
 #include <datatypes.h>
 
- enum token_types {IDENTIFIER, OPERATOR, KEYWORD};
+// enum token_types {IDENTIFIER, OPERATOR, KEYWORD};
 
 typedef struct {
 	int token_data_type;
@@ -21,20 +21,19 @@ typedef struct {
 
 typedef struct tree {
 	Tlexeme_data lexeme;
-	int key;
+	unsigned long key;
 	index_t dynamic_buffer_index;
 	struct tree *right, *left, *next;
 }Ttree;
 
-/** Initializes symbol table.
- * @param tree pointer to Ttree (structure of binary tree's node)
- */
-void symbol_table_init(Ttree *tree);
+/**
+*/
+unsigned long hash_key(char *str);
 
 /** Searches exact lexeme in symbol table according to its identifier.
  * @param tree pointer to a symbol table
  * @param lexeme_identifier string identifier of searched lexeme
- * @return pointer to found object if searched token was found, NULL if was not
+ * @return pointer to found object if searched token was found, NULL if it was not
  */
 Ttree* search_symbol(Ttree **tree, char *lexeme_identifier);
 
@@ -54,5 +53,6 @@ void del_symbol_table(Ttree *tree);
  * @param tree pointer to a list node
  */
 void del_list(Ttree *list);
+
 
 #endif

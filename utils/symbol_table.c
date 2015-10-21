@@ -14,21 +14,16 @@
 #include <debug.h>
 #include <symbol_table.h>
 #include <datatypes.h>
+#include <scanner.h>
 
-
-void symbol_table_init(Ttree *tree) {
-
-	tree = NULL;
-}
-
-unsigned long hash_key(unsigned char *str) {
+unsigned long hash_key(char *str) {
 
 	args_assert(str != NULL, INTERNAL_ERROR);
 
 	unsigned long hash = 5381;
 	int c;
 
-	while (c = *str++)
+	while ((c = (*str)++))
 		hash = ((hash << 5) + hash) + c;
 
 	return hash;
@@ -36,11 +31,11 @@ unsigned long hash_key(unsigned char *str) {
 
 Ttree* search_symbol(Ttree **tree, char *lexeme_identifier) {
 	
-	args_assert(lexeme_identifier != NULL, INTERNAL_ERROR);
+	// args_assert(lexeme_identifier != NULL, INTERNAL_ERROR); 			// nemoze vraciat int
 
 	Ttree *tmp;
 
-	int key = hash_key(lexeme_identifier), s;
+	unsigned long key = hash_key(lexeme_identifier), s;
 
 	if (*tree == NULL) {
 		return NULL;
@@ -63,8 +58,9 @@ Ttree* search_symbol(Ttree **tree, char *lexeme_identifier) {
 			else
 				return NULL;
 		}
-
 	}
+	return NULL;
+
 }
 
 int add_symbol(Ttree **tree, char *lexeme_identifier, index_t dynamic_buffer_index) {
@@ -72,7 +68,7 @@ int add_symbol(Ttree **tree, char *lexeme_identifier, index_t dynamic_buffer_ind
 	args_assert(lexeme_identifier != NULL, INTERNAL_ERROR);
 
 	Ttree *tmp = NULL, *list;
-	int key = hash_key(lexeme_identifier);
+	unsigned long key = hash_key(lexeme_identifier);
 	Tlexeme_data lexeme = { .token_data_type = IDENTIFIER, .lexeme_identifier = lexeme_identifier };
 
 	if(*tree == NULL) {
@@ -90,11 +86,9 @@ int add_symbol(Ttree **tree, char *lexeme_identifier, index_t dynamic_buffer_ind
 	if(key < (*tree)->key) {
 		add_symbol(&((*tree)->left), lexeme_identifier, dynamic_buffer_index);
 	}
-
 	else if(key > (*tree)->key) {
 		add_symbol(&((*tree)->right), lexeme_identifier, dynamic_buffer_index);
 	}
-
 	else if(key == (*tree)->key) {
 			list = (*tree)->next;
 			while (list!= NULL) {
@@ -108,12 +102,15 @@ int add_symbol(Ttree **tree, char *lexeme_identifier, index_t dynamic_buffer_ind
 			tmp->dynamic_buffer_index = dynamic_buffer_index;
 			list = tmp;
 	}
+
+	return 0; // zatial vracia 0, len nech nieco vracia a nehadze tie warningy
 }
 
 void del_symbol_table(Ttree *tree) {
 	if(tree){
 		if(tree->next)
 			del_list(tree->next);
+
 		del_symbol_table(tree->right);
 		del_symbol_table(tree->left);
 		free(tree);
