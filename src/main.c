@@ -37,6 +37,11 @@ int main(int argc, char ** argv){
 		get_token_(f, &test_buff, &struct_buff);
 	}
 
+	// while (strcmp("EOF", get_token(buffer, get_token_(f, &test_buff, &struct_buff))))
+	// {
+	// 	printf("\n");
+	// }
+
 	fclose(f);
 
 STRUCT_BUFF:

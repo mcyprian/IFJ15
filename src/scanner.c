@@ -109,9 +109,21 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 
 	while (1) {
 		if (read)
-		{
-			if ((c = fgetc(fin)) == EOF)
-				return 0; // toto treba prerobit, nefunguje pripad ked je v test.txt abcEOF
+		{	
+			c = fgetc(fin);
+
+			if (feof(fin))
+			{
+				new_item(struct_buffer, index, items);
+				add_char(buffer, 'E');
+				add_char(buffer, 'O');
+				add_char(buffer, 'F');
+				token->token_index = save_token(buffer);
+				token->token_type = EOFT;
+				printf("%s    %d\n", get_token(buffer, token->token_index), token->token_type);
+
+				return index;
+			}
 		}
 		else
 		{
@@ -123,8 +135,6 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 		{
 			case START:
 				new_item(struct_buffer, index, items); // pridat overenie, ci to vyslo
-				
-
 
 				if ((c > 64 && c < 91) || (c > 96 && c < 123)) //A-Z || a-z
 				{
@@ -246,6 +256,17 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 							add_char(buffer, c);
 							state = STRING_LITERAL;
 							break;
+
+						default:
+							if (!isspace(c))
+							{
+								add_char(buffer, c);
+								token->token_index = save_token(buffer);
+								token->token_type = ERRORT;
+								printf("%s    %d\n", get_token(buffer, token->token_index), token->token_type);
+								return index;
+							}
+							break;
 					} // switch(c)
 				} // else
 				break;
@@ -302,8 +323,9 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 				}
 				else
 				{
-					previous = c;
-					read = false;
+					// previous = c;
+					// read = false;
+					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
 					token->token_type = OPERATOR;
@@ -335,8 +357,9 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 				}
 				else
 				{
-					previous = c;
-					read = false;
+					// previous = c;
+					// read = false;
+					ungetc(c, fin);
 					token->token_index = save_token(buffer);
 					token->token_type = OPERATOR;
 					printf("%s    %d\n", get_token(buffer, token->token_index), token->token_type);
@@ -368,10 +391,11 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 				}
 				else
 				{
-					previous = c;
-					read = false;
+					// previous = c;
+					// read = false;
+					ungetc(c, fin);
 					token->token_index = save_token(buffer);
-					token->token_type = OPERATOR;
+					token->token_type = LESS;
 					printf("%s    %d\n", get_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
@@ -391,8 +415,9 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 				}
 				else
 				{
-					previous = c;
-					read = false;
+					// previous = c;
+					// read = false;
+					ungetc(c, fin);
 					token->token_index = save_token(buffer);
 					token->token_type = OPERATOR;
 					printf("%s    %d\n", get_token(buffer, token->token_index), token->token_type);
@@ -411,8 +436,8 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 					token->token_index = save_token(buffer);
 					token->token_type = reservedWord(get_token(buffer, token->token_index));
 					printf("%s    %d\n", get_token(buffer, token->token_index), token->token_type);
-					previous = c;
-					read = false;
+					// previous = c;
+					// read = false;
 					ungetc(c,fin);
 					state = START;
 					return index;
@@ -461,8 +486,8 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 					token->token_type = DOUBLE;
 					token->token_index = save_token(buffer);
 					printf("%s    %d\n", get_token(buffer, token->token_index), token->token_type);
-					previous = c;
-					read = false;
+					// previous = c;
+					// read = false;
 					ungetc(c,fin);
 					state = START;
 					return index;
@@ -481,8 +506,9 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 				}
 				else // is '-'
 				{
-					previous = c;
-					read = false;
+					// previous = c;
+					// read = false;
+					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
 					token->token_type = OPERATOR;

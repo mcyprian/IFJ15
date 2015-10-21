@@ -10,6 +10,7 @@
 #include <dynamic_structure_buffer.h>
 #include <token.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -56,7 +57,9 @@ enum
 	LINE_COMMENT, // 31
 	BLOCK_COMMENT, // 32
 	BLOCK_COMMENT_END, // 33
-	START // 34
+	START, // 34
+	ERRORT, // 35
+	EOFT // 36
 };
 
 typedef struct
