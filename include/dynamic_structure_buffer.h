@@ -24,6 +24,16 @@ typedef struct {
    char * flags;
 } TDynamic_structure_buffer;
 
+/** Makes work with structure buffer easier.
+ * @param buff Pointer to TDynamic_structure_buffer
+ * @param index index_t variable to store index of new element
+ * @param item pointer to store adress of new structure  
+ */
+#define new_item(buff, index, item)                                                \
+    ((get_free_element_index((buff), (&index)),                                    \
+      dereference_structure((buff), (index), (void**)(&item)) == INTERNAL_ERROR)?  \
+     INTERNAL_ERROR : RETURN_OK)
+
 /** Allocs memory for buffer, sets initial index and length.
  * @param b Pointer to TDynamic_structure_buffer
  * @param initial_length Initial length of buffer

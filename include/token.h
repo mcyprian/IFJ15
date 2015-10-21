@@ -23,10 +23,46 @@ typedef struct {
     TDynamic_structure_buffer *b;
 } TToken;
 
+enum token_types
+{
+	ARROW, // 0
+	AUTO, // 1
+	CIN, // 2
+	CLOSING_BRACKET, // 3
+	CLOSING_CURLY_BRACKET, // 4
+	CLOSING_SQUARE_BRACKET, // 5
+	COLON, // 6
+	COMMA, // 7
+	COUT, // 8
+	DOUBLE, // 9
+	ELSE, // 10
+	EQUALS, // 11
+	EXCLAMATION, // 12
+	FOR, // 13
+	GREATER, // 14
+	IDENTIFIER, // 15
+	IF,	// 16
+	INT, // 17
+	INTEGER, // 18
+	LESS, // 19
+	MINUS, // 20
+	OPENING_BRACKET, // 21
+	OPENING_CURLY_BRACKET, // 22
+	OPENING_SQUARE_BRACKET, // 23
+	OPERATOR, // 24
+	RETURN, // 25
+	SCIENTIFIC, // 26
+	SEMICOLON, // 27
+	STRING, // 28
+	STRING_LITERAL, // 29
+	COMMENT, // 30
+	LINE_COMMENT, // 31
+	BLOCK_COMMENT, // 32
+	BLOCK_COMMENT_END, // 33
+	START, // 34
+	ERRORT, // 35
+	EOFT // 36
+};
 
-#define new_item(buff, index, item)                                                \
-    ((get_free_element_index((buff), (&index)),                                    \
-      dereference_structure((buff), (index), (void**)(&item)) == INTERNAL_ERROR)?  \
-     INTERNAL_ERROR : RETURN_OK)
 
 #endif // !TOKEN_H
