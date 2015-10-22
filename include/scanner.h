@@ -32,7 +32,7 @@ typedef struct
  *  @param struct_buffer pointer do TDynamic_structure_buffer
  *  return index of TToken in TDynamic_structure_buffer
  */
-index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer);
+index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer);
 
 int reservedWord(char *identifier);
 

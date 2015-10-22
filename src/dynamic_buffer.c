@@ -96,7 +96,7 @@ index_t save_token(TDynamic_buffer *b) {
     return previous;
 }
 
-char *get_token(TDynamic_buffer *b, index_t index) {
+char *load_token(TDynamic_buffer *b, index_t index) {
     args_assert(b != NULL, NULL);
     return b->buffer + index;
 }

@@ -119,11 +119,11 @@ START_TEST (test_token)
 
 	for(int i = 0 ; i < 10 ; i++)
 		ck_assert_int_eq(add_char(&buff, 'a'), 0);	
-	ck_assert_ptr_eq(ptr = get_token(&buff, save_token(&buff)), read_buffer(&buff));
+	ck_assert_ptr_eq(ptr = load_token(&buff, save_token(&buff)), read_buffer(&buff));
 
 	for(int i = 0 ; i < 10 ; i++)
 		ck_assert_int_eq(add_char(&buff, 'b'), 0);
-	ck_assert_int_eq(*get_token(&buff, save_token(&buff)), 'b');
+	ck_assert_int_eq(*load_token(&buff, save_token(&buff)), 'b');
 
 	ck_assert_str_eq(get_str(&buff, 11), "aaaaaaaaaa");
 	ck_assert_str_eq(get_str(&buff, 11), "bbbbbbbbbb");

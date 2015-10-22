@@ -34,10 +34,10 @@ int main(int argc, char ** argv){
 
 	for (int i = 0; i < 50; i++) 
 	{
-		get_token_(f, &test_buff, &struct_buff);
+		get_token(f, &test_buff, &struct_buff);
 	}
 
-	// while (strcmp("EOF", get_token(buffer, get_token_(f, &test_buff, &struct_buff))))
+	// while (strcmp("EOF", get_token(buffer, get_token(f, &test_buff, &struct_buff))))
 	// {
 	// 	printf("\n");
 	// }

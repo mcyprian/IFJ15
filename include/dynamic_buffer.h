@@ -83,7 +83,7 @@ index_t save_token(TDynamic_buffer *b);
  * @index index returned from save_token
  * @return pointer to token string stored in b
  */
-char *get_token(TDynamic_buffer *b, index_t index);
+char *load_token(TDynamic_buffer *b, index_t index);
 
 /** Reinitialeze buffer to start writing to the begginig.
  * @param b pointer to TDynamic buffer
