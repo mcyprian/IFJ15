@@ -1,0 +1,8 @@
+//#include          <iostream>
+// using           namespace std; 
+ int main()     {int I_wi=11;
+  if(001<3)    cout<<"Hello";
+   int i=0;   for(I_wi= 11;
+        i<3; i=i+1)
+           0;
+           }  

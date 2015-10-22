@@ -1,0 +1,29 @@
+int fce(int a, string s) {
+    cout << s;
+    return a;
+}
+
+/* Main function *\/ doc "string" */
+int main() {
+    int i = 12;
+    int declaration, var;
+    string sentance = "Long string literal\n";
+    string empty  = "";
+    string special = "This \n \" is \\ special \x73tring ";
+
+    if (1 <= 5) {
+        for (i = 0; i < 2; i++) {
+            cout << sentance << empty;
+            cout << special;
+        }
+    } else
+        return 1;
+
+    while (i < 5) {
+        cin >> declaration >> var;
+        var * i;
+        declaration / i + 12;
+        i = i + 1;
+    }
+    return 0;
+}
