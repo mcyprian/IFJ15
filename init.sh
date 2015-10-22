@@ -9,6 +9,8 @@ make
 
 make test
 
+doxygen dox 1>/dev/null 2>/dev/null
+
 unset CC
 
 set +v
