@@ -1,18 +1,14 @@
 /**
-* autor Tomas Scavnicky, Michal Durista
-*
-* zatial rozozna:	operatory + - * / > >= < <= == << >> ; , () {} []
-* 					indentifikatory (v ramci ident. nerozoznava klucove slova)
-					integer (iba nezaporne)
-					double (iba nezaporne)
-
-* vstup: prvy argument
-*/
+ * @file scanner.c
+ * @author Tomas Scavnicky <xscavn00@stud.fit.vutbr.cz>, Michal Durista <xduris04@stud.fit.vutbr.cz>
+ *
+ * @section DESCRIPTION
+ *
+ * Scanner used for tokenizing IFJ15 language.
+ */
 
 #include <scanner.h>
 #include <token.h>
-
-
 
 int reservedWord(char *identifier)
 {
@@ -79,8 +75,6 @@ int reservedWord(char *identifier)
 } // reservedWord
 
 
-
-
 // int save_token_structure(TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer, int operator, index_t index, index_t *items)
 // {
 	
@@ -90,7 +84,6 @@ int reservedWord(char *identifier)
 	
 // 	return 0;
 // }
-
 
 
 index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer) {
@@ -539,12 +532,6 @@ index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer
 	} // while(1)
 	return 0;
 }
-
-
-
-
-
-
 
 
 // int tokenize(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buff) 

@@ -25,6 +25,13 @@ typedef struct
 	char *value;
 } Token;
 
+
+/** Scans for next token.
+ *  @param fin input text stream/file
+ *  @param buffer pointer to TDynamic_buffer
+ *  @param struct_buffer pointer do TDynamic_structure_buffer
+ *  return index of TToken in TDynamic_structure_buffer
+ */
 index_t get_token_(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer);
 
 int reservedWord(char *identifier);
