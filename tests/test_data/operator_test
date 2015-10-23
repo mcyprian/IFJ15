@@ -1,16 +1,14 @@
 int main() {
     int i = 10; double a=i+2- 1.0;
-    int identif_icator33 = 12;
-    double ifvar=1.0;
-
-    if (i<= 32)
+    if (((i<= 32) <= ((3 > 2)*1)+i   ))
         i = a/ 2;
     if (i ==4)
-        a=3.5         ;
+        a=3.5         ;     
+
+
     i*3+a;
-    for(identif_icator33=5;identif_icator33!=33;identif_icator33 = identif_icator33*2)
-        if (a<identif_icator33 ) {
-            if(a>ifvar               )
+    for(i=5;i!=33;i= i*2)
+        if (a<i ) {
                 0;
         }
 }

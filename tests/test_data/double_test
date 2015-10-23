@@ -1,7 +1,7 @@
 /* Main function *\/ doc "string" */
 int main() {
      int i = 879645;
-     double _pi = 3.14159; 
+     double pi = 3.14159; 
      double scientific1  = 3.926e+2; // Line comment
      double scientific2  = 233e-26;
      double scientific3  = 233e26;
@@ -10,6 +10,5 @@ int main() {
      double wrong2  = 32.15.65;
      double wrong3  = 32.-e26;
 
-     auto var = 1.0;
 }
 

@@ -33,11 +33,12 @@ return_ 15
 string_ 15
 ; 27
 auto 1
-123654asFD__fasdg 35
+123654 18
+asFD__fasdg 15
 32.1 ??
 ; 27
 int 17
-aero 15
+aer 15
 @ 35
 dsfas 15
 ; 27
@@ -53,3 +54,4 @@ $ 35
 g 15
 ; 27
 } 4
+EOF 36

@@ -1,13 +1,13 @@
 #!/bin/bash
 
-test_cases=("source1 identificator_test")
+test_cases=("source1 identificator_test operator_test double_test empty x")
 retVal=0
 for tc in $test_cases ;do
     echo "Running $tc"
     output=$(./scanner_test test_data/$tc 2>/dev/null)
     diff_output=$(diff "test_data/output_$tc" <(echo "$output"))
     if [ -z "$diff_output" ]; then
-        echo "test case $tc: OK"
+        echo "test case $tc: PASSED"
     else
         retVal=1
         echo "tets case $tc: FAILED"
