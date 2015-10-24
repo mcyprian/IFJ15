@@ -4,8 +4,7 @@
  *
  * @section DESCRIPTION
  *
- * A symbol table used for storing information about found lexemes, representated 
- * by a binary search tree.
+ * A symbol table storing indexes to tokens in dynamic_structure_buffer.
  */
 
 #include <stdio.h>
@@ -14,112 +13,179 @@
 #include <debug.h>
 #include <symbol_table.h>
 #include <datatypes.h>
-#include <scanner.h>
+#include <dynamic_buffer.h>
+#include <dynamic_structure_buffer.h>
+#include <token.h>
 
-unsigned long hash_key(char *str) {
+int hash_key(unsigned char *str, unsigned long *hash) {
 
 	args_assert(str != NULL, INTERNAL_ERROR);
 
-	unsigned long hash = 5381;
 	int c;
 
-	while ((c = (*str)++))
-		hash = ((hash << 5) + hash) + c;
+	*hash = 5381;
 
-	return hash;
+	while ((c = (*str)++))
+		*hash = (((*hash) << 5) + *hash) + c;
+
+	return RETURN_OK;
 }
 
-Ttree* search_symbol(Ttree **tree, char *lexeme_identifier) {
-	
-	// args_assert(lexeme_identifier != NULL, INTERNAL_ERROR); 			// nemoze vraciat int
+int add_symbol(TDynamic_structure_buffer *struct_buff_tokens, index_t token_to_store, TDynamic_structure_buffer *struct_buff_nodes, TDynamic_buff *b){
 
-	Ttree *tmp;
+	args_assert(struct_buff_tokens != NULL && token_to_store > 0 && struct_buff_nodes != NULL && b!= NULL, INTERNAL_ERROR);
 
-	unsigned long key = hash_key(lexeme_identifier), s;
+	index_t new_node_index;
+	TTree *new_node;
+	TToken *token;
+	unsigned long key;
+	char *str = NULL;
 
-	if (*tree == NULL) {
-		return NULL;
+	new_item(struct_buff_nodes, new_node_index, new_node);
+
+	if(new_node_index == 1){
+		new_node->left = new_node->right = new_node->next = ZERO_INDEX;
+		dereference_structure(struct_buff_tokens, token_to_store, &token);
+		str = load_token(b, token->token_index);
+		catch_internal_error(str, NULL, "Failed to load token string.")
+		hash_key(str, &key);
+		new_node->key = key;
+		new_node->token_index = token_to_store;
+	} else 
+	{
+		create_node(str, token_to_store, struct_buff_nodes, 1, b, new_node_index);
 	}
-	else if( key < (*tree)->key) {
-		search_symbol(&((*tree)->left), lexeme_identifier);
-	}
-	else if( key > (*tree)->key) {
-		search_symbol(&((*tree)->right), lexeme_identifier);
-	}
-	else if( key == (*tree)->key) {
-		if((s = strcmp(lexeme_identifier, (*tree)->lexeme.lexeme_identifier)) == 0)
-			return *tree;
-		else {
-			tmp = (*tree)->next;
-			while(((s = strcmp(lexeme_identifier, tmp->lexeme.lexeme_identifier)) != 0) && tmp != NULL)
-				tmp = tmp->next;
-			if(tmp != NULL)
-				return tmp;
-			else
-				return NULL;
+
+	return RETURN_OK;
+}
+
+int create_node(char *str, index_t token_to_store, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, TDynamic_buff *b, index_t new_node_index){
+
+	args_assert(str != NULL && token_to_store > 0 && struct_buff_nodes != NULL && actual_node_index > 0 && b != NULL && new_node_index > 0, INTERNAL_ERROR);
+
+	TTree *node, *new_node;,
+	TToken *token;
+	unsigned long key;
+
+	dereference_structure(struct_buff_nodes, actual_node_index, &node);
+	hash_key(str, &key);
+
+	if(key > node->key){
+		if(node->right == ZERO_INDEX){
+			dereference_structure(struct_buff_nodes, new_node_index, &new_node);
+			node->right = new_node_index;
+			new_node->left = new_node->right = new_node->next = ZERO_INDEX;
+			new_node->key = key;
+			new_node->token = token_to_store;
+		}
+		else
+		{
+			actual_node_index = node->right;
+			create_node(str, token_to_store, struct_buff_nodes, actual_node_index, b, new_node_index);
 		}
 	}
-	return NULL;
-
+	else if(key < node->key){
+		if(node->left == ZERO_INDEX){
+			dereference_structure(struct_buff_nodes, new_node_index, &new_node);
+			node->left = new_node_index;
+			new_node->right = new_node->left = new_node->next = ZERO_INDEX;
+			new_node->key = key;
+			new_node->token = token_to_store;
+		}
+		else
+		{
+			actual_node_index = node->left;
+			create_node(str, token_to_store, struct_buff_nodes, actual_node_index, b, new_node_index);
+		}
+	}
+	else if(key == node->key){
+		while(node->next != ZERO_INDEX)
+		{
+			dereference_structure(struct_buff_nodes, node->next, &node);
+		}
+		node->next = new_node_index;
+		dereference_structure(struct_buff_nodes, new_node_index, &new_node);
+		new_node->right = new_node->left = new_node->next = ZERO_INDEX;
+		new_node->key = key;
+		new_node->token = token_to_store;
+	}
+	return RETURN_OK;
 }
 
-int add_symbol(Ttree **tree, char *lexeme_identifier, index_t dynamic_buffer_index) {
-	
-	args_assert(lexeme_identifier != NULL, INTERNAL_ERROR);
+index_t find_symbol(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_structure_buffer *struct_buff_nodes, TDynamic_buff *b, index_t index_to_string){
 
-	Ttree *tmp = NULL, *list;
-	unsigned long key = hash_key(lexeme_identifier);
-	Tlexeme_data lexeme = { .token_data_type = IDENTIFIER, .lexeme_identifier = lexeme_identifier };
+	args_assert(struct_buff_tokens != NULL && struct_buff_nodes != NULL && b != NULL, INTERNAL_ERROR);
 
-	if(*tree == NULL) {
-		tmp = (Ttree *)malloc(sizeof(Ttree));
-		catch_internal_error(tmp, NULL, "Failed to allocate memory.");
-		tmp->left = tmp->right = tmp->next = NULL;
-		tmp->lexeme = lexeme;
-		tmp->key = key;
-		tmp->dynamic_buffer_index = dynamic_buffer_index;
-		*tree = tmp;
+	index_t found_token_index;
+	int found;
 
-		return key;
+	if(struct_buff_nodes->next_free == 1)
+		return EMPTY_TREE;
+	else 
+	{
+		found = iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, 1, found_token_index);
 	}
+	if(found == 0)
+	{
+		return found_token_index;
+	}
+	else
+	{
+		return NOT_FOUND;
+	}
+}
 
-	if(key < (*tree)->key) {
-		add_symbol(&((*tree)->left), lexeme_identifier, dynamic_buffer_index);
+int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_buff *b, index_t index_to_string, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, index_t found_token_index){
+
+	args_assert(struct_buff_tokens != NULL && b != NULL && struct_buff_nodes != NULL, INTERNAL_ERROR);
+
+	TTree actual_node;
+	TToken *token;
+	unsigned long key;
+	char *str;
+	bool found = FALSE;
+
+	dereference_structure(struct_buff_nodes, actual_node_index, &actual_node);
+
+	str = load_token(b, index_to_string);
+	hash_key(str, &key);
+
+	if(actual_node_index == ZERO_INDEX)
+		return NOT_FOUND;
+	else if(key > actual_node->key)
+	{
+		actual_node_index = actual_node->right;
+		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index)
 	}
-	else if(key > (*tree)->key) {
-		add_symbol(&((*tree)->right), lexeme_identifier, dynamic_buffer_index);
+	else if(key < actual_node->key)
+	{
+		actual_node_index = actual_node->left;
+		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index)
 	}
-	else if(key == (*tree)->key) {
-			list = (*tree)->next;
-			while (list!= NULL) {
-				list = list->next;
+	else if(key == actual_node->key)
+	{
+		dereference_structure(struct_buff_tokens, actual_node->token_index, &token);
+		if(strcmp(str, load_token(b, token->token_index)) == 0)
+			found_token_index = actual_node->token_index;
+			return RETURN_OK;
+		else
+		{
+			while(actual_node->next != ZERO_INDEX && found == FALSE)
+			{
+				actual_node_index = actual_node->next;
+				dereference_structure(struct_buff_nodes, actual_node_index, &actual_node);
+				dereference_structure(struct_buff_nodes, actual_node->token_index, &token);
+				if (strcmp(str, load_token(b, token->token_index)) == 0)
+					found = TRUE;
 			}
-			tmp = (Ttree *)malloc(sizeof(Ttree));
-			catch_internal_error(tmp, NULL, "Failed to allocate memory.");
-			tmp->next = NULL;
-			tmp->lexeme = lexeme;
-			tmp->key = key;
-			tmp->dynamic_buffer_index = dynamic_buffer_index;
-			list = tmp;
+			if(found == TRUE)
+			{
+				found_token_index = actual_node->token_index;
+				return RETURN_OK;
+			}
+			else (actual_node->next == ZERO_INDEX)
+				return NOT_FOUND;
+		}
 	}
-
-	return 0; // zatial vracia 0, len nech nieco vracia a nehadze tie warningy
-}
-
-void del_symbol_table(Ttree *tree) {
-	if(tree){
-		if(tree->next)
-			del_list(tree->next);
-
-		del_symbol_table(tree->right);
-		del_symbol_table(tree->left);
-		free(tree);
-	}
-}
-
-void del_list(Ttree *list) {
-	if(list){
-		del_list(list->next);
-		free(list);
-	}
+	return RETURN_OK;
 }
