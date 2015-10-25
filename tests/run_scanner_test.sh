@@ -1,6 +1,7 @@
 #!/bin/bash
 
-test_cases=("source1 identificator_test operator_test double_test empty x")
+test_cases=("source1 identificator_test operator_test double_test empty x  
+single_token_test")
 retVal=0
 for tc in $test_cases ;do
     echo "Running $tc"

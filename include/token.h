@@ -59,7 +59,7 @@ enum token_types
 	CLOSING_BRACKET, // 31           )
 	CLOSING_CURLY_BRACKET, // 32     }
     OPENING_BRACKET, // 33           (
-	OPENING_CURLY_BRACKET, // 34     )
+	OPENING_CURLY_BRACKET, // 34     {
 	SEMICOLON, // 35                 ;
 	START, // 36
 	ERRORT, // 37

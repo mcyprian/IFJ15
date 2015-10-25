@@ -12,7 +12,7 @@ int main() {
     string special = "This \n \" is \\ special \x73tring ";
 
     if (1 <= 5) {
-        for (i = 0; i < 2; i++) {
+        for (i = 0; i < 2; i=i+1) {
             cout << sentance << empty;
             cout << special;
         }
