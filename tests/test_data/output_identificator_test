@@ -33,12 +33,12 @@ return_ 14
 string_ 14
 ; 35
 auto 29
-123654asFDa__fasdg 37
+123654asFDa__fasdg 41
 = 15
 32.1 12
 ; 35
 int 1
-aer@dsfas 37
+aer@dsfas 41
 ; 35
 int 1
 _2asdf 14
@@ -47,7 +47,7 @@ int 1
 _ 14
 ; 35
 double 0
-wroN$g 37
+wroN$g 41
 ; 35
 } 32
-EOF 38
+EOF 42

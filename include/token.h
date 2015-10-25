@@ -1,6 +1,6 @@
 /**
  * @file token.h
- * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
+ * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz> Tomas Scavnicky <xscavn00@stud.fit.vutbr.cz>
  *
  * @section DESCRIPTION
  *
@@ -61,9 +61,13 @@ enum token_types
     OPENING_BRACKET, // 33           (
 	OPENING_CURLY_BRACKET, // 34     {
 	SEMICOLON, // 35                 ;
-	START, // 36
-	ERRORT, // 37
-	EOFT // 38
+    COMMENT, // 36
+    LINE_COMMENT, // 37
+    BLOCK_COMMENT, // 38
+    BLOCK_COMMENT_END, // 39
+	START, // 40
+	ERRORT, // 41
+	EOFT // 42
 };
 
 
