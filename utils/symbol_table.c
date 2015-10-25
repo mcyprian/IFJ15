@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <error_macros.h>
 #include <debug.h>
 #include <symbol_table.h>
@@ -16,6 +17,8 @@
 #include <dynamic_buffer.h>
 #include <dynamic_structure_buffer.h>
 #include <token.h>
+
+
 
 int hash_key(unsigned char *str, unsigned long *hash) {
 
@@ -31,7 +34,7 @@ int hash_key(unsigned char *str, unsigned long *hash) {
 	return RETURN_OK;
 }
 
-int add_symbol(TDynamic_structure_buffer *struct_buff_tokens, index_t token_to_store, TDynamic_structure_buffer *struct_buff_nodes, TDynamic_buff *b){
+int add_symbol(TDynamic_structure_buffer *struct_buff_tokens, index_t token_to_store, TDynamic_structure_buffer *struct_buff_nodes, TDynamic_buffer *b){
 
 	args_assert(struct_buff_tokens != NULL && token_to_store > 0 && struct_buff_nodes != NULL && b!= NULL, INTERNAL_ERROR);
 
@@ -45,12 +48,12 @@ int add_symbol(TDynamic_structure_buffer *struct_buff_tokens, index_t token_to_s
 
 	if(new_node_index == 1){
 		new_node->left = new_node->right = new_node->next = ZERO_INDEX;
-		dereference_structure(struct_buff_tokens, token_to_store, &token);
+		dereference_structure(struct_buff_tokens, token_to_store, (void**)&token);
 		str = load_token(b, token->token_index);
-		catch_internal_error(str, NULL, "Failed to load token string.")
+		catch_internal_error(str, NULL, "Failed to load token string.");
 		hash_key(str, &key);
 		new_node->key = key;
-		new_node->token_index = token_to_store;
+		new_node->token = token_to_store;
 	} else 
 	{
 		create_node(str, token_to_store, struct_buff_nodes, 1, b, new_node_index);
@@ -59,20 +62,20 @@ int add_symbol(TDynamic_structure_buffer *struct_buff_tokens, index_t token_to_s
 	return RETURN_OK;
 }
 
-int create_node(char *str, index_t token_to_store, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, TDynamic_buff *b, index_t new_node_index){
+int create_node(char *str, index_t token_to_store, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, TDynamic_buffer *b, index_t new_node_index){
 
 	args_assert(str != NULL && token_to_store > 0 && struct_buff_nodes != NULL && actual_node_index > 0 && b != NULL && new_node_index > 0, INTERNAL_ERROR);
 
-	TTree *node, *new_node;,
+	TTree *node, *new_node;
 	TToken *token;
 	unsigned long key;
 
-	dereference_structure(struct_buff_nodes, actual_node_index, &node);
+	dereference_structure(struct_buff_nodes, actual_node_index, (void**)&node);
 	hash_key(str, &key);
 
 	if(key > node->key){
 		if(node->right == ZERO_INDEX){
-			dereference_structure(struct_buff_nodes, new_node_index, &new_node);
+			dereference_structure(struct_buff_nodes, new_node_index, (void**)&new_node);
 			node->right = new_node_index;
 			new_node->left = new_node->right = new_node->next = ZERO_INDEX;
 			new_node->key = key;
@@ -86,7 +89,7 @@ int create_node(char *str, index_t token_to_store, TDynamic_structure_buffer *st
 	}
 	else if(key < node->key){
 		if(node->left == ZERO_INDEX){
-			dereference_structure(struct_buff_nodes, new_node_index, &new_node);
+			dereference_structure(struct_buff_nodes, new_node_index, (void**)&new_node);
 			node->left = new_node_index;
 			new_node->right = new_node->left = new_node->next = ZERO_INDEX;
 			new_node->key = key;
@@ -101,10 +104,10 @@ int create_node(char *str, index_t token_to_store, TDynamic_structure_buffer *st
 	else if(key == node->key){
 		while(node->next != ZERO_INDEX)
 		{
-			dereference_structure(struct_buff_nodes, node->next, &node);
+			dereference_structure(struct_buff_nodes, node->next, (void**)&node);
 		}
 		node->next = new_node_index;
-		dereference_structure(struct_buff_nodes, new_node_index, &new_node);
+		dereference_structure(struct_buff_nodes, new_node_index, (void**)&new_node);
 		new_node->right = new_node->left = new_node->next = ZERO_INDEX;
 		new_node->key = key;
 		new_node->token = token_to_store;
@@ -112,7 +115,7 @@ int create_node(char *str, index_t token_to_store, TDynamic_structure_buffer *st
 	return RETURN_OK;
 }
 
-index_t find_symbol(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_structure_buffer *struct_buff_nodes, TDynamic_buff *b, index_t index_to_string){
+index_t find_symbol(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_structure_buffer *struct_buff_nodes, TDynamic_buffer *b, index_t index_to_string){
 
 	args_assert(struct_buff_tokens != NULL && struct_buff_nodes != NULL && b != NULL, INTERNAL_ERROR);
 
@@ -135,17 +138,17 @@ index_t find_symbol(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_stru
 	}
 }
 
-int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_buff *b, index_t index_to_string, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, index_t found_token_index){
+int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_buffer *b, index_t index_to_string, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, index_t found_token_index){
 
 	args_assert(struct_buff_tokens != NULL && b != NULL && struct_buff_nodes != NULL, INTERNAL_ERROR);
 
-	TTree actual_node;
+	TTree *actual_node;
 	TToken *token;
 	unsigned long key;
 	char *str;
-	bool found = FALSE;
+	bool found = false;
 
-	dereference_structure(struct_buff_nodes, actual_node_index, &actual_node);
+	dereference_structure(struct_buff_nodes, actual_node_index, (void**)&actual_node);
 
 	str = load_token(b, index_to_string);
 	hash_key(str, &key);
@@ -155,35 +158,37 @@ int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic
 	else if(key > actual_node->key)
 	{
 		actual_node_index = actual_node->right;
-		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index)
+		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index);
 	}
 	else if(key < actual_node->key)
 	{
 		actual_node_index = actual_node->left;
-		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index)
+		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index);
 	}
 	else if(key == actual_node->key)
 	{
-		dereference_structure(struct_buff_tokens, actual_node->token_index, &token);
+		dereference_structure(struct_buff_tokens, actual_node->token, (void**)&token);
 		if(strcmp(str, load_token(b, token->token_index)) == 0)
-			found_token_index = actual_node->token_index;
+		{
+			found_token_index = actual_node->token;
 			return RETURN_OK;
+		}
 		else
 		{
-			while(actual_node->next != ZERO_INDEX && found == FALSE)
+			while(actual_node->next != ZERO_INDEX && found == false)
 			{
 				actual_node_index = actual_node->next;
-				dereference_structure(struct_buff_nodes, actual_node_index, &actual_node);
-				dereference_structure(struct_buff_nodes, actual_node->token_index, &token);
+				dereference_structure(struct_buff_nodes, actual_node_index, (void**)&actual_node);
+				dereference_structure(struct_buff_nodes, actual_node->token, (void**)&token);
 				if (strcmp(str, load_token(b, token->token_index)) == 0)
-					found = TRUE;
+					found = true;
 			}
-			if(found == TRUE)
+			if(found == true)
 			{
-				found_token_index = actual_node->token_index;
+				found_token_index = actual_node->token;
 				return RETURN_OK;
 			}
-			else (actual_node->next == ZERO_INDEX)
+			else
 				return NOT_FOUND;
 		}
 	}
