@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <error_macros.h>
 #include <debug.h>
 #include <symbol_table.h>
@@ -20,7 +21,7 @@
 
 
 
-int hash_key(unsigned char *str, unsigned long *hash) {
+int hash_key(char *str, unsigned long *hash) {
 
 	args_assert(str != NULL, INTERNAL_ERROR);
 
@@ -67,7 +68,6 @@ int create_node(char *str, index_t token_to_store, TDynamic_structure_buffer *st
 	args_assert(str != NULL && token_to_store > 0 && struct_buff_nodes != NULL && actual_node_index > 0 && b != NULL && new_node_index > 0, INTERNAL_ERROR);
 
 	TTree *node, *new_node;
-	TToken *token;
 	unsigned long key;
 
 	dereference_structure(struct_buff_nodes, actual_node_index, (void**)&node);
@@ -120,13 +120,13 @@ index_t find_symbol(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_stru
 	args_assert(struct_buff_tokens != NULL && struct_buff_nodes != NULL && b != NULL, INTERNAL_ERROR);
 
 	index_t found_token_index;
-	int found;
+    int found;
 
 	if(struct_buff_nodes->next_free == 1)
 		return EMPTY_TREE;
 	else 
 	{
-		found = iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, 1, found_token_index);
+		found = iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, 1, &found_token_index);
 	}
 	if(found == 0)
 	{
@@ -138,7 +138,7 @@ index_t find_symbol(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_stru
 	}
 }
 
-int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_buffer *b, index_t index_to_string, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, index_t found_token_index){
+int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic_buffer *b, index_t index_to_string, TDynamic_structure_buffer *struct_buff_nodes, index_t actual_node_index, index_t *found_token_index){
 
 	args_assert(struct_buff_tokens != NULL && b != NULL && struct_buff_nodes != NULL, INTERNAL_ERROR);
 
@@ -157,20 +157,18 @@ int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic
 		return NOT_FOUND;
 	else if(key > actual_node->key)
 	{
-		actual_node_index = actual_node->right;
-		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index);
+		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node->right, found_token_index);
 	}
 	else if(key < actual_node->key)
 	{
-		actual_node_index = actual_node->left;
-		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node_index, found_token_index);
+		iterate_through_tree(struct_buff_tokens, b, index_to_string, struct_buff_nodes, actual_node->left, found_token_index);
 	}
 	else if(key == actual_node->key)
 	{
 		dereference_structure(struct_buff_tokens, actual_node->token, (void**)&token);
 		if(strcmp(str, load_token(b, token->token_index)) == 0)
 		{
-			found_token_index = actual_node->token;
+			*found_token_index = actual_node->token;
 			return RETURN_OK;
 		}
 		else
@@ -185,7 +183,7 @@ int iterate_through_tree(TDynamic_structure_buffer *struct_buff_tokens, TDynamic
 			}
 			if(found == true)
 			{
-				found_token_index = actual_node->token;
+				*found_token_index = actual_node->token;
 				return RETURN_OK;
 			}
 			else
