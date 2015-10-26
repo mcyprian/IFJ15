@@ -65,9 +65,10 @@ enum token_types
     LINE_COMMENT, // 37
     BLOCK_COMMENT, // 38
     BLOCK_COMMENT_END, // 39
-	START, // 40
-	ERRORT, // 41
-	EOFT // 42
+    SCIENTIFIC, // 40
+	START, // 41
+	ERRORT, // 42
+	EOFT // 43	
 };
 
 
