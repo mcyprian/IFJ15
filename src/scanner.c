@@ -107,6 +107,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 	int previous = 0;
 	int state = START;
 	bool read = true;
+	bool wrong_identifier = false;
 	index_t index = 0;
 	index_t items[5];
 	TToken *token;
@@ -437,17 +438,27 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if ((c > 64 && c < 91) || (c > 96 && c < 123) || (c > 47 && c < 58) || c == '_') { // (A-Z, a-z, 0-9, _)
 					add_char(buffer, c);
 				} 
-				else 
+				else if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || isspace(c))
 				{
 					token->token_index = save_token(buffer);
-					token->token_type = reservedWord(load_token(buffer, token->token_index));
+					if (!wrong_identifier)
+						token->token_type = reservedWord(load_token(buffer, token->token_index));
+					else
+						token->token_type = ERRORT;
 					printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					// previous = c;
 					// read = false;
+					wrong_identifier = false;
 					ungetc(c,fin);
 					state = START;
 					return index;
 				}
+				else
+				{
+					add_char(buffer, c);
+					wrong_identifier = true;
+				}
+
 				break;
 
 			case L_INT:
@@ -471,7 +482,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				// 	add_char(buffer, c);
 				// 	state = SCIENTIFIC;
 				// }
-				else
+				else if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || isspace(c))
 				{
 					token->token_index = save_token(buffer);
 					token->token_type = L_INT;
@@ -480,6 +491,12 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					state = START;
 					return index;
 				}
+				else
+				{
+					add_char(buffer, c);
+					wrong_identifier = true;
+					state = IDENTIFIER;
+				}
 				break;
 
 			case L_DOUBLE:
@@ -487,7 +504,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					add_char(buffer, c);
 				}
-				else
+				else if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || isspace(c))
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
@@ -497,6 +514,13 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					ungetc(c,fin);
 					state = START;
 					return index;
+				}
+				else
+				{
+					add_char(buffer, c);
+					wrong_identifier = true;
+					state = IDENTIFIER;
+
 				}
 				break;
 
