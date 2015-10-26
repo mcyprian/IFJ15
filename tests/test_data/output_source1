@@ -34,7 +34,7 @@ var 14
 string 2
 sentance 14
 = 15
-"Long string 2 literal\n" 13
+"Long string literal\n" 13
 ; 35
 string 2
 empty 14
@@ -120,4 +120,4 @@ return 9
 0 11
 ; 35
 } 32
-EOF 42
+EOF 43

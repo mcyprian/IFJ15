@@ -23,9 +23,9 @@ automat 14
 ; 35
 cinnamon 14
 ; 35
-cout 43
+cout3 14
 ; 35
-double 0
+doublee 14
 ; 35
 internal 14
 ; 35
@@ -33,12 +33,12 @@ return_ 14
 string_ 14
 ; 35
 auto 29
-123654asFDa__fasdg 41
+123654asFDa__fasdg 42
 = 15
 32.1 12
 ; 35
 int 1
-aer@dsfas 41
+aer@dsfas 42
 ; 35
 int 1
 _2asdf 14
@@ -47,7 +47,7 @@ int 1
 _ 14
 ; 35
 double 0
-wroN$g 41
+wroN$g 42
 ; 35
 } 32
-EOF 42
+EOF 43
