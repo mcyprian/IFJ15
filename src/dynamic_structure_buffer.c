@@ -76,7 +76,7 @@ int get_free_element_index(TDynamic_structure_buffer *b, index_t * index){
 	
 	do {
 		b->next_free++;
-	} while(b->flags[b->next_free] && b->next_free < b->length);
+	} while(b->next_free < b->length && b->flags[b->next_free]) ;
 
 	return RETURN_OK;	
 }
