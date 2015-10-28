@@ -453,7 +453,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 						token->token_type = reservedWord(load_token(buffer, token->token_index));
 					else
 						token->token_type = ERRORT;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					// previous = c;
 					// read = false;
 					wrong_identifier = false;
@@ -480,6 +480,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					add_char(buffer, c);
 					state = L_DOUBLE;
+					previous = c;
 				}
 				else if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c))
 				{
@@ -510,13 +511,22 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					add_char(buffer, c);
 					is_number_after_dot = true;
 				}
-				else if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c))
+				else if ((c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c)) && is_number_after_dot)
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					// previous = c;
 					// read = false;
+					ungetc(c,fin);
+					state = START;
+					return index;
+				}
+				else if ((c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c)) && !is_number_after_dot) // 32.
+				{
+					token->token_type = ERRORT;
+					token->token_index = save_token(buffer);
+					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
 					state = START;
 					return index;
