@@ -28,11 +28,6 @@ START_TEST (test_main) {
     }
     ck_assert_int_eq(stack.length, NUM);
    
-    get_types(&b, &stack, NUM, values);
-
-    for (int i = 0; i < NUM; i++)
-        ck_assert_int_eq(values[i], (NUM * 10 - 10) - 10 * i);
-
     for (int i = 0; i < NUM; i++) {
         dereference_structure(&b, pop(&b, &stack), (void**)(&item));
         ck_assert_int_eq(item->token_type, (NUM * 10 - 10) - 10 * i);
@@ -42,7 +37,7 @@ START_TEST (test_main) {
 }
 END_TEST
 
-START_TEST (test_expr) {
+START_TEST (test_get_types) {
     TDynamic_structure_buffer b;
     init_structure_buffer(&b, NUM, sizeof(TToken));
     TStack stack;
@@ -51,42 +46,43 @@ START_TEST (test_expr) {
     index_t index;
     index_t first_index;
     int values[NUM];
+    int i;
     
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         new_item(&b, index, item);
-        item->token_type = i*10;
+        item->token_type = i;
         push(&b, &stack, index);
-        if (i == 0)
-            first_index = index;
-
+    
     }
-    ck_assert_int_eq(reduce(&b, &stack, 3, 33), RETURN_OK);
+    ck_assert_int_eq(get_types(NULL, &stack, values), INTERNAL_ERROR);
+    ck_assert_int_eq(get_types(&b, NULL, values), INTERNAL_ERROR);
+    ck_assert_int_eq(get_types(&b, &stack, NULL), INTERNAL_ERROR);
+    ck_assert_int_eq(get_types(&b, &stack, values), INTERNAL_ERROR);
 
-    get_types(&b, &stack, 2, values);
-    ck_assert_int_eq(values[0], 33);
-    ck_assert_int_eq(values[1], 0);
+    ck_assert_int_eq(overwrite_top(&b, &stack, SHIFT), RETURN_OK);
 
-    new_item(&b, index, item);
-    item->token_type = 9;
-    push(&b, &stack, index);
-
-    get_types(&b, &stack, 3, values);
-    ck_assert_int_eq(values[0], 9);
-    ck_assert_int_eq(values[1], 33);
-    ck_assert_int_eq(values[2], 0);
-
-    reduce(&b, &stack, 2, 9);
-    get_types(&b, &stack, 2, values);
-    ck_assert_int_eq(values[0], 9);
-    ck_assert_int_eq(values[1], 0);
-
-    ck_assert_int_eq(reduce(&b, &stack, 3, 0), INTERNAL_ERROR); // There are 2 items on stack, must fail
-    ck_assert_int_eq(values[0], 9);
-    ck_assert_int_eq(values[1], 0);
-
-    pop(&b, &stack);
-    ck_assert_int_eq(get_types(&b, &stack, 2, values), INTERNAL_ERROR);
+    ck_assert_int_eq(get_types(&b, &stack, values), RETURN_OK);
+    
     ck_assert_int_eq(values[0], 0);
+
+    for (i = 0; i < 3; i++) {
+        new_item(&b, index, item);
+        item->token_type = i;
+        push(&b, &stack, index);
+    
+    }
+    
+    get_types(&b, &stack, values);
+    
+    for (i = 1; i < 4; i++) 
+        ck_assert_int_eq(values[i], 3 - i);
+
+    for (i = 0; i < 2; i++)
+        pop(&b, &stack);
+    
+    overwrite_top(&b, &stack, IDENTIFIER);
+    get_types(&b, &stack, values);
+    ck_assert_int_eq(values[1], IDENTIFIER);
 
     free_structure_buffer(&b);
 }
@@ -94,16 +90,16 @@ END_TEST
 
 Suite * stack_suite(void) {
     Suite *s;
-    TCase *tc_main, *tc_expr;
+    TCase *tc_main, *tc_types;
     s = suite_create("Stack");
 
     tc_main = tcase_create("Main");
     tcase_add_test(tc_main, test_main);
     suite_add_tcase(s, tc_main);
 
-    tc_expr = tcase_create("Expr");
-    tcase_add_test(tc_expr, test_expr);
-    suite_add_tcase(s, tc_expr);
+    tc_types = tcase_create("Types");
+    tcase_add_test(tc_types, test_get_types);
+    suite_add_tcase(s, tc_types);
 
     return s;
 }

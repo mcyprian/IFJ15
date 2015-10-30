@@ -18,9 +18,6 @@ typedef struct {
     index_t token_index;           // Index to token string in dynamic_buffer
     int token_type;
     index_t token_next;            // Index to next token/expr in dynamic_structure
-    int expr_type;
-    index_t expr_next;             // Index to next token/expr in dynamic_structure
-    TDynamic_structure_buffer *b;
 } TToken;
 
 enum token_types
@@ -68,7 +65,9 @@ enum token_types
     SCIENTIFIC, // 40
 	START, // 41
 	ERRORT, // 42
-	EOFT // 43	
+	EOFT, // 43
+    SHIFT, // 44                      } precedence analysis tokens types
+    RVALUE //45                       }
 };
 
 

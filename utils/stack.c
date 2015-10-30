@@ -30,10 +30,8 @@ int push(TDynamic_structure_buffer *b, TStack *stack, index_t item) {
         stack->top = item;
     else {
         catch_internal_error(dereference_structure(b, item, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
-        if (tmp->expr_next != ZERO_INDEX)
-            tmp->expr_next = stack->top;
-        else
-            tmp->token_next = stack->top;
+        
+        tmp->token_next = stack->top;
         stack->top = item;
     }
     stack->length++;
@@ -49,59 +47,36 @@ index_t pop(TDynamic_structure_buffer *b, TStack *stack) {
     index_t old_top = stack->top;
     if (dereference_structure(b, stack->top, (void**)&tmp) ==  INTERNAL_ERROR)
         return ZERO_INDEX;
-    if (tmp->expr_next != ZERO_INDEX)
-        stack->top = tmp->expr_next;
-    else
-        stack->top = tmp->token_next;
+    stack->top = tmp->token_next;
     stack->length--;
     return old_top;
 }
 
-int get_types(TDynamic_structure_buffer *b, TStack *stack, int n, int *values) {
-    args_assert(b != NULL && stack != NULL && n > 0, INTERNAL_ERROR);
-    debug_print("%s %d\n", "GET TYPES OF ", n);
+int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
+    args_assert(b != NULL && stack != NULL && values != NULL, INTERNAL_ERROR);
+    debug_print("%s\n", "GET TYPES");
     TToken *tmp = NULL;
     index_t next = ZERO_INDEX;
-    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,
-            "Failed to dereference structure buffer.");
-    for (int i = 0; i < n; i++) {
-        if (tmp->expr_next != ZERO_INDEX) {
-            values[i] = tmp->expr_type;
-            if ((next = tmp->expr_next) == ZERO_INDEX)
-                return INTERNAL_ERROR;
-        } else {
-            values[i] = tmp->token_type;
-            if ((next = tmp->token_next) == ZERO_INDEX)
-                return INTERNAL_ERROR;
-        }
+    int i;
+    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+    
+    for (i = 1; tmp->token_type != SHIFT; i++) {
+        values[i] = tmp->token_type;
+        if ((next = tmp->token_next) == ZERO_INDEX)
+            return INTERNAL_ERROR;
+        
         if (dereference_structure(b, next, (void**)&tmp) ==  INTERNAL_ERROR)
             return INTERNAL_ERROR;
     }
+    values[0] = i - 1;           // store length of rule to index 0
     return RETURN_OK;
 }
 
-int reduce(TDynamic_structure_buffer *b, TStack *stack, int n, int expr_type) {
-    args_assert(b != NULL && stack != NULL && n > 0, INTERNAL_ERROR);
+int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type) {
+    args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
     TToken *tmp = NULL;
-    index_t next = ZERO_INDEX;
-    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,
-            "Failed to dereference structure buffer.");
-    for (int i = 0; i < n; i++) {
-        if (tmp->expr_next != ZERO_INDEX) {
-            if ((next = tmp->expr_next) == ZERO_INDEX)
-                return INTERNAL_ERROR;
-        } else {
-            if ((next = tmp->token_next) == ZERO_INDEX)
-                return INTERNAL_ERROR;
-        }
-        if (dereference_structure(b, next, (void**)&tmp) ==  INTERNAL_ERROR)
-            return INTERNAL_ERROR;
-    }                                        // next holds index to n + 1 element on stack
-    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR,
-            "Failed to dereference structure buffer.");
-    tmp->expr_next = next;  // TODO in case expr->anything we lost information aobut previous expr.
-    tmp->expr_type = expr_type;
+    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+
+    tmp->token_type = new_type;    
     return RETURN_OK;
 }
-
-
