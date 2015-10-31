@@ -22,40 +22,40 @@ typedef struct {
 
 enum token_types
 {
-	T_DOUBLE, // 0                         } <TYPE>
-	T_INT, // 1                            }
-	T_STRING, // 2                         }
-    K_CIN, // 3                               } <KEY>
-	K_COUT, // 4                              }
-    K_DO,   // 5                              }
-	K_ELSE, // 6                              }
-	K_FOR, // 7                               }
-	K_IF,	// 8                              }
-	K_RETURN, // 9                            }
-    K_WHILE,  // 10                           }
-	L_INT, // 11                                 } <RVALUE>
-    L_DOUBLE, // 12                              }
-	L_STRING, // 13                              }
-	IDENTIFIER, // 14                            }
-    O_ASSIGN, // 15                  =
-    O_DIV,   // 16                   /
-	O_EQUALS, // 17                  ==
-	O_G, // 18                       >
-    O_GE, // 19                      >=
-	O_L, // 20                       <
-    O_LE, // 21                      <=
-	O_LEFT_ARROW, // 22              <<
-    O_PLUS,  // 23                   +
-	O_RIGHT_ARROW, // 24             >>
-    O_MUL,   // 25                   *
-	O_MINUS, // 26                   -
-    O_NE,  // 27                     !=
-	UO_EXCLAMATION, // 28            !
-	AUTO, // 29                      auto
-	COMMA, // 30                     ,
-	CLOSING_BRACKET, // 31           )
-	CLOSING_CURLY_BRACKET, // 32     }
-    OPENING_BRACKET, // 33           (
+	O_EQUALS, // 0                   ==
+	O_G, // 1                        >
+	O_L, // 2                        <
+    O_GE, // 3                       >=
+    O_LE, // 4                       <=
+    O_PLUS,  // 5                    +
+	O_MINUS, // 6                    -
+    O_MUL,   // 7                    *
+    O_DIV,   // 8                    /
+    O_NE,  // 9                      !=
+	CLOSING_BRACKET, // 10           )
+    OPENING_BRACKET, // 11           (
+	IDENTIFIER, // 12                            }
+	L_INT, // 13                                 } <RVALUE>
+    L_DOUBLE, // 14                              }
+	L_STRING, // 15                              }
+    O_ASSIGN, // 16                  =
+	O_LEFT_ARROW, // 17              <<
+	O_RIGHT_ARROW, // 18             >>
+	T_DOUBLE, // 19                        } <TYPE>
+	T_INT, // 20                           }
+	T_STRING, // 21                        }
+    K_CIN, // 22                              } <KEY>
+	K_COUT, // 23                             }
+    K_DO,   // 24                             }
+	K_ELSE, // 25                             }
+	K_FOR, // 26                              }
+	K_IF,	// 27                             }
+	K_RETURN, // 28                           }
+    K_WHILE,  // 29                           }
+	UO_EXCLAMATION, // 30            !
+	AUTO, // 31                      auto
+	COMMA, // 32                     ,
+	CLOSING_CURLY_BRACKET, // 33     }
 	OPENING_CURLY_BRACKET, // 34     {
 	SEMICOLON, // 35                 ;
     COMMENT, // 36
@@ -66,7 +66,7 @@ enum token_types
 	START, // 41
 	ERRORT, // 42
 	EOFT, // 43
-    SHIFT, // 44                      } precedence analysis tokens types
+    SHIFT, // 44                      } precedence analysis
     RVALUE //45                       }
 };
 

@@ -7,8 +7,16 @@
 
 
 START_TEST (test_main) {
-   printf("%d\n", precedence_table[0][0]);
-   printf("%d\n", precedence_table[12][11]);
+   ck_assert_int_eq(precedence_table[type_filter(IDENTIFIER)][type_filter(IDENTIFIER)], 3);
+   ck_assert_int_eq(precedence_table[type_filter(OPENING_BRACKET)][type_filter(CLOSING_BRACKET)], 2);
+
+   ck_assert_int_eq(type_filter(O_EQUALS), O_EQUALS);
+   ck_assert_int_eq(type_filter(IDENTIFIER), IDENTIFIER);
+   ck_assert_int_eq(type_filter(L_INT), L_INT);
+   ck_assert_int_eq(type_filter(L_DOUBLE), L_INT);
+   ck_assert_int_eq(type_filter(L_STRING), L_INT);
+   ck_assert_int_eq(type_filter(T_DOUBLE), END_OF_EXPR);
+   ck_assert_int_eq(type_filter(K_ELSE), END_OF_EXPR);
 
 }
 END_TEST

@@ -17,7 +17,12 @@ enum operations {
     E,    // ERROR
 };
 
-#define NUM_OF_TOKENS 14
+#define END_OF_EXPR 14
+
+#define type_filter(type)                                      \
+    ((type) < 13 ? (type) : ((type) > 15 ? END_OF_EXPR : L_INT))
+
+#define NUM_OF_TOKENS 15
 
 extern const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS];
 
