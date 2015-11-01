@@ -12,4 +12,7 @@
 
 typedef unsigned long index_t;
 
+
+typedef struct res Resources;
+
 #endif // !DATATYPES_H
