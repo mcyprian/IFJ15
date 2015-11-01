@@ -42,7 +42,10 @@ int main(int argc, char ** argv){
             iRet = INTERNAL_ERROR;
             goto STRUCT_BUFF;
         }
-        printf("%s %d\n", load_token(&test_buff, token->token_index), token->token_type);
+        if (token->token_type > 11 && token->token_type < 15)
+            printf("%s %d\n", load_token(&test_buff, token->token_index), token->token_type);
+        else 
+            printf("%d\n", token->token_type);
 
 	} while(token->token_type != EOFT);
 	fclose(f);
