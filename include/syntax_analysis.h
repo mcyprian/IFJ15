@@ -14,13 +14,14 @@
 
 
 typedef enum non_terminals {
-	PROGRAM,
+	PROGRAM = 100,
 	PROGRAM_N,
 	BLOCK_STATMENT,
 	FUNC,
 	STATIC_PART,
 	TAIL_FUNC,
 	DEC_VAR,
+	TAIL_VAR,
 	ASSIGNMENT,
 	FUNC_CALL,
 	ARGS,
@@ -28,8 +29,8 @@ typedef enum non_terminals {
 	PARAMS,
 	PARAMS_N,
 	TYPE,
-	STATMENT,
-	TAIL_STATMENT,
+	//STATMENT,
+	TAIL_ASSIGNMENT,
 	CONSTRUCTION,
 	IF_ELSE,
 	TAIL_IF,
@@ -47,11 +48,11 @@ typedef enum non_terminals {
 	COUT_PARAMS_N,
 	CIN,
 	CIN_PARAMS,
-	CIN_PARAMS_N
+	CIN_PARAMS_N,
 } NonTerminals;
 
 
 
-int check_syntax(NonTerminals term, Resources * resources);
+int check_syntax(int term, Resources * resources);
 
 #endif // !SYNTAX_ANALYSIS_H
