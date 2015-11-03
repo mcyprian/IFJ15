@@ -12,6 +12,7 @@
 #define DYNAMIC_STRUCTURE_BUFFER_H
 
 #include <stdio.h>
+#include <error_macros.h>
 #include <datatypes.h>
 
 #define ZERO_INDEX 0

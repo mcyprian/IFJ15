@@ -15,9 +15,9 @@
 
 
 typedef struct {
+    index_t next;                  // Index to next token/expr in dynamic_structure
     index_t token_index;           // Index to token string in dynamic_buffer
     int token_type;
-    index_t token_next;            // Index to next token/expr in dynamic_structure
 } TToken;
 
 enum token_types
