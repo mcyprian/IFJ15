@@ -21,6 +21,7 @@ enum operations {
     E,    // ERROR
 };
 
+#define MAX_RULE_LENGTH 3
 #define END_OF_EXPR 14
 
 #define type_filter(type)                                      \
@@ -43,8 +44,22 @@ int get_types(TDynamic_structure_buffer *b, TStack *stack,  int *values);
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
  * @param new_type new token type of stack top
- * @return RETURN_OK on success, INTERNAL_ERROR on error
+ * @return RETURN_OK on success, INTERNAL_ERROR or SYNTAX_ERROR on error
  */
 int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type);
+
+/** Reduce top of the stack to nonterminal RVALUE
+ * @param b pointer to dynamic_structure_buffer
+ * @param stack pointer to stack
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
+int reduce(TDynamic_structure_buffer *b, TStack *stack);
+
+/** Search for right rule to reduction of stack top
+ * @param b pointer to dynamic_structure_buffer
+ * @param stack pointer to stack
+ * @return RETURN_OK on success, INTERNAL_ERROR or SYNAX_ERROR on error
+ */
+int get_rule(TDynamic_structure_buffer *b, TStack *stack);
 
 #endif // !PRECEDENCE_ANALYSIS_H

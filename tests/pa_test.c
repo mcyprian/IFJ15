@@ -30,7 +30,6 @@ START_TEST (test_get_types) {
     init_stack(&stack);
     TToken *item;
     index_t index;
-    index_t first_index;
     int values[NUM];
     int i;
     
@@ -43,7 +42,7 @@ START_TEST (test_get_types) {
     ck_assert_int_eq(get_types(NULL, &stack, values), INTERNAL_ERROR);
     ck_assert_int_eq(get_types(&b, NULL, values), INTERNAL_ERROR);
     ck_assert_int_eq(get_types(&b, &stack, NULL), INTERNAL_ERROR);
-    ck_assert_int_eq(get_types(&b, &stack, values), INTERNAL_ERROR);
+    ck_assert_int_eq(get_types(&b, &stack, values), SYNTAX_ERROR);
 
     ck_assert_int_eq(overwrite_top(&b, &stack, SHIFT), RETURN_OK);
 
@@ -74,9 +73,49 @@ START_TEST (test_get_types) {
 }
 END_TEST
 
+START_TEST (test_rules) {
+    TDynamic_structure_buffer b;
+    init_structure_buffer(&b, NUM, sizeof(TToken));
+    TStack stack;
+    init_stack(&stack);
+    TToken *item;
+    index_t index;
+    int i;
+    int tokens_one[] = {SHIFT, IDENTIFIER};
+    int tokens_two[] = {SHIFT, RVALUE, O_GE, RVALUE};
+    int tokens_three[] = {SHIFT, OPENING_BRACKET, RVALUE, CLOSING_BRACKET};
+
+    for (i = 0; i < 2; i++) {
+        new_item(&b, index, item);
+        item->token_type = tokens_one[i];
+        push(&b, &stack, index);
+    }
+    get_rule(&b, &stack);
+    reduce(&b, &stack);
+
+    for (i = 0; i < 4; i++) {
+        new_item(&b, index, item);
+        item->token_type = tokens_two[i];
+        push(&b, &stack, index);
+    }
+    get_rule(&b, &stack);
+    reduce(&b, &stack);
+
+    for (i = 0; i < 4; i++) {
+        new_item(&b, index, item);
+        item->token_type = tokens_three[i];
+        push(&b, &stack, index);
+    }
+    get_rule(&b, &stack);
+    reduce(&b, &stack);
+ 
+    free_structure_buffer(&b);
+}
+END_TEST
+ 
 Suite * stack_suite(void) {
     Suite *s;
-    TCase *tc_main, *tc_types;
+    TCase *tc_main, *tc_types, *tc_rules;
     s = suite_create("Precedence_analysis");
 
     tc_main = tcase_create("Main");
@@ -86,6 +125,10 @@ Suite * stack_suite(void) {
     tc_types = tcase_create("Types");
     tcase_add_test(tc_types, test_get_types);
     suite_add_tcase(s, tc_types);
+
+    tc_rules = tcase_create("Rules");
+    tcase_add_test(tc_rules, test_rules);
+    suite_add_tcase(s, tc_rules);
     return s;
 }
 
