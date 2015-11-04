@@ -74,7 +74,7 @@ int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
             return SYNTAX_ERROR;
         values[i] = tmp->token_type;
         if ((next = tmp->next) == ZERO_INDEX)
-            return INTERNAL_ERROR;
+            return SYNTAX_ERROR;
         
         if (dereference_structure(b, next, (void**)&tmp) ==  INTERNAL_ERROR)
             return INTERNAL_ERROR;
@@ -118,8 +118,8 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
     int values [MAX_RULE_LENGTH + 1];
     int i;
     int err = get_types(b, stack, values);
-    if (err != RETURN_OK)
-        return err;
+    catch_internal_error(err, INTERNAL_ERROR, "Failed to get types of token");
+    catch_syntax_error(err, SYNTAX_ERROR, "Failed to get types of token", 1);
 
     printf("Get rule start value length == %d\n", values[0]);
     if (values[0] == 1) {

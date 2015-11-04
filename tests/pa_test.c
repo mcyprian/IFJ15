@@ -59,8 +59,8 @@ START_TEST (test_get_types) {
     
     get_types(&b, &stack, values);
     
-    for (i = 0; i < 4; i++) 
-        ck_assert_int_eq(values[i], 3 - i);
+    for (i = 0; i < 3; i++) 
+        ck_assert_int_eq(values[i + 1], i);
 
     for (i = 0; i < 2; i++)
         pop(&b, &stack);
