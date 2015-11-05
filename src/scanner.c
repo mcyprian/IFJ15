@@ -11,6 +11,8 @@
 #include <token.h>
 
 #define L_STRING_BACKSLASH 123
+#define SEPARATOR c == '+' || c == '-' || c == '*' || c == '/' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c)
+
 
 int reservedWord(char *identifier)
 {
@@ -112,7 +114,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 	bool is_number_after_sign = false;
 	bool is_number_after_dot = false;
 	index_t index = 0;
-	index_t items[5];
 	TToken *token;
 
 	new_item(struct_buffer, index, token);
@@ -146,13 +147,13 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			case START:
 				new_item(struct_buffer, index, token); // pridat overenie, ci to vyslo
 
-				if ((c > 64 && c < 91) || (c > 96 && c < 123)) //A-Z || a-z
+				if ((c > 64 && c < 91) || (c > 96 && c < 123) || c == '_') // A-Z || a-z
 				{
 					state = IDENTIFIER;
 					add_char(buffer, c);
 					
 				}
-				else if (c > 47 && c < 58)
+				else if (c > 47 && c < 58) // 0-9
 				{
 					state = L_INT;
 					add_char(buffer, c);
@@ -162,7 +163,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					switch (c)
 					{
 						case '+':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = O_PLUS;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -170,7 +171,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '-':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							state = O_MINUS;
 							break;
 
@@ -179,7 +180,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '*':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = O_MUL;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -187,7 +188,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case ';':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = SEMICOLON;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -198,12 +199,12 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 						// 	add_char(buffer, c);
 						// 	token->token_index = save_token(buffer);
 						// 	token->token_type = COLON;
-						// 	//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+						// 	printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 						// 	return index;
 						// 	break;
 
 						case ',':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = COMMA;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -211,7 +212,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '(':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = OPENING_BRACKET;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -219,7 +220,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case ')':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = CLOSING_BRACKET;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -227,7 +228,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '{':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = OPENING_CURLY_BRACKET;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -235,7 +236,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '}':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = CLOSING_CURLY_BRACKET;
 							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -243,27 +244,27 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '=':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							state = O_EQUALS;
 							break;
 
 						case '<':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							state = O_L;
 							break;
 
 						case '>':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							state = O_G;
 							break;
 
 						case '!':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							state = UO_EXCLAMATION;
 							break;
 						
 						case '"':
-							add_char(buffer, c);
+							// add_char(buffer, c);
 							state = L_STRING;
 							break;
 
@@ -328,9 +329,9 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			case O_EQUALS:
 				if (c == '=')
 				{
-					add_char(buffer, c);
+					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
-					token->token_type = O_ASSIGN;
+					token->token_type = O_EQUALS;
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
@@ -352,7 +353,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			case O_G:
 				if (c == '=')
 				{
-					add_char(buffer, c);
+					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
 					token->token_type = O_GE;
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -362,7 +363,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				}
 				else if (c == '>')
 				{
-					add_char(buffer, c);
+					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
 					token->token_type = O_RIGHT_ARROW;
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -386,7 +387,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			case O_L:
 				if (c == '=')
 				{
-					add_char(buffer, c);
+					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
 					token->token_type = O_LE;
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -396,7 +397,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				}
 				else if (c == '<')
 				{
-					add_char(buffer, c);
+					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
 					token->token_type = O_LEFT_ARROW;
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -420,7 +421,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			case UO_EXCLAMATION:
 				if (c == '=')
 				{
-					add_char(buffer, c);
+					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
 					token->token_type = O_NE;
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -446,14 +447,14 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if ((c > 64 && c < 91) || (c > 96 && c < 123) || (c > 47 && c < 58) || c == '_') { // (A-Z, a-z, 0-9, _)
 					add_char(buffer, c);
 				} 
-				else if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == '(' || c == ')' || isspace(c))
+				else if (SEPARATOR)
 				{
 					token->token_index = save_token(buffer);
 					if (!wrong_identifier)
 						token->token_type = reservedWord(load_token(buffer, token->token_index));
 					else
 						token->token_type = ERRORT;
-					printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					// previous = c;
 					// read = false;
 					wrong_identifier = false;
@@ -480,9 +481,8 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					add_char(buffer, c);
 					state = L_DOUBLE;
-					previous = c;
 				}
-				else if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c))
+				else if (SEPARATOR)
 				{
 					token->token_index = save_token(buffer);
 					token->token_type = L_INT;
@@ -511,7 +511,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					add_char(buffer, c);
 					is_number_after_dot = true;
 				}
-				else if ((c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c)) && is_number_after_dot)
+				else if (SEPARATOR && is_number_after_dot)
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
@@ -522,11 +522,13 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					state = START;
 					return index;
 				}
-				else if ((c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c)) && !is_number_after_dot) // 32.
+				else if (SEPARATOR && !is_number_after_dot)
 				{
 					token->token_type = ERRORT;
 					token->token_index = save_token(buffer);
 					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// previous = c;
+					// read = false;
 					ungetc(c,fin);
 					state = START;
 					return index;
@@ -557,7 +559,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					add_char(buffer, c);
 					is_number_after_sign = true;
 				}
-				else if ((c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || isspace(c)) && is_number_after_sign)
+				else if ((SEPARATOR) && is_number_after_sign)
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
@@ -572,7 +574,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					wrong_identifier = true;
 					state = IDENTIFIER;
 				}
-
 				break;
 
 			case O_MINUS:
@@ -641,7 +642,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 // 	// Token *token = (Token *) malloc(sizeof(Token));
 // 	// if (token == NULL)
 //  //    {
-//  //        //printf("Je to v pici, nenaalokovali sme\n");
+//  //        printf("Je to v pici, nenaalokovali sme\n");
 //  //        fclose(fin);
 //  //        return -1;
 //  //    }
