@@ -3,6 +3,7 @@
 #include <token.h>
 #include <stack.h>
 #include <error.h>
+#include <scanner.h>
 #include <precedence_analysis.h>
 #include <check.h>
 
@@ -50,13 +51,15 @@ START_TEST (test_get_types) {
     
     ck_assert_int_eq(values[0], 0);
 
+    print_stack(&b, &stack);
     for (i = 0; i < 3; i++) {
         new_item(&b, index, item);
         item->token_type = i;
         push(&b, &stack, index);
     
     }
-    
+    print_stack(&b, &stack);
+
     get_types(&b, &stack, values);
     
     for (i = 0; i < 3; i++) 

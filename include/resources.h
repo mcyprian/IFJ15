@@ -10,6 +10,9 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 #include <resources.h>
+#include <dynamic_buffer.h>
+#include <dynamic_structure_buffer.h>
+#include <resources.h>
 
 struct res{
 	FILE * source;

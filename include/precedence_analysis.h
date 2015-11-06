@@ -22,15 +22,20 @@ enum operations {
 };
 
 #define MAX_RULE_LENGTH 3
-#define END_OF_EXPR 14
 
 #define type_filter(type)                                      \
-    ((type) < 13 ? (type) : ((type) > 15 ? END_OF_EXPR : L_INT))
+    ((type) < 14 || (type) > 44 ? (type) : ((type) > 16 ? END_OF_EXPR : L_INT))
 
 #define NUM_OF_TOKENS 15
 
 extern const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS];
 
+/** Visualise current token_types on the stack
+ * @param b pointer to dynamic_structure_buffer
+ * @param stack pointer to stack
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
+int print_stack(TDynamic_structure_buffer *b, TStack *stack);
 
 /** Checks values of types of items before first SHIFT token
  * @param b pointer to dynamic_structure_buffer
@@ -62,4 +67,6 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack);
  */
 int get_rule(TDynamic_structure_buffer *b, TStack *stack);
 
+
+int check_expression(Resources *res);
 #endif // !PRECEDENCE_ANALYSIS_H

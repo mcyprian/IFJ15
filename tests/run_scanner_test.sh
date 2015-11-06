@@ -5,8 +5,8 @@ single_token_test")
 retVal=0
 for tc in $test_cases ;do
     echo "Running $tc"
-    output=$(./scanner_test test_data/$tc 2>/dev/null)
-    diff_output=$(diff "test_data/output_$tc" <(echo "$output"))
+    output=$(./scanner_test test_data/scanner_test_data/$tc 2>/dev/null)
+    diff_output=$(diff "test_data/scanner_test_data/output_$tc" <(echo "$output"))
     if [ -z "$diff_output" ]; then
         echo "test case $tc: PASSED"
     else

@@ -34,40 +34,41 @@ enum token_types
     O_NE,  // 9                      !=
 	CLOSING_BRACKET, // 10           )
     OPENING_BRACKET, // 11           (
-	IDENTIFIER, // 12                            }
-	L_INT, // 13                                 } <RVALUE>
-    L_DOUBLE, // 14                              }
-	L_STRING, // 15                              }
-    O_ASSIGN, // 16                  =
-	O_LEFT_ARROW, // 17              <<
-	O_RIGHT_ARROW, // 18             >>
-	T_DOUBLE, // 19                        } <TYPE>
-	T_INT, // 20                           }
-	T_STRING, // 21                        }
-    K_CIN, // 22                              } <KEY>
-	K_COUT, // 23                             }
-    K_DO,   // 24                             }
-	K_ELSE, // 25                             }
-	K_FOR, // 26                              }
-	K_IF,	// 27                             }
-	K_RETURN, // 28                           }
-    K_WHILE,  // 29                           }
-	UO_EXCLAMATION, // 30            !
-	AUTO, // 31                      auto
-	COMMA, // 32                     ,
-	CLOSING_CURLY_BRACKET, // 33     }
-	OPENING_CURLY_BRACKET, // 34     {
-	SEMICOLON, // 35                 ;
-    COMMENT, // 36
-    LINE_COMMENT, // 37
-    BLOCK_COMMENT, // 38
-    BLOCK_COMMENT_END, // 39
-    SCIENTIFIC, // 40
-	START, // 41
-	ERRORT, // 42
-	EOFT, // 43
-    SHIFT, // 44                      } precedence analysis
-    RVALUE //45                       }
+    END_OF_EXPR,     // 12
+	IDENTIFIER, // 13                            }
+	L_INT, // 14                                 } <RVALUE>
+    L_DOUBLE, // 15                              }
+	L_STRING, // 16                              }
+    O_ASSIGN, // 17                  =
+	O_LEFT_ARROW, // 18              <<
+	O_RIGHT_ARROW, // 19             >>
+	T_DOUBLE, // 20                        } <TYPE>
+	T_INT, // 21                           }
+	T_STRING, // 22                        }
+    K_CIN, // 23                              } <KEY>
+	K_COUT, // 24                             }
+    K_DO,   // 25                             }
+	K_ELSE, // 26                             }
+	K_FOR, // 27                              }
+	K_IF,	// 28                             }
+	K_RETURN, // 29                           }
+    K_WHILE,  // 30                           }
+	UO_EXCLAMATION, // 31            !
+	AUTO, // 32                      auto
+	COMMA, // 33                     ,
+	CLOSING_CURLY_BRACKET, // 34     }
+	OPENING_CURLY_BRACKET, // 35     {
+	SEMICOLON, // 36                 ;
+    COMMENT, // 37
+    LINE_COMMENT, // 38
+    BLOCK_COMMENT, // 39
+    BLOCK_COMMENT_END, // 40
+    SCIENTIFIC, // 41
+	START, // 42
+	ERRORT, // 43
+	EOFT, // 44
+    SHIFT, // 45                      } precedence analysis
+    RVALUE //46                       }
 };
 
 

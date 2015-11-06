@@ -18,5 +18,8 @@ add_test(stack stack_test)
 add_executable(scanner_test scanner_test.c ../src/scanner.c ../src/dynamic_buffer.c ../src/dynamic_structure_buffer.c)
 #add_test(scanner run_scanner_test.sh)
 add_test(pa pa_test)
-add_executable(pa_test pa_test.c ../src/precedence_analysis.c ../utils/stack.c ../src/dynamic_structure_buffer.c)
+add_executable(pa_test pa_test.c ../src/precedence_analysis.c ../utils/stack.c
+    ../src/dynamic_structure_buffer.c ../src/dynamic_buffer.c ../src/scanner.c)
 target_link_libraries(pa_test check)
+add_executable(check_expr_test check_expr_test.c ../src/scanner.c
+    ../utils/stack.c ../src/dynamic_buffer.c ../src/dynamic_structure_buffer.c ../src/precedence_analysis.c)
