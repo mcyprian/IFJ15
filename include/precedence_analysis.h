@@ -24,7 +24,7 @@ enum operations {
 #define MAX_RULE_LENGTH 3
 
 #define type_filter(type)                                      \
-    ((type) < 14 || (type) > 44 ? (type) : ((type) > 16 ? END_OF_EXPR : L_INT))
+    ((type) <= 13 || (type) >= 45 ? (type) : ((type) > 16 ? END_OF_EXPR : L_INT))
 
 #define NUM_OF_TOKENS 15
 

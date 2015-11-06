@@ -38,11 +38,7 @@ const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS] =
  /* li */ { R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  E,  R,  E,  E }
 };
 
-const int short_rules[2][1] =
-{
-    {IDENTIFIER},
-    {L_INT}                // same value for all literals
-};
+const int short_rules[2] = {IDENTIFIER, L_INT};  // same value for all literals
 
 const int long_rules[11][3] =
 {
@@ -62,6 +58,28 @@ const int long_rules[11][3] =
 const char* symbols[47];
 
 
+int get_first_token(TDynamic_structure_buffer *b, TStack *stack, index_t *first) {
+    TToken *tmp = NULL;
+    *first = stack->top;
+
+    catch_internal_error(
+        dereference_structure(b, *first, (void**)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+    while (tmp->token_type == RVALUE || tmp->token_type == SHIFT) {
+        if (tmp->next == ZERO_INDEX)
+            return SYNTAX_ERROR;
+        *first = tmp->next;
+        catch_internal_error(
+            dereference_structure(b, *first, (void**)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
+    }
+    return RETURN_OK;
+}
 
 int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
     symbols[0] = "=="; 
@@ -85,21 +103,29 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
     args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
     TToken *tmp = NULL;
     index_t next = ZERO_INDEX;
-    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+    catch_internal_error(
+        dereference_structure(b, stack->top, (void**)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
     printf("\nStack:\n    %s  <-- stack top\n", symbols[tmp->token_type]);
     while (tmp->token_type != END_OF_EXPR) {
         if ((next = tmp->next) == ZERO_INDEX)
             return SYNTAX_ERROR;
 
-        if (dereference_structure(b, next, (void**)&tmp) ==  INTERNAL_ERROR)
-            return INTERNAL_ERROR;
+        catch_internal_error(
+            dereference_structure(b, next, (void**)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer"
+        );
 
         printf("    %s\n", symbols[tmp->token_type]);
     }
+    return RETURN_OK;
 }
         
-    int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
+int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
     args_assert(b != NULL && stack != NULL && values != NULL, INTERNAL_ERROR);
     debug_print("%s\n", "GET TYPES");
     TToken *tmp = NULL;
@@ -109,7 +135,11 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
     int *s;
     int *f;
 
-    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+    catch_internal_error(
+        dereference_structure(b, stack->top, (void**)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     
     for (i = 1; tmp->token_type != SHIFT; i++) {
         if (i > MAX_RULE_LENGTH)
@@ -118,8 +148,11 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
         if ((next = tmp->next) == ZERO_INDEX)
             return SYNTAX_ERROR;
         
-        if (dereference_structure(b, next, (void**)&tmp) ==  INTERNAL_ERROR)
-            return INTERNAL_ERROR;
+        catch_internal_error(
+            dereference_structure(b, next, (void**)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
     }
     values[0] = i - 1;           // store length of rule to index 0
     for (s = (values + 1), f = (values + i - 1); s < f; s++, f--) {
@@ -133,7 +166,11 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
 int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type) {
     args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
     TToken *tmp = NULL;
-    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+    catch_internal_error(
+        dereference_structure(b, stack->top, (void**)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     tmp->token_type = new_type;    
     return RETURN_OK;
 }
@@ -141,7 +178,11 @@ int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type) {
 int reduce(TDynamic_structure_buffer *b, TStack *stack) {
     TToken *tmp = NULL;
 
-    catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+    catch_internal_error(
+        dereference_structure(b, stack->top, (void**)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
 
     while(tmp->token_type != SHIFT) {
@@ -149,7 +190,11 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack) {
         if (stack->top == ZERO_INDEX)
             return SYNTAX_ERROR;
       
-        catch_internal_error(dereference_structure(b, stack->top, (void**)&tmp), INTERNAL_ERROR, "Failed to dereference structure buffer.");
+        catch_internal_error(
+            dereference_structure(b, stack->top, (void**)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
       
     }
     return overwrite_top(b, stack, RVALUE);
@@ -180,10 +225,11 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
     long_rule_symbol[10] = "( RVALUE ) -> RVALUE";
 
     if (values[0] == 1) {
-        for (i = 0; i < 3; i++) {
-            if (short_rules[i][0] == values[1])
+        for (i = 0; i < 2; i++) {
+            if (short_rules[i] == values[1]) {
                 printf("Applied rule: %s -> RVALUE\n", short_rule_symbol[i]);
-            return RETURN_OK;
+                return RETURN_OK;
+            }
         }
         return SYNTAX_ERROR;
     } else if (values[0] == 3) {
@@ -202,6 +248,7 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
 int check_expression(Resources *res) {
     TToken *input_token = NULL;
     TToken *top_token = NULL;
+    TToken *tmp = NULL;
     index_t top_index = ZERO_INDEX;
     index_t input_index = ZERO_INDEX;
     TStack stack;
@@ -214,60 +261,112 @@ int check_expression(Resources *res) {
     push(&res->struct_buff, &stack, top_index); // $ on top of the stack
 
     input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
-    dereference_structure(&res->struct_buff, input_index, (void **)&input_token);
-    dereference_structure(&res->struct_buff, top_index, (void **)&top_token);
+    catch_internal_error(
+        dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+        
+    catch_internal_error(
+        dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
     do {
-        print_stack(&res->struct_buff, &stack);
-        printf("top %s\n", symbols[top_token->token_type]);
-        printf("input %s\n", symbols[input_token->token_type]);
+       // print_stack(&res->struct_buff, &stack);
 
         switch(precedence_table[type_filter(top_token->token_type)]
+
                                [type_filter(input_token->token_type)]) {
             case H:
-                printf("Case H\n");
+               // printf("Case H\n");
                 top_index = input_index;
                 push(&res->struct_buff, &stack, top_index);
                 input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
-                dereference_structure(&res->struct_buff, input_index, (void **)&input_token);
-                dereference_structure(&res->struct_buff, top_index, (void **)&top_token);
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
+
                 break;
 
             case S:
-                printf("Case S\n");
+               // printf("Case S\n");
                 new_item(&res->struct_buff, top_index, top_token);
-                top_token->token_type = SHIFT;
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, stack.top, (void **)&tmp),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
+                if (tmp->token_type == RVALUE) {
+                   catch_internal_error(
+                       overwrite_top(&res->struct_buff, &stack, SHIFT),
+                       INTERNAL_ERROR,
+                       "Failed to overwrite_top"
+                   );
+                    top_token->token_type = RVALUE;
+                } else
+                    top_token->token_type = SHIFT;
                 push(&res->struct_buff, &stack, top_index);
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
 
-                dereference_structure(&res->struct_buff, input_index, (void **)&input_token);
                 top_index = input_index;
                 push(&res->struct_buff, &stack, top_index);
                 input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
-                dereference_structure(&res->struct_buff, input_index, (void **)&input_token);
-                dereference_structure(&res->struct_buff, top_index, (void **)&top_token);
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
                 break;
             
             case R:
-                printf("Case R\n");
+              //  printf("Case R\n");
                 err = get_rule(&res->struct_buff, &stack);
                 catch_internal_error(err, INTERNAL_ERROR, "Failed to get rule");
                 catch_syntax_error(err, SYNTAX_ERROR, "Failed to get rule", 1);
                 err = reduce(&res->struct_buff, &stack);
                 catch_internal_error(err, INTERNAL_ERROR, "Failed to reduce");
                 catch_syntax_error(err, SYNTAX_ERROR, "Failed to reduce",1);
+                top_index = stack.top;
+                catch_syntax_error(
+                    get_first_token(&res->struct_buff, &stack, &top_index),
+                    INTERNAL_ERROR,
+                    "Failed to get first token", 1
+                );
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
                 break;
-            
             case E:
-                printf("Case E\n");
+              //  printf("Case E\n");
                 return SYNTAX_ERROR;
             
             default:
                 return INTERNAL_ERROR;
         }
-        print_stack(&res->struct_buff, &stack);
-        printf("top %s\n", symbols[top_token->token_type]);
-        printf("input %s\n", symbols[input_token->token_type]);
-    } while (type_filter(top_token->token_type) != END_OF_EXPR && type_filter(input_token->token_type) != END_OF_EXPR);
+        // print_stack(&res->struct_buff, &stack);
+        //printf("top %s\n", symbols[top_token->token_type]);
+        //printf("input %s\n", symbols[input_token->token_type]);
+    } while (type_filter(top_token->token_type) != END_OF_EXPR || type_filter(input_token->token_type) != END_OF_EXPR);
 
     return RETURN_OK;
 }
