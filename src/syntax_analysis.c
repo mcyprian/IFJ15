@@ -60,7 +60,12 @@ int check_syntax(int term, Resources * resources){
 		case BLOCK_STATMENT:
 			if (token->token_type == CLOSING_CURLY_BRACKET)goto EXIT;
 
-			if ((token->token_type >= T_DOUBLE && token->token_type <= T_STRING) ||
+			if (token->token_type == OPENING_CURLY_BRACKET){
+				if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
+			}
+			else if ((token->token_type >= T_DOUBLE && token->token_type <= T_STRING) ||
 				 (token->token_type == AUTO)){
 				if ((iRet = check_syntax(DEC_VAR, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT; 
@@ -141,7 +146,8 @@ int check_syntax(int term, Resources * resources){
 //**************** TAIL_ASSIGNMENT **********************//
 		case TAIL_ASSIGNMENT:
 			if (token->token_type == O_ASSIGN){
-				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
+				//rvalue
 			}
 			else if (token->token_type == OPENING_BRACKET){
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;

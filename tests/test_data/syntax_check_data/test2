@@ -1,0 +1,16 @@
+int main()
+{
+	string str1;
+		{ // vnoreny blok s lokalni promennou str2 a pristupem k str1
+		int x;
+		str1 = ;
+		string str2;
+		str2 = ;
+		x = ;
+		cout << ;
+		cout << ;
+	}
+	cin >> ;
+	str1 = ;
+return ;
+}
