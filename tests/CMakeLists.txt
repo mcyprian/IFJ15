@@ -12,15 +12,15 @@ add_test(dynamic_buffer dynbuff_test)
 add_executable(dynstruct_test dynstruct_test.c ../src/dynamic_structure_buffer.c)
 target_link_libraries(dynstruct_test check m)
 add_test(dyn_struct dynstruct_test)
-add_executable(stack_test stack_test.c ../utils/stack.c ../src/dynamic_structure_buffer.c)
+add_executable(stack_test stack_test.c ../src/stack.c ../src/dynamic_structure_buffer.c)
 target_link_libraries(stack_test check)
 add_test(stack stack_test)
 add_executable(scanner_test scanner_test.c ../src/scanner.c ../src/dynamic_buffer.c ../src/dynamic_structure_buffer.c)
 #add_test(scanner run_scanner_test.sh)
 add_test(pa pa_test)
-add_executable(pa_test pa_test.c ../src/precedence_analysis.c ../utils/stack.c
+add_executable(pa_test pa_test.c ../src/precedence_analysis.c ../src/stack.c
     ../src/dynamic_structure_buffer.c ../src/dynamic_buffer.c ../src/scanner.c)
 target_link_libraries(pa_test check)
 add_test(syntax_tests syntax_check_test.sh)
 add_executable(check_expr_test check_expr_test.c ../src/precedence_analysis.c
-    ../utils/stack.c ../src/dynamic_structure_buffer.c ../src/dynamic_buffer.c ../src/scanner.c)
+    ../src/stack.c ../src/dynamic_structure_buffer.c ../src/dynamic_buffer.c ../src/scanner.c)

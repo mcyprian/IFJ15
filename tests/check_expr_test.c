@@ -36,6 +36,11 @@ int main(int argc, char ** argv){
 
     printf("RETURNED %d\n", iRet);
 
+    TToken *token = NULL;
+    index_t index = get_token(resources.source, &resources.string_buff, &resources.struct_buff);
+    dereference_structure(&resources.struct_buff, index, (void**)&token);
+    printf("First token after %d\n", token->token_type);
+
 	fclose(resources.source);
 
 STRUCT_BUFF:
