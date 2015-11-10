@@ -89,17 +89,6 @@ int reservedWord(char *identifier)
 } // reservedWord
 
 
-// int save_token_structure(TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer, int operator, index_t index, index_t *items)
-// {
-	
-	
-// 	token->token_type = operator;
-// 	token->token_index = save_token(buffer);
-	
-// 	return 0;
-// }
-
-
 index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer) {
 	args_assert(buffer != NULL && struct_buffer != NULL, INTERNAL_ERROR);
 	debug_print("%s\n", "GET_TOKEN");
@@ -126,12 +115,10 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			if (feof(fin))
 			{
 				new_item(struct_buffer, index, token);
-				add_char(buffer, 'E');
-				add_char(buffer, 'O');
-				add_char(buffer, 'F');
 				token->token_index = save_token(buffer);
+				catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 				token->token_type = EOFT;
-				//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+				// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 
 				return index;
 			}
@@ -147,31 +134,29 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			case START:
 				new_item(struct_buffer, index, token); // pridat overenie, ci to vyslo
 
-				if ((c > 64 && c < 91) || (c > 96 && c < 123) || c == '_') // A-Z || a-z
+				if ((c > 64 && c < 91) || (c > 96 && c < 123) || c == '_') // A-Z || a-z || _
 				{
 					state = IDENTIFIER;
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					
 				}
 				else if (c > 47 && c < 58) // 0-9
 				{
 					state = L_INT;
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 				}
 				else  
 				{
 					switch (c)
 					{
 						case '+':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
 							token->token_type = O_PLUS;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
 						case '-':
-							// add_char(buffer, c);
 							state = O_MINUS;
 							break;
 
@@ -180,101 +165,89 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '*':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
+							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = O_MUL;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
 						case ';':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
+							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = SEMICOLON;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
-						// case ':':
-						// 	add_char(buffer, c);
-						// 	token->token_index = save_token(buffer);
-						// 	token->token_type = COLON;
-						// 	printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
-						// 	return index;
-						// 	break;
-
 						case ',':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
+							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = COMMA;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
 						case '(':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
+							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = OPENING_BRACKET;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
 						case ')':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
+							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = CLOSING_BRACKET;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
 						case '{':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
+							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = OPENING_CURLY_BRACKET;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
 						case '}':
-							// add_char(buffer, c);
 							token->token_index = save_token(buffer);
+							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = CLOSING_CURLY_BRACKET;
-							//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
 							break;
 
 						case '=':
-							// add_char(buffer, c);
 							state = O_EQUALS;
 							break;
 
 						case '<':
-							// add_char(buffer, c);
 							state = O_L;
 							break;
 
 						case '>':
-							// add_char(buffer, c);
 							state = O_G;
 							break;
 
 						case '!':
-							// add_char(buffer, c);
 							state = UO_EXCLAMATION;
 							break;
 						
 						case '"':
-							// add_char(buffer, c);
 							state = L_STRING;
 							break;
 
 						default:
 							if (!isspace(c))
 							{
-								add_char(buffer, c);
+								catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 								token->token_index = save_token(buffer);
+								catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 								token->token_type = ERRORT;
-								//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+								// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 								return index;
 							}
 
@@ -284,23 +257,22 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				break;
 
 			case COMMENT:
-				if (c == '/')
+				if (c == '/')  // //
 				{
 					state = LINE_COMMENT;
 				}
-				else if (c == '*')
+				else if (c == '*')  // /*
 				{
 					state = BLOCK_COMMENT;
 				}
-				else // '/'
+				else // /
 				{
-					//add_char(buffer, '/');
-					previous = c;
-					read = false;
+					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_DIV;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					return index;
 				}
 
@@ -327,136 +299,131 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				break;
 
 			case O_EQUALS:
-				if (c == '=')
+				if (c == '=') // ==
 				{
-					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_EQUALS;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
-				else
+				else // =
 				{
-					// previous = c;
-					// read = false;
 					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_ASSIGN;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					return index;
 					break;
 				}
 
 			case O_G:
-				if (c == '=')
+				if (c == '=') // >=
 				{
-					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_GE;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
-				else if (c == '>')
+				else if (c == '>') // >>
 				{
-					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_RIGHT_ARROW;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
-				else
+				else // >
 				{
-					// previous = c;
-					// read = false;
 					ungetc(c, fin);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_G;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
 
 			case O_L:
-				if (c == '=')
+				if (c == '=') // <=
 				{
-					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_LE;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
-				else if (c == '<')
+				else if (c == '<') // <<
 				{
-					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_LEFT_ARROW;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
-				else
+				else // <
 				{
-					// previous = c;
-					// read = false;
 					ungetc(c, fin);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_L;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
 
 			case UO_EXCLAMATION:
-				if (c == '=')
+				if (c == '=') // !=
 				{
-					// add_char(buffer, c);
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_NE;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 					break;
 				}
-				else
+				else // ! je zatial errort
 				{
-					// previous = c;
-					// read = false;
 					ungetc(c, fin);
 					token->token_index = save_token(buffer);
-					token->token_type = UO_EXCLAMATION;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
+					token->token_type = ERRORT; // token->token_type = UO_EXCLAMATION;
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
-					//return index;
+					return index;
 					break;
 				}
 
 			case IDENTIFIER:
 
 				if ((c > 64 && c < 91) || (c > 96 && c < 123) || (c > 47 && c < 58) || c == '_') { // (A-Z, a-z, 0-9, _)
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 				} 
 				else if (SEPARATOR)
 				{
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					if (!wrong_identifier)
 						token->token_type = reservedWord(load_token(buffer, token->token_index));
 					else
 						token->token_type = ERRORT;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
-					// previous = c;
-					// read = false;
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					wrong_identifier = false;
 					is_number_after_dot = false;
 					is_number_after_sign = false;
@@ -466,39 +433,40 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				}
 				else
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 				}
 
 				break;
 
 			case L_INT:
-				if (c > 47 && c < 58)
+				if (c > 47 && c < 58) // 0-9
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 				}
 				else if (c == 46) // c == "."
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = L_DOUBLE;
 				}
 				else if (SEPARATOR)
 				{
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = L_INT;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
 					state = START;
 					return index;
 				}
 				else if (c == 'e' || c == 'E')
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = SCIENTIFIC;
 				}
 				else
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 					state = IDENTIFIER;
 				}
@@ -506,18 +474,16 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				break;
 
 			case L_DOUBLE:
-				if (c > 47 && c < 58)
+				if (c > 47 && c < 58) // 0-9
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					is_number_after_dot = true;
 				}
 				else if (SEPARATOR && is_number_after_dot)
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
-					// previous = c;
-					// read = false;
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
 					state = START;
 					return index;
@@ -526,21 +492,20 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					token->token_type = ERRORT;
 					token->token_index = save_token(buffer);
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
-					// previous = c;
-					// read = false;
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
 					state = START;
 					return index;
 				}
 				else if ((c == 'e' || c == 'E') && is_number_after_dot)
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = SCIENTIFIC;
 				}
 				else
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 					state = IDENTIFIER;
 				}
@@ -551,46 +516,46 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if ((c == '+' || c == '-') && !signed_scientific && !is_number_after_sign)
 				{
 					signed_scientific = true;
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = SCIENTIFIC;
 				}
 				else if (c > 47 && c < 58)
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					is_number_after_sign = true;
 				}
 				else if ((SEPARATOR) && is_number_after_sign)
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
 					state = START;
 					return index;
 				}
 				else
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 					state = IDENTIFIER;
 				}
 				break;
 
 			case O_MINUS:
-				if (c > 47 && c < 58) // is negative integer or double
+				if (c > 47 && c < 58) // 0-9
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = L_INT;
 				}
 				else // is '-'
 				{
-					// previous = c;
-					// read = false;
 					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_MINUS;
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					return  index;
 				}
 
@@ -599,28 +564,27 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			case L_STRING:
 				if (c == '"')
 				{
-					add_char(buffer, c);
 					token->token_type = L_STRING;
 					token->token_index = save_token(buffer);
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
-					//ungetc(c,fin);
+					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
+					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 				}
 				else if (c == '\\')
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = L_STRING_BACKSLASH;
 				}
 				else
 				{
-					add_char(buffer, c);
+					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 				}
 				
 				break;
 
 			case L_STRING_BACKSLASH:
-				add_char(buffer, c);
+				catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 				state = L_STRING;
 				break;
 
@@ -628,319 +592,3 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 	} // while(1)
 	return 0;
 }
-
-
-// int tokenize(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buff) 
-// {
-// 	int c;
-// 	int previous = 0;
-// 	int state = START;
-// 	bool read = true;
-// 	TToken *token;
-
-// 	// /* !!!!!!!!!!!! TOTO JE LEN DOCASNE RIESENIE !!!!!!!!!!!!!!!! */
-// 	// Token *token = (Token *) malloc(sizeof(Token));
-// 	// if (token == NULL)
-//  //    {
-//  //        printf("Je to v pici, nenaalokovali sme\n");
-//  //        fclose(fin);
-//  //        return -1;
-//  //    }
-
-// 	// token->type = IDENTIFIER;	// aby tam nieco bolo
-// 	// /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-
-// 	while (1) {
-// 		if (read)
-// 		{
-// 			if ((c = fgetc(fin)) == EOF)
-// 				return 0; // toto treba prerobit, nefunguje pripad ked je v test.txt abcEOF
-// 		}
-// 		else
-// 		{
-// 			c = previous;
-// 			read = true;
-// 		}
-
-// 		switch (state) 
-// 		{
-// 			case START:
-
-// 				if (new_item(&struct_buff))
-
-// 				if ((c > 64 && c < 91) || (c > 96 && c < 123)) //A-Z || a-z
-// 				{
-// 					state = IDENTIFIER;
-// 					add_char(buffer, c);
-					
-// 				}
-// 				else if (c > 47 && c < 58)
-// 				{
-// 					state = INTEGER;
-// 					add_char(buffer, c);
-// 				}
-// 				else  
-// 				{
-// 					switch (c)
-// 					{
-// 						case '+':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = OPERATOR;
-// 							//printf("%s    %d\n", token->value, token->type);	// bude return token; velmi pravdepodobne :D // docasne vypisuje uz len cislo z enumeracie "typu" - aj tak to vypisovat uz nebude, len vvraciat token s typom
-// 							break;
-// 						case '-':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = OPERATOR;
-// 							//printf("%s    %d\n", token->value, token->type);
-							
-// 							break;
-// 						case '/':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = OPERATOR;
-// 							//printf("%s    %d\n", token->value, token->type);
-							
-// 							break;
-// 						case '*':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = OPERATOR;
-// 							//printf("%s    %d\n", token->value, token->type);
-							
-// 							break;
-// 						case ';':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = SEMICOLON;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case ':':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = COLON;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case ',':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = COMMA;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case '(':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = OPENING_BRACKET;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case ')':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = CLOSING_BRACKET;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case '[':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = OPENING_SQUARE_BRACKET;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case ']':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = CLOSING_SQUARE_BRACKET;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case '{':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = OPENING_CURLY_BRACKET;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case '}':
-// 							add_char(buffer, c);
-// 							token->value = save_token(buffer);
-// 							token->type = CLOSING_CURLY_BRACKET;
-// 							//printf("%s    %d\n", token->value, token->type);
-// 							break;
-// 						case '=':
-// 							add_char(buffer, c);
-// 							state = EQUALS;
-// 							break;
-// 						case '<':
-// 							add_char(buffer, c);
-// 							state = LESS;
-// 							break;
-// 						case '>':
-// 							add_char(buffer, c);
-// 							state = GREATER;
-// 							break;
-// 						case '!':
-// 							add_char(buffer, c);
-// 							state = EXCLAMATION;
-// 							break;
-// 						}
-// 				}
-// 				break;
-
-// 			case EQUALS:
-// 				if (c == '=')
-// 				{
-// 					add_char(buffer, c);
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					state = START;
-// 					break;
-// 				}
-// 				else
-// 				{
-// 					previous = c;
-// 					read = false;
-// 					state = START;
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					break;
-// 				}
-
-// 			case GREATER:
-// 				if (c == '=')
-// 				{
-// 					add_char(buffer, c);
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					state = START;
-// 					break;
-// 				}
-// 				else if (c == '>')
-// 				{
-// 					add_char(buffer, c);
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					state = START;
-// 					break;
-// 				}
-// 				else
-// 				{
-// 					previous = c;
-// 					read = false;
-// 					state = START;
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					break;
-// 				}
-
-// 			case LESS:
-// 				if (c == '=')
-// 				{
-// 					add_char(buffer, c);
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					state = START;
-// 					break;
-// 				}
-// 				else if (c == '<')
-// 				{
-// 					add_char(buffer, c);
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					state = START;
-// 					break;
-// 				}
-// 				else
-// 				{
-// 					previous = c;
-// 					read = false;
-// 					state = START;
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					break;
-// 				}
-
-// 			case EXCLAMATION:
-// 				if (c == '=')
-// 				{
-// 					add_char(buffer, c);
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					state = START;
-// 					break;
-// 				}
-// 				else
-// 				{
-// 					previous = c;
-// 					read = false;
-// 					state = START;
-// 					token->value = save_token(buffer);
-// 					token->type = OPERATOR;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					break;
-// 				}
-
-// 			case IDENTIFIER:
-
-// 				if ((c > 64 && c < 91) || (c > 96 && c < 123) || (c > 47 && c < 58) || c == '_') { // (A-Z, a-z, 0-9, _)
-// 					add_char(buffer, c);
-// 				} 
-// 				else 
-// 				{
-// 					token->value = save_token(buffer);
-// 					token->type = reservedWord(token->value);
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					previous = c;
-// 					read = false;
-// 					state = START;
-// 				}
-// 				break;
-
-// 			case INTEGER:
-// 				if (c > 47 && c < 58)
-// 				{
-// 					add_char(buffer, c);
-// 				}
-// 				else if (c == 46) // c == "."
-// 				{
-// 					add_char(buffer, c);
-// 					state = DOUBLE;
-// 				}
-// 				else
-// 				{
-// 					token->value = save_token(buffer);
-// 					token->type = INTEGER;
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					previous = c;
-// 					read = false;
-// 					state = START;
-// 				}
-// 				break;
-
-// 			case DOUBLE:
-// 				if (c > 47 && c < 58)
-// 				{
-// 					add_char(buffer, c);
-// 				}
-// 				else
-// 				{
-// 					token->type = DOUBLE;
-// 					token->value = save_token(buffer);
-// 					//printf("%s    %d\n", token->value, token->type);
-// 					previous = c;
-// 					read = false;
-// 					state = START;
-// 				}
-// 				break;
-
-
-// 		} // switch(state)
-// 	} // while(1)
-// 	return 0;
-// }

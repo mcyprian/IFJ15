@@ -68,8 +68,15 @@ enum token_types
 	ERRORT, // 43
 	EOFT, // 44
     SHIFT, // 45                      } precedence analysis
-    RVALUE //46                       }
+    RVALUE, //46                      }
+    INTERNAL_ERROR_TOKEN // 47
 };
-
+#define catch_token_internal_error(var, value, token, index)            \
+    do {                                                                \
+        if ((var) == (value)) {                                         \
+            token->token_type = INTERNAL_ERROR_TOKEN;					\
+            return(index);                                    			\
+        }                                                               \
+    } while (0)
 
 #endif // !TOKEN_H
