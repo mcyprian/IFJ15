@@ -479,7 +479,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					is_number_after_dot = true;
 				}
-				else if (SEPARATOR && is_number_after_dot)
+				else if ((SEPARATOR) && is_number_after_dot)
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
@@ -488,7 +488,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					state = START;
 					return index;
 				}
-				else if (SEPARATOR && !is_number_after_dot)
+				else if ((SEPARATOR) && !is_number_after_dot)
 				{
 					token->token_type = ERRORT;
 					token->token_index = save_token(buffer);
