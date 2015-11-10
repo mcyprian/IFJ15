@@ -11,6 +11,7 @@
 #define PRECEDENCE_ANALYSIS_H
 
 #include <dynamic_structure_buffer.h>
+#include <token.h>
 #include <stack.h>
 
 
@@ -68,5 +69,5 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack);
 int get_rule(TDynamic_structure_buffer *b, TStack *stack);
 
 
-int check_expression(Resources *res);
+int check_expression(Resources *res, TToken **token);
 #endif // !PRECEDENCE_ANALYSIS_H

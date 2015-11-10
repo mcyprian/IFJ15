@@ -114,8 +114,7 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
-
-    printf("\nStack:\n    %s  <-- stack top\n", symbols[tmp->token_type]);
+    printf("\nStack:\n    %s  <-- stack top\n", symbols[type_filter(tmp->token_type)]);
     while (tmp->token_type != END_OF_EXPR) {
         if ((next = tmp->next) == ZERO_INDEX)
             return SYNTAX_ERROR;
@@ -151,7 +150,7 @@ int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
     for (i = 1; tmp->token_type != SHIFT; i++) {
         if (i > MAX_RULE_LENGTH)
             return SYNTAX_ERROR;
-        values[i] = tmp->token_type;
+        values[i] = type_filter(tmp->token_type);
         if ((next = tmp->next) == ZERO_INDEX)
             return SYNTAX_ERROR;
         
@@ -261,7 +260,7 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
         return SYNTAX_ERROR;
 }
 
-int check_expression(Resources *res) {
+int check_expression(Resources *res, TToken **last_token) {
     args_assert(res != NULL, INTERNAL_ERROR);
 
     TToken *input_token = NULL;
@@ -389,6 +388,6 @@ int check_expression(Resources *res) {
        // printf("top %s\n", symbols[top_token->token_type]);
        // printf("input %s\n", symbols[input_token->token_type]);
     } while (type_filter(top_token->token_type) != END_OF_EXPR || type_filter(input_token->token_type) != END_OF_EXPR);
-
+    dereference_structure(&res->struct_buff, input_index, (void **)last_token);
     return RETURN_OK;
 }

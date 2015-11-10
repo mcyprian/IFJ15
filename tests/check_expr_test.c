@@ -12,6 +12,7 @@ int main(int argc, char ** argv){
 	int iRet = RETURN_OK;
 
 	Resources resources;
+    TToken *token = NULL;
 
 	if((iRet = init_buffer(&(resources.string_buff), 1024)) != RETURN_OK)
 		goto DEFAULT;
@@ -32,13 +33,10 @@ int main(int argc, char ** argv){
 		goto STRUCT_BUFF;
 	}
 
-	iRet = check_expression(&resources);
+	iRet = check_expression(&resources, &token);
 
     printf("RETURNED %d\n", iRet);
 
-    TToken *token = NULL;
-    index_t index = get_token(resources.source, &resources.string_buff, &resources.struct_buff);
-    dereference_structure(&resources.struct_buff, index, (void**)&token);
     printf("First token after %d\n", token->token_type);
 
 	fclose(resources.source);

@@ -71,6 +71,7 @@ enum token_types
     RVALUE, //46                      }
     INTERNAL_ERROR_TOKEN // 47
 };
+
 #define catch_token_internal_error(var, value, token, index)            \
     do {                                                                \
         if ((var) == (value)) {                                         \
