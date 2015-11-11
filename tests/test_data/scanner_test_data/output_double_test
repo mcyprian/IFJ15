@@ -1,62 +1,64 @@
-int 1
-main 14
-( 33
-) 31
-{ 34
-int 1
-i 14
-= 15
-879645 11
-; 35
-double 0
-pi 14
-= 15
-3.14159 12
-; 35
-double 0
-scientific1 14
-= 15
-3.926e+2 12
-; 35
-double 0
-scientific2 14
-= 15
-233e-26 12
-; 35
-double 0
-scientific21 14
-= 15
-233e+26 12
-; 35
-double 0
-scientific3 14
-= 15
-233e26 12
-; 35
-double 0
-scientific4 14
-= 15
-037E-001 12
-; 35
-double 0
-scientific5 14
-= 15
-037E+001 12
-; 35
-double 0
-wrong1 14
-= 15
-037_e03 42
-; 35
-double 0
-wrong2 14
-= 15
-32.15.65 42
-; 35
-double 0
-wrong3 14
-= 15
-32.-e26 42
-; 35
-} 32
-EOF 43
+21
+main 13
+11
+10
+35
+21
+i 13
+17
+879645 14
+36
+20
+pi 13
+17
+3.14159 15
+36
+20
+scientific1 13
+17
+3.926e+2 15
+36
+20
+scientific2 13
+17
+233e-26 15
+36
+20
+scientific21 13
+17
+233e+26 15
+36
+20
+scientific3 13
+17
+233e26 15
+36
+20
+scientific4 13
+17
+037E-001 15
+36
+20
+scientific5 13
+17
+037E+001 15
+36
+20
+wrong1 13
+17
+037_e03 43
+36
+20
+wrong2 13
+17
+32.15.65 43
+36
+20
+wrong3 13
+17
+32. 43
+6
+e26 13
+36
+34
+44
