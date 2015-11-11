@@ -1,53 +1,54 @@
-int 1
-_fC23e 14
-( 33
-double 0
-) 31
-{ 34
-return 9
-0 11
-; 35
-} 32
-int 1
-main 14
-( 33
-) 31
-{ 34
-ifid 14
-; 35
-for_val 14
-; 35
-else_ 14
-; 35
-automat 14
-; 35
-cinnamon 14
-; 35
-cout3 14
-; 35
-doublee 14
-; 35
-internal 14
-; 35
-return_ 14
-string_ 14
-; 35
-auto 29
-123654asFDa__fasdg 42
-= 15
-32.1 12
-; 35
-int 1
-aer@dsfas 42
-; 35
-int 1
-_2asdf 14
-; 35
-int 1
-_ 14
-; 35
-double 0
-wroN$g 42
-; 35
-} 32
-EOF 43
+21
+_fC23e 13
+11
+20
+10
+35
+29
+0 14
+36
+34
+21
+main 13
+11
+10
+35
+ifid 13
+36
+for_val 13
+36
+else_ 13
+36
+automat 13
+36
+cinnamon 13
+36
+cout3 13
+36
+doublee 13
+36
+internal 13
+36
+return_ 13
+36
+string_ 13
+36
+32
+123654asFDa__fasdg 43
+17
+32.1 15
+36
+21
+aer@dsfas 43
+36
+21
+_2asdf 13
+36
+21
+_ 13
+36
+20
+wroN$g 43
+36
+34
+44

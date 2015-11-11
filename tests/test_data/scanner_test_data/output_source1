@@ -1,123 +1,123 @@
-int 1
-fce 14
-( 33
-int 1
-a 14
-, 30
-string 2
-s 14
-) 31
-{ 34
-cout 4
-<< 22
-s 14
-; 35
-return 9
-a 14
-; 35
-} 32
-int 1
-main 14
-( 33
-) 31
-{ 34
-int 1
-i 14
-= 15
-12 11
-; 35
-int 1
-declaration 14
-, 30
-var 14
-; 35
-string 2
-sentance 14
-= 15
-"Long string literal\n" 13
-; 35
-string 2
-empty 14
-= 15
-"" 13
-; 35
-string 2
-special 14
-= 15
-"This \n \" is \\ special \x73tring " 13
-; 35
-if 8
-( 33
-1 11
-<= 21
-5 11
-) 31
-{ 34
-for 7
-( 33
-i 14
-= 15
-0 11
-; 35
-i 14
-< 20
-2 11
-; 35
-i 14
-= 15
-i 14
-+ 23
-1 11
-) 31
-{ 34
-cout 4
-<< 22
-sentance 14
-<< 22
-empty 14
-; 35
-cout 4
-<< 22
-special 14
-; 35
-} 32
-} 32
-else 6
-return 9
-1 11
-; 35
-while 10
-( 33
-i 14
-< 20
-5 11
-) 31
-{ 34
-cin 3
->> 24
-declaration 14
->> 24
-var 14
-; 35
-var 14
-* 25
-i 14
-; 35
-declaration 14
-/ 16
-i 14
-+ 23
-12 11
-; 35
-i 14
-= 15
-i 14
-+ 23
-1 11
-; 35
-} 32
-return 9
-0 11
-; 35
-} 32
-EOF 43
+21
+fce 13
+11
+21
+a 13
+33
+22
+s 13
+10
+35
+24
+18
+s 13
+36
+29
+a 13
+36
+34
+21
+main 13
+11
+10
+35
+21
+i 13
+17
+12 14
+36
+21
+declaration 13
+33
+var 13
+36
+22
+sentance 13
+17
+Long string literal\n 16
+36
+22
+empty 13
+17
+ 16
+36
+22
+special 13
+17
+This \n \" is \\ special \x73tring  16
+36
+28
+11
+1 14
+4
+5 14
+10
+35
+27
+11
+i 13
+17
+0 14
+36
+i 13
+2
+2 14
+36
+i 13
+17
+i 13
+5
+1 14
+10
+35
+24
+18
+sentance 13
+18
+empty 13
+36
+24
+18
+special 13
+36
+34
+34
+26
+29
+1 14
+36
+30
+11
+i 13
+2
+5 14
+10
+35
+23
+19
+declaration 13
+19
+var 13
+36
+var 13
+7
+i 13
+36
+declaration 13
+8
+i 13
+5
+12 14
+36
+i 13
+17
+i 13
+5
+1 14
+36
+34
+29
+0 14
+36
+34
+44
