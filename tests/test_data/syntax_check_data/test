@@ -1,26 +1,26 @@
 int factorial(int n) // Definice funkce pro vypocet hodnoty faktorialu
 {
 	int temp_result;
-	auto decremented_n = ;
-	if () {
-		return ;
+	auto decremented_n = 10;
+	if (10) {
+		return 1;
 	} else {
-		temp_result = ;
-		return ;
+		temp_result = decremented_n;
+		return 0;
 	}
 }
 
 int main()
 {
 	int a; int vysl;
-	cout << ;
-	cin >> ;
-	if () {
-		cout << ;
+	cout << "Helldsafdsafasdfsafdasfds" ;
+	cin >> "fsdfsadfsdafsdafsfas";
+	if (5) {
+		cout << a ;
 	} else {
-		vysl = ;
-		auto neg = ;
-		cout << ;
+		vysl = 0 ;
+		auto neg = 150 - 8;
+		cout << "dasd";
 	}
-return ;
+return 25;
 }

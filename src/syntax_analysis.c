@@ -14,6 +14,7 @@
 #include <scanner.h>
 #include <debug.h>
 #include <error_macros.h>
+#include <precedence_analysis.h>
 
 #include <datatypes.h>
 #include <resources.h>
@@ -123,7 +124,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(AUTO, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(TAIL_VAR, resources)) != 0)goto EXIT;
+				if ((iRet = check_expression(resources, &token)))goto EXIT;
 			}
 			else goto SYN_ERR; 
 			break;		
@@ -132,7 +133,7 @@ int check_syntax(int term, Resources * resources){
 		case TAIL_VAR:
 			if (token->token_type == O_ASSIGN){
 				if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			}
 			else goto EXIT;
 			break;
@@ -147,11 +148,11 @@ int check_syntax(int term, Resources * resources){
 		case TAIL_ASSIGNMENT:
 			if (token->token_type == O_ASSIGN){
 				if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			}
 			else if (token->token_type == OPENING_BRACKET){
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
 			break;
@@ -167,7 +168,7 @@ int check_syntax(int term, Resources * resources){
 		case ARGS:
 			if (token->token_type == CLOSING_BRACKET)goto EXIT;
 			else {
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -177,7 +178,7 @@ int check_syntax(int term, Resources * resources){
 			if (token->token_type == CLOSING_BRACKET)goto EXIT;
 			else {
 				if ((iRet = check_syntax(COMMA, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -245,7 +246,7 @@ int check_syntax(int term, Resources * resources){
 			if (token->token_type == K_IF){
 				if ((iRet = check_syntax(K_IF, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 				if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_IF, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(ELSE, resources)) != 0)goto EXIT;
@@ -304,21 +305,21 @@ int check_syntax(int term, Resources * resources){
 
 //**************** FOR_SECOND **********************//
 		case FOR_SECOND:
-			//rvalue
+			if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			break;
 
 //**************** FOR_THIRD **********************//
 		case FOR_THIRD:
 			if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
-			//rvalue
+			if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			break;
 
 //**************** WHILE **********************//
 		case WHILE:
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
-			//rvalue
+			if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 			break;
@@ -330,15 +331,16 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
-			//rvalue
-			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
+			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;			
+			if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
+			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
 
 //**************** RETURN **********************//
 		case RETURN:
 			if ((iRet = check_syntax(K_RETURN, resources)) != 0)goto EXIT;
-			//rvalue
+			if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
 
@@ -377,7 +379,7 @@ int check_syntax(int term, Resources * resources){
 		case COUT_PARAMS:
 			if (token->token_type == O_LEFT_ARROW){
 				if ((iRet = check_syntax(O_LEFT_ARROW, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 				if ((iRet = check_syntax(COUT_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -387,7 +389,7 @@ int check_syntax(int term, Resources * resources){
 		case COUT_PARAMS_N:
 			if (token->token_type == O_LEFT_ARROW){
 				if ((iRet = check_syntax(O_LEFT_ARROW, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 				if ((iRet = check_syntax(COUT_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -403,7 +405,7 @@ int check_syntax(int term, Resources * resources){
 		case CIN_PARAMS:
 			if (token->token_type == O_RIGHT_ARROW){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -413,7 +415,7 @@ int check_syntax(int term, Resources * resources){
 		case CIN_PARAMS_N:
 			if (token->token_type == O_RIGHT_ARROW){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
-				//rvalue
+				if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -439,103 +441,6 @@ int check_syntax(int term, Resources * resources){
 					goto EXIT;
 				}
 			break;
-		/*case SEMICOLON:
-			if (token->token_type != SEMICOLON){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case OPENING_CURLY_BRACKET:
-			if (token->token_type != OPENING_CURLY_BRACKET){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case CLOSING_CURLY_BRACKET:
-			if (token->token_type != CLOSING_CURLY_BRACKET){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case AUTO:
-			if (token->token_type != AUTO){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case O_ASSIGN:
-			if (token->token_type != O_ASSIGN){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case OPENING_BRACKET:
-			if (token->token_type != OPENING_BRACKET){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case CLOSING_BRACKET:
-			if (token->token_type != CLOSING_BRACKET){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case COMMA:
-			if (token->token_type != COMMA){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case K_IF:
-			if (token->token_type != K_IF){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case K_ELSE:
-			if (token->token_type != K_ELSE){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case K_FOR:
-			if (token->token_type != K_FOR){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case K_WHILE:
-			if (token->token_type != K_WHILE){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case K_DO:
-			if (token->token_type != K_DO){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;
-
-		case K_RETURN:
-			if (token->token_type != K_RETURN){
-					iRet = SYNTAX_ERROR;
-					goto EXIT;
-				} else token = NULL;
-			break;*/
 	}
 
 	goto EXIT;
