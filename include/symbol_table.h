@@ -17,7 +17,7 @@
 #define FOUND 0
 
 enum data_types{
-	INT,
+	INTEGER,
 	FLOAT,
 	STRING
 };
@@ -28,9 +28,9 @@ enum types_of_tokens{
 };
 
 union Values {
-	int i;	//for integer variable or number of arguments of function
-	float f;	//for float variable
-	index_t index_to_dynamic_buff;	//for string variable
+	int i;	//value of integer variable or number of arguments of function
+	float f;	//value of float variable
+	index_t index_to_dynamic_buff;	//index to buffer with value of string variable
 };
 
 typedef struct func_args {
@@ -90,10 +90,9 @@ int set_string_value(Resources *resources, index_t index_to_string, index_t inde
  * @param index_to_string index to dynamic buffer (string of identifier)
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param ret_val data type of return value of the function
- * @param num_of_args number of arguments
  * @return 0 on success, NOT_FOUND if varieble is not in symbol table, INTERNAL_ERROR on error
  */
-int declare_function(Resources *resources, index_t index_to_string, index_t *index_to_root_node, int ret_val, int num_of_args);
+int declare_function(Resources *resources, index_t index_to_string, index_t *index_to_root_node, int ret_val);
 
 /** Adds another argument to declared function in symbol table
  * @param resources pointer to structure with buffers
@@ -118,6 +117,7 @@ int declaration_test(Resources *resources, index_t index_to_string, index_t inde
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  */
-int free_memory(Resources *resources, index_t index_to_root_node);
+void free_memory(Resources *resources, index_t index_to_root_node);
 
 #endif
+
