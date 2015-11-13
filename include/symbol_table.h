@@ -111,7 +111,7 @@ int add_func_arg(Resources *resources, index_t index_to_string, index_t *index_t
  * @param index_to_string index to dynamic buffer (string of identifier)
  * @param index_to_root_node pointer to index_t variable storing index to dynamic structure buffer
  * @param type differentiates between function and variable (use enum types_of_tokens)
- * @return 0 on success, INTERNAL_ERROR on error
+ * @return 0 if declared, 1 if not declared, INTERNAL_ERROR on error
  */
 int declaration_test(Resources *resources, index_t index_to_string, index_t index_to_root_node, int type);
 
