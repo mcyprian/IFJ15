@@ -86,6 +86,7 @@ int get_first_token(TDynamic_structure_buffer *b, TStack *stack, index_t *first)
 
 const char* symbols[47];   
 
+#if DEBUG
 int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
     symbols[0] = "=="; 
     symbols[1] = ">"; 
@@ -129,7 +130,13 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
     }
     return RETURN_OK;
 }
-        
+
+#else
+int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
+    return RETURN_OK;
+}
+#endif
+
 int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
     args_assert(b != NULL && stack != NULL && values != NULL, INTERNAL_ERROR);
     debug_print("%s\n", "GET TYPES");
@@ -220,6 +227,7 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
     catch_internal_error(err, INTERNAL_ERROR, "Failed to get types of token");
     catch_syntax_error(err, SYNTAX_ERROR, "Failed to get types of token", 1);
 
+#if DEBUG
     char *short_rule_symbol[2];
     short_rule_symbol[0] = "id";    // TODO remove after debug
     short_rule_symbol[1] = "li";
@@ -236,12 +244,15 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
     long_rule_symbol[8] = "RVALUE / RVALUE -> RVALUE";
     long_rule_symbol[9] = "RVALUE != RVALUE -> RVALUE";
     long_rule_symbol[10] = "( RVALUE ) -> RVALUE";
+#endif
 
     if (values[0] == 1) {
         for (i = 0; i < 2; i++) {
             if (short_rules[i] == values[1]) {
+#if DEBUG
                 printf("Applied rule: %s -> RVALUE\n", short_rule_symbol[i]);
                 debug_print("%s %s %s\n", "APPLIED RULE:", short_rule_symbol[i], "-> RVALUE\n");
+#endif
                 return RETURN_OK;
             }
         }
@@ -249,8 +260,10 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
     } else if (values[0] == 3) {
         for (i = 0; i < 11; i++) {
            if (!(memcmp(long_rules[i], &values[1], sizeof(long_rules[i])))) {
-                printf("Applied rule: %s\n", long_rule_symbol[i]);
+#if DEBUG
+             //   printf("Applied rule: %s\n", long_rule_symbol[i]);
                 debug_print("%s %s\n", "APPLIED RULE:", long_rule_symbol[i]);
+#endif
                 return RETURN_OK;
             }
         }
@@ -297,7 +310,6 @@ int check_expression(Resources *res, TToken **last_token) {
 
                                [type_filter(input_token->token_type)]) {
             case H:
-               // printf("Case H\n");
                 debug_print("%s\n", "CASE H");
                 top_index = input_index;
                 push(&res->struct_buff, &stack, top_index);
@@ -316,7 +328,6 @@ int check_expression(Resources *res, TToken **last_token) {
                 break;
 
             case S:
-               // printf("Case S\n");
                 debug_print("%s\n", "CASE S");
                 new_item(&res->struct_buff, top_index, top_token);
                 catch_internal_error(
@@ -356,7 +367,6 @@ int check_expression(Resources *res, TToken **last_token) {
                 break;
             
             case R:
-              //  printf("Case R\n");
                 debug_print("%s\n", "CASE R");
                 err = get_rule(&res->struct_buff, &stack);
                 catch_internal_error(err, INTERNAL_ERROR, "Failed to get rule");
@@ -377,8 +387,13 @@ int check_expression(Resources *res, TToken **last_token) {
                 );
                 break;
             case E:
-              //  printf("Case E\n");
                 debug_print("%s\n", "CASE E");
+                if (type_filter(top_token->token_type) == END_OF_EXPR && 
+                    type_filter(input_token->token_type) == CLOSING_BRACKET) {
+                    dereference_structure(&res->struct_buff, input_index, (void **)last_token);
+                    return RETURN_OK;
+                }
+
                 return SYNTAX_ERROR;
             
             default:

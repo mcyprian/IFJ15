@@ -36,7 +36,7 @@
 
 #else 
 
-#define debug_printf(fmt, ...) do {}while(0)
+#define debug_print(fmt, ...) do {}while(0)
 #define args_assert(condition, ret_val) do {}while(0)
 
 #endif // !DEBUG
