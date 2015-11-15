@@ -16,6 +16,7 @@
 #include <resources.h>
 #include <syntax_analysis.h>
 #include <built_functions.h>
+#include <ial.h>
 
 int main(int argc, char ** argv){
 
