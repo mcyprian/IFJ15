@@ -116,7 +116,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 			{
 				new_item(struct_buffer, index, token);
 				token->token_index = save_token(buffer);
-				catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 				token->token_type = EOFT;
 				// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 
@@ -166,7 +165,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case '*':
 							token->token_index = save_token(buffer);
-							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = O_MUL;
 							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
@@ -174,7 +172,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case ';':
 							token->token_index = save_token(buffer);
-							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = SEMICOLON;
 							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
@@ -182,7 +179,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case ',':
 							token->token_index = save_token(buffer);
-							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = COMMA;
 							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
@@ -190,7 +186,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case '(':
 							token->token_index = save_token(buffer);
-							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = OPENING_BRACKET;
 							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
@@ -198,7 +193,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case ')':
 							token->token_index = save_token(buffer);
-							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = CLOSING_BRACKET;
 							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
@@ -206,7 +200,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case '{':
 							token->token_index = save_token(buffer);
-							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = OPENING_CURLY_BRACKET;
 							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
@@ -214,7 +207,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case '}':
 							token->token_index = save_token(buffer);
-							catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 							token->token_type = CLOSING_CURLY_BRACKET;
 							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 							return index;
@@ -245,7 +237,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							{
 								catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 								token->token_index = save_token(buffer);
-								catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 								token->token_type = ERRORT;
 								// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 								return index;
@@ -270,7 +261,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_DIV;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					return index;
@@ -302,7 +292,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if (c == '=') // ==
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_EQUALS;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -314,7 +303,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_ASSIGN;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					return index;
@@ -325,7 +313,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if (c == '=') // >=
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_GE;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -335,7 +322,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				else if (c == '>') // >>
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_RIGHT_ARROW;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -346,7 +332,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					ungetc(c, fin);
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_G;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -358,7 +343,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if (c == '=') // <=
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_LE;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -368,7 +352,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				else if (c == '<') // <<
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_LEFT_ARROW;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -379,7 +362,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					ungetc(c, fin);
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_L;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -391,7 +373,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if (c == '=') // !=
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_NE;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -402,7 +383,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					ungetc(c, fin);
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = ERRORT; // token->token_type = UO_EXCLAMATION;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
@@ -418,7 +398,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				else if (SEPARATOR)
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					if (!wrong_identifier)
 						token->token_type = reservedWord(load_token(buffer, token->token_index));
 					else
@@ -452,7 +431,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				else if (SEPARATOR)
 				{
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = L_INT;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
@@ -492,7 +470,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					token->token_type = ERRORT;
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
 					state = START;
@@ -528,7 +505,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					token->token_type = L_DOUBLE;
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					ungetc(c,fin);
 					state = START;
@@ -553,7 +529,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					ungetc(c, fin);
 					state = START;
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					token->token_type = O_MINUS;
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					return  index;
@@ -566,7 +541,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					token->token_type = L_STRING;
 					token->token_index = save_token(buffer);
-					catch_token_internal_error(token->token_index, INTERNAL_ERROR, token, index);
 					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
