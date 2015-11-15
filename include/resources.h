@@ -18,6 +18,7 @@ struct res{
 	FILE * source;
 	TDynamic_buffer string_buff;
 	TDynamic_structure_buffer struct_buff;
+	TDynamic_structure_buffer struct_buff_trees;
 };
 
 #endif //!RESOURCES_H
