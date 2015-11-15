@@ -66,7 +66,7 @@ char *read_buffer(TDynamic_buffer *b);
 char get_char(TDynamic_buffer *b);
 
 /** Reads string of length num from buffer
- * @oaram b pointer to TDyanmic buffer
+ * @param b pointer to TDyanmic buffer
  * @param num number of characters to be read
  * @return pointer to beggining of str or NULL on error
  */
