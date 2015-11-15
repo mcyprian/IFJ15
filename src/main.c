@@ -43,13 +43,6 @@ int main(int argc, char ** argv){
 		goto STRUCT_BUFF;
 	}
 
-	// add_str(&(resources.string_buff), "1234");
-	// save_token(&(resources.string_buff));
-	// add_str(&(resources.string_buff), "42567895");
-	// save_token(&(resources.string_buff));
-
-	// printf("%s\n", substr(&(resources.string_buff), 5, 5, 1));
-
 	iRet = check_syntax(PROGRAM, &resources);
 
 	fclose(resources.source);
