@@ -28,3 +28,18 @@ char *substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 
 	return string;
 }
+
+index_t concat(TDynamic_buffer *b, index_t index1, TDynamic_buffer *c, index_t index2)
+{
+	char *string1 = load_token(b, index1);
+	char *string2 = load_token(c, index2);
+
+	save_token(b);	// whatever is in b, puts '\0' after that
+	add_str(b, string1);
+	add_str(b, string2);
+	index_t index = save_token(b);
+
+	// char *return_string = load_token(b, index);
+
+	return index;
+}

@@ -26,3 +26,12 @@ int lenght(TDynamic_buffer *b, index_t index);
  * @return substring on success, NULL on error
  */
 char *substr(TDynamic_buffer *b, index_t index, index_t i, int n);
+
+/** Concats 2 strings
+ * @param b pointer to TDyanmic buffer where the first string is 
+ * @index string index in the buffer where the first string starts
+ * @param c pointer to TDyanmic buffer where the second string is (can be mutual with b)
+ * @index string index in the buffer where the second string starts
+ * @return Index where the concated string starts (in buffer b)
+ */
+index_t concat(TDynamic_buffer *b, index_t index1, TDynamic_buffer *c, index_t index2);
