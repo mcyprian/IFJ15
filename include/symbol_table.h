@@ -13,7 +13,7 @@
 #include <datatypes.h>
 #include <resources.h>
 
-#define NOT_FOUND 1
+#define NOT_FOUND (-1)
 #define FOUND 0
 
 enum data_types{
@@ -119,62 +119,56 @@ int declaration_test(Resources *resources, index_t index_to_string, index_t inde
  */
 void free_memory(Resources *resources, index_t index_to_root_node);
 
-/** Load value of variable stored in symbol table
- * @param resources pointer to structure with buffers
- * @param index_to_root_node index_t variable storing index to dynamic structure buffer
- * @param index_to_string index to dynamic buffer (string of identifier)
- * @param value pointer to TValues union to store value of variable
- * @return 0 on succes, INTERNAL_ERROR on failure
- */
-int load_variable_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, TValues *value);
-
 /** Gives data type of variable or data type of function return value
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
- * @param type_of_node int value to differentiate between function and variable, one of enum types_of_tokens
  * @return returns int value, one of enum data_types
  */
-int get_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string, int type_of_node);
+int get_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string);
 
 /** Gives value of float variable
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
- * @return returns float value stored in symbol table
+ * @param value pointer to float variable to store variable data
+ * @return returns RETURN_OK on succes, NOT_FOUND if variable is not in symbol_table or INTERNAL_ERROR on error
  */
-float load_float_value(Resources *resources, index_t index_to_root_node, index_t index_to_string);
+int load_float_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, float *value);
 
 /** Gives value of integer variable
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
- * @return returns integer value stored in symbol table
+ * @param value pointer to integer variable to store variable data
+ * @return returns RETURN_OK on succes, NOT_FOUND if variable is not in symbol_table or INTERNAL_ERROR on error
  */
-int load_integer_value(Resources *resources, index_t index_to_root_node, index_t index_to_string);
+int load_integer_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, int *value);
 
 /** Gives value of string variable
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
- * @return returns index to dynamic buffer where string value is stored
+ * @param value pointer to index_t variable to store variable data
+ * @return returns RETURN_OK on succes, NOT_FOUND if variable is not in symbol_table or INTERNAL_ERROR on error
  */
-index_t load_string_value(Resources *resources, index_t index_to_root_node, index_t index_to_string);
+int load_string_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, index_t *value);
 
 /** Gives number of arguments of a function
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
- * @return returns number of function's arguments
+ * @param int pointer to variable to store number of function's arguments
+ * @return returns RETURN_OK on succes, NOT_FOUND if function is not in symbol_table or INTERNAL_ERROR on error
  */
-int load_num_of_args(Resources *resources, index_t index_to_root_node, index_t index_to_string);
+int load_num_of_args(Resources *resources, index_t index_to_root_node, index_t index_to_string, int *num);
 
 /** Gives number of arguments of a function
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
  * @param arg_index integer index to array of function's arguments 
- * @return returns data type of x-th argument (x is value in arg_index)
+ * @return returns data type of x-th argument (x is value in arg_index), NOT_FOUND if function is not in symbol table or INTERNAL_ERROR on error
  */
 int load_arg_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string, int arg_index);
 
