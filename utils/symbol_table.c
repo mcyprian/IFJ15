@@ -66,7 +66,7 @@ int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
         }
         else
-            create_variable_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, data_type);
+            create_variable_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, data_type);
     }
     else {  //key == actual_node->key  --- hash colision
         while(actual_node->next != ZERO_INDEX)
@@ -153,7 +153,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
         }
         else
-            create_function_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
+            create_function_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
     }
     else {  //key == actual_node->key  --- hash colision
         while(actual_node->next != ZERO_INDEX)
@@ -340,7 +340,7 @@ int add_func_arg(Resources *resources, index_t index_to_string, index_t index_to
 
     char *str;
     index_t found_node_index;
-    int found, i;
+    int found;
     TTree *found_node;
     TFunc_args *tmp, arg;
 
@@ -354,12 +354,11 @@ int add_func_arg(Resources *resources, index_t index_to_string, index_t index_to
 
     if (found == FOUND){
         dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
-        tmp = realloc(found_node->args, sizeof(TFunc_args));
+        tmp = realloc(found_node->args, sizeof(TFunc_args)*(found_node->value.i + 1));
         catch_internal_error(tmp, NULL, "Failed to realloc memory.");
         found_node->args = tmp;
-        i = sizeof(found_node->args) / sizeof(TFunc_args);
 
-        found_node->args[i-1] = arg;
+        found_node->args[found_node->value.i] = arg;
         found_node->value.i += 1;
 
         return RETURN_OK;
@@ -525,7 +524,7 @@ int load_num_of_args(Resources *resources, index_t index_to_root_node, index_t i
 
 int load_arg_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string, int arg_index){
 
-    args_assert(resources != NULL && index_to_string != ZERO_INDEX && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+    args_assert(resources != NULL && index_to_string != ZERO_INDEX && index_to_root_node != ZERO_INDEX && arg_index > 0, INTERNAL_ERROR);
 
     char *str;
     index_t found_node_index;
@@ -539,7 +538,7 @@ int load_arg_data_type(Resources *resources, index_t index_to_root_node, index_t
 
     if (found == FOUND){
         dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
-        return found_node->args[arg_index].data_type;
+        return found_node->args[arg_index-1].data_type;
     }
     else
         return NOT_FOUND;
