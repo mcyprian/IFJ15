@@ -49,6 +49,7 @@ typedef enum non_terminals {
 	CIN,
 	CIN_PARAMS,
 	CIN_PARAMS_N,
+	TEST_EXPR
 } NonTerminals;
 
 

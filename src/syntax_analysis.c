@@ -22,7 +22,7 @@
 int check_syntax(int term, Resources * resources){
 	debug_print("%s, term=%d\n", "INIT", term);
 	int iRet = RETURN_OK;
-
+	
 	static TToken * token = NULL;
 	static index_t token_index = ZERO_INDEX;
 
@@ -430,6 +430,12 @@ int check_syntax(int term, Resources * resources){
 					token = NULL;
 					goto EXIT;
 				}
+			break;
+
+//******************* TEST_EXPR *****************************************//
+
+		case TEST_EXPR:
+			if ((iRet = check_expression(resources, &token)) != 0)goto EXIT;
 			break;
 
 		default:
