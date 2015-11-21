@@ -186,6 +186,7 @@ int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type) {
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
+    tmp->original_type = tmp->token_type;
     tmp->token_type = new_type;    
     return RETURN_OK;
 }
@@ -195,13 +196,12 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack) {
     
     TToken *tmp = NULL;
 
-    debug_print("%s\n", "TOP OF STACK REDUCED");
+    debug_print("%s\n", "TOP OF THE STACK REDUCED");
     catch_internal_error(
         dereference_structure(b, stack->top, (void**)&tmp),
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
-
 
     while(tmp->token_type != SHIFT) {
         pop(b, stack);
@@ -305,6 +305,17 @@ int check_expression(Resources *res, TToken **last_token) {
 
     do {
        // print_stack(&res->struct_buff, &stack);
+       // printf("top %d\n", top_token->token_type);
+       // printf("input %d\n", input_token->token_type);
+        if (top_token->token_type == IDENTIFIER 
+            && input_token->token_type == OPENING_BRACKET) {
+            printf("FUNCTION CALL IN EXPR\n");
+            debug_print("%s\n", "FUNCTION CALL IN EXPR\n");
+            dereference_structure(&res->struct_buff, input_index, (void **)last_token);
+            // TODO call syntax analysis function here
+            return RETURN_OK;
+        }
+
 
         switch(precedence_table[type_filter(top_token->token_type)]
 
@@ -402,6 +413,7 @@ int check_expression(Resources *res, TToken **last_token) {
        // print_stack(&res->struct_buff, &stack);
        // printf("top %s\n", symbols[top_token->token_type]);
        // printf("input %s\n", symbols[input_token->token_type]);
+                  
     } while (type_filter(top_token->token_type) != END_OF_EXPR || type_filter(input_token->token_type) != END_OF_EXPR);
     dereference_structure(&res->struct_buff, input_index, (void **)last_token);
     return RETURN_OK;
