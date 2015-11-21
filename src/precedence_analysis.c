@@ -183,6 +183,7 @@ int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type) {
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
+    // TODO set to fce return type when reducing fce call
     tmp->original_type = tmp->token_type;
     tmp->token_type = new_type;    
     return RETURN_OK;
@@ -310,11 +311,22 @@ int check_expression(Resources *res, TToken **last_token) {
             printf("FUNCTION CALL IN EXPR\n");
             debug_print("%s\n", "FUNCTION CALL IN EXPR\n");
             dereference_structure(&res->struct_buff, input_index, (void **)last_token);
+            printf("LAST_TOKEN %d\n", (*last_token)->token_type);
             iRet = check_syntax(FUNC_CALL, res);
-            if (iRet != RETURN_OK)
+            if (iRet != RETURN_OK) {
+                debug_print("%s: %d\n", "RETURN", iRet);
                 return iRet;
-            else {
-                // TODO reduce fce call on top of stack
+            } else {
+                // Reduction of function call
+                err = reduce(&res->struct_buff, &stack);
+                catch_internal_error(err, INTERNAL_ERROR, "Failed to reduce");
+                catch_syntax_error(err, SYNTAX_ERROR, "Failed to reduce",1);
+                top_index = stack.top;
+                catch_syntax_error(
+                    get_first_token(&res->struct_buff, &stack, &top_index),
+                    INTERNAL_ERROR,
+                    "Failed to get first token", 1
+                );
                 input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
                 catch_internal_error(
                     dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
@@ -430,5 +442,6 @@ int check_expression(Resources *res, TToken **last_token) {
                   
     } while (type_filter(top_token->token_type) != END_OF_EXPR || type_filter(input_token->token_type) != END_OF_EXPR);
     dereference_structure(&res->struct_buff, input_index, (void **)last_token);
+    debug_print("%s: %d\n", "RETURN", RETURN_OK);
     return RETURN_OK;
 }
