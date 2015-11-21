@@ -2,15 +2,15 @@ int main()
 {
 	string str1;
 		{ // vnoreny blok s lokalni promennou str2 a pristupem k str1
-		int x;
-		str1 = ;
-		string str2;
-		str2 = ;
-		x = ;
-		cout << ;
-		cout << ;
+		int x = 50;
+		str1 = "sadasdasd";
+		string str2 = dfsafsaf;
+		str2 = str1;
+		x = 100;
+		cout << str1;
+		cout << str2;
 	}
-	cin >> ;
-	str1 = ;
-return ;
+	cin >> str1;
+	str1 = str2;
+return 10;
 }
