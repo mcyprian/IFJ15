@@ -1,0 +1,59 @@
+int main()
+{
+	int i = 10;
+	int sum = 0;
+	int sum2 = 0;
+	int x = 3;
+	while (i > 0)
+	{
+		i = i - 1;
+		if (i < 5)
+		{
+			for (int j = 0; j <= i; j = j + 1)
+			{
+				sum2 = sum2 + 2;
+				if (sum2 == 4)
+				{
+					cout << "sum je: " << sum2 << "\n";
+				}
+				else if (sum2 == 6)
+				{
+					cout << "sum je: " << sum2 << "\n";
+				}
+				else
+				{
+					cout << ":(( \n";
+				}
+			}
+		}
+		else if (i < 8)
+		{
+			do 
+			{
+				x = x - 1;
+				if (x == 1)
+				{
+					for (int j = 0; j <= 5; j = j + 1)
+					{
+						if ((i + j) > 10)
+						{
+							sum = sum + i + j;
+						}
+					}
+				}
+				else
+				{
+					sum = sum + 2;
+				}
+			} while (x != 0);
+
+			cout << sum << "\n";
+		}
+		else
+		{
+			cout << i << "\n";
+		}
+	}
+
+	return 0;
+}
