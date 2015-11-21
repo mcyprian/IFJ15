@@ -1,5 +1,7 @@
 /**
- * @file precedence_analysis.c
+ * F_EXPR 
+ * @file 
+
  * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
  *
  * @section DESCRIPTION
@@ -271,7 +273,7 @@ int get_rule(TDynamic_structure_buffer *b, TStack *stack) {
         return SYNTAX_ERROR;
 }
 
-int check_expression(Resources *res, TToken **last_token) {
+int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     args_assert(res != NULL, INTERNAL_ERROR);
 
     TToken *input_token = NULL;
@@ -289,17 +291,17 @@ int check_expression(Resources *res, TToken **last_token) {
     top_token->token_type = END_OF_EXPR;
     push(&res->struct_buff, &stack, top_index); // $ on top of the stack
 
-    if ((*last_token) != NULL) {
-            input_token = (*last_token);
-            printf("LAST_TOKEN %d\n", (*last_token)->token_type);
-    } else {
+    if ((*last_token) != NULL) 
+        input_index = *last_index;
+    else 
         input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
-        catch_internal_error(
-            dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
-            INTERNAL_ERROR,
-            "Failed to dereference structure buffer."
-        );
-    }
+    
+    catch_internal_error(
+        dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    
         
     catch_internal_error(
         dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
@@ -308,15 +310,15 @@ int check_expression(Resources *res, TToken **last_token) {
     );
 
     do {
-       print_stack(&res->struct_buff, &stack);
+        print_stack(&res->struct_buff, &stack);
         printf("top %d\n", top_token->token_type);
         printf("input %d\n", input_token->token_type);
+        
         if (top_token->token_type == IDENTIFIER 
             && input_token->token_type == OPENING_BRACKET) {
             printf("FUNCTION CALL IN EXPR\n");
             debug_print("%s\n", "FUNCTION CALL IN EXPR\n");
             dereference_structure(&res->struct_buff, input_index, (void **)last_token);
-            printf("LAST_TOKEN %d\n", (*last_token)->token_type);
             iRet = check_syntax(FUNC_CALL, res);
             if (iRet != RETURN_OK) {
                 debug_print("%s: %d\n", "RETURN", iRet);
@@ -343,12 +345,14 @@ int check_expression(Resources *res, TToken **last_token) {
                     INTERNAL_ERROR,
                     "Failed to dereference structure buffer."
                 );
+                if (type_filter(top_token->token_type) == END_OF_EXPR &&
+                    type_filter(input_token->token_type) == END_OF_EXPR)
+                    break;
 
             }
         }
 
         switch(precedence_table[type_filter(top_token->token_type)]
-
                                [type_filter(input_token->token_type)]) {
             case H:
                 debug_print("%s\n", "CASE H");
@@ -385,8 +389,8 @@ int check_expression(Resources *res, TToken **last_token) {
                     top_token->token_type = RVALUE;
                 } else
                     top_token->token_type = SHIFT;
-                push(&res->struct_buff, &stack, top_index);
-                catch_internal_error(
+                    push(&res->struct_buff, &stack, top_index);
+                    catch_internal_error(
                     dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
                     INTERNAL_ERROR,
                     "Failed to dereference structure buffer."
@@ -450,3 +454,5 @@ int check_expression(Resources *res, TToken **last_token) {
     debug_print("%s: %d\n", "RETURN", RETURN_OK);
     return RETURN_OK;
 }
+
+

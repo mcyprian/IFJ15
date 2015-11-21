@@ -25,3 +25,4 @@ target_link_libraries(pa_test check)
 add_test(syntax_tests syntax_check_test.sh)
 add_executable(check_expr_test check_expr_test.c ../src/precedence_analysis.c
     ../src/syntax_analysis.c ../src/stack.c ../src/dynamic_structure_buffer.c ../src/dynamic_buffer.c ../src/scanner.c)
+add_test(check_expr run_check_expr_tests)

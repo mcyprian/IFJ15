@@ -71,5 +71,5 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack);
 int get_rule(TDynamic_structure_buffer *b, TStack *stack);
 
 
-int check_expression(Resources *res, TToken **token);
+int check_expression(Resources *res, TToken **token, index_t *last_index);
 #endif // !PRECEDENCE_ANALYSIS_H
