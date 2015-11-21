@@ -17,6 +17,7 @@
 #include <stack.h>
 #include <scanner.h>
 #include <token.h>
+#include <syntax_analysis.h>
 
 
 const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS] = 
@@ -131,10 +132,6 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
     return RETURN_OK;
 }
 
-#else
-int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
-    return RETURN_OK;
-}
 #endif
 
 int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
@@ -281,6 +278,7 @@ int check_expression(Resources *res, TToken **last_token) {
     TToken *tmp = NULL;
     index_t top_index = ZERO_INDEX;
     index_t input_index = ZERO_INDEX;
+    int iRet;
     TStack stack;
     int err;
 
@@ -312,8 +310,24 @@ int check_expression(Resources *res, TToken **last_token) {
             printf("FUNCTION CALL IN EXPR\n");
             debug_print("%s\n", "FUNCTION CALL IN EXPR\n");
             dereference_structure(&res->struct_buff, input_index, (void **)last_token);
-            // TODO call syntax analysis function here
-            return RETURN_OK;
+            iRet = check_syntax(FUNC_CALL, res);
+            if (iRet != RETURN_OK)
+                return iRet;
+            else {
+                // TODO reduce fce call on top of stack
+                input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
+                catch_internal_error(
+                    dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
+                    INTERNAL_ERROR,
+                    "Failed to dereference structure buffer."
+                );
+
+            }
         }
 
 

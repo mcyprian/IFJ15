@@ -31,12 +31,14 @@ enum operations {
 
 extern const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS];
 
+#if DEBUG
 /** Visualise current token_types on the stack
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
  * @return RETURN_OK on success, INTERNAL_ERROR on error
  */
 int print_stack(TDynamic_structure_buffer *b, TStack *stack);
+#endif
 
 /** Checks values of types of items before first SHIFT token
  * @param b pointer to dynamic_structure_buffer
