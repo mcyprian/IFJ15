@@ -51,14 +51,19 @@ START_TEST (test_get_types) {
     
     ck_assert_int_eq(values[0], 0);
 
+#if DEBUG 
     print_stack(&b, &stack);
+#endif
+
     for (i = 0; i < 3; i++) {
         new_item(&b, index, item);
         item->token_type = i;
         push(&b, &stack, index);
     
     }
+#if DEBUG
     print_stack(&b, &stack);
+#endif
 
     get_types(&b, &stack, values);
     
