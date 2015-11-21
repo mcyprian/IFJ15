@@ -1,0 +1,88 @@
+int scitaj(int a, int b, int c, int d)	// a musi byt vacsie ako b a zaroven vacsie ako 10 bla bla
+{
+	int x = 1;
+	int i;
+	if (a > b)
+	{
+		if (a > 10)
+		{
+			c = a + b;
+		}
+	}
+	else 
+	{
+		if (c > 7)
+		{
+			if (d > 20)
+			{
+				x = a + d;
+			}
+			else if (d > 10)
+			{
+				x = c + d;
+			}
+			else 
+			{
+				if (d <= 10)
+				{
+					for (i = 0; i < 10; i = i + 1)
+					{
+						d = d + 1;
+					}
+
+					if (d > 15)
+					{
+						x = d + 12;
+						if (x > 28)
+						{
+							return x;
+						}
+					}
+					else
+					{
+						x = d + 18;
+					}
+				}
+			}
+		}
+
+		x = x + a + b + c + d - 1;
+	}
+
+	return x;
+}
+
+double odcitaj(double a, double b, double c)
+{
+	double x = 100.0;
+	if (a > 50)
+	{
+		if (b < 30)
+		{
+			if (c < 20)
+			{
+				x = x - a - b - c;
+				return x;
+			}
+		}
+	}
+
+	return 4.2;
+}
+
+int main()
+{
+	int a = 5;
+	int b = 105;
+	int c = 206;
+	int d = 11;
+	//int x = 0;
+	a = a + d;
+
+	int int_result = scitaj(a,b,c,d);
+	double double_result = odcitaj(55.1, 15.0, 12.7);
+
+	cout << "int vysledok: " << int_result << " a double vysledok: " << double_result << " :) \n";
+
+	return 0;
+}
