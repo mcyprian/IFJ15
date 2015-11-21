@@ -5,6 +5,7 @@
 #include <datatypes.h>
 #include <resources.h>
 #include <precedence_analysis.h>
+#include <syntax_analysis.h>
 
 int main(int argc, char ** argv){
 
@@ -12,7 +13,6 @@ int main(int argc, char ** argv){
 	int iRet = RETURN_OK;
 
 	Resources resources;
-    TToken *token = NULL;
 
 	if((iRet = init_buffer(&(resources.string_buff), 1024)) != RETURN_OK)
 		goto DEFAULT;
@@ -33,12 +33,9 @@ int main(int argc, char ** argv){
 		goto STRUCT_BUFF;
 	}
 
-	iRet = check_expression(&resources, &token);
+	iRet = check_syntax(TEST_EXPR, &resources);
 
     printf("RETURNED %d\n", iRet);
-
-    if (iRet == 0)
-        printf("First token after %d\n", token->token_type);
 
 	fclose(resources.source);
 

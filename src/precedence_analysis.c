@@ -289,12 +289,17 @@ int check_expression(Resources *res, TToken **last_token) {
     top_token->token_type = END_OF_EXPR;
     push(&res->struct_buff, &stack, top_index); // $ on top of the stack
 
-    input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
-    catch_internal_error(
-        dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
-        INTERNAL_ERROR,
-        "Failed to dereference structure buffer."
-    );
+    if ((*last_token) != NULL) {
+            input_token = (*last_token);
+            printf("LAST_TOKEN %d\n", (*last_token)->token_type);
+    } else {
+        input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
+        catch_internal_error(
+            dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
+    }
         
     catch_internal_error(
         dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
@@ -303,9 +308,9 @@ int check_expression(Resources *res, TToken **last_token) {
     );
 
     do {
-       // print_stack(&res->struct_buff, &stack);
-       // printf("top %d\n", top_token->token_type);
-       // printf("input %d\n", input_token->token_type);
+       print_stack(&res->struct_buff, &stack);
+        printf("top %d\n", top_token->token_type);
+        printf("input %d\n", input_token->token_type);
         if (top_token->token_type == IDENTIFIER 
             && input_token->token_type == OPENING_BRACKET) {
             printf("FUNCTION CALL IN EXPR\n");
@@ -341,7 +346,6 @@ int check_expression(Resources *res, TToken **last_token) {
 
             }
         }
-
 
         switch(precedence_table[type_filter(top_token->token_type)]
 
@@ -434,6 +438,7 @@ int check_expression(Resources *res, TToken **last_token) {
                 return SYNTAX_ERROR;
             
             default:
+                debug_print("%s", "DEFAULT\n");
                 return INTERNAL_ERROR;
         }
        // print_stack(&res->struct_buff, &stack);
