@@ -70,6 +70,12 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack);
  */
 int get_rule(TDynamic_structure_buffer *b, TStack *stack);
 
-
+/** Checks if expression is syntactically correct
+ * @param res pointer to resources structure
+ * @param token pointer to pointer to last token from sa
+ * @param last_index index to dynamic_structure buffer
+ * @return RETURN_OK on success, INTERNAL_ERROR or SYNAX_ERROR on error
+ */
 int check_expression(Resources *res, TToken **token, index_t *last_index);
+
 #endif // !PRECEDENCE_ANALYSIS_H
