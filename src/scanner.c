@@ -156,7 +156,10 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 							break;
 
 						case '-':
-							state = O_MINUS;
+							token->token_index = save_token(buffer);
+							token->token_type = O_MINUS;
+							// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+							return index;
 							break;
 
 						case '/':
@@ -518,23 +521,23 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				}
 				break;
 
-			case O_MINUS:
-				if (c > 47 && c < 58) // 0-9
-				{
-					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
-					state = L_INT;
-				}
-				else // is '-'
-				{
-					ungetc(c, fin);
-					state = START;
-					token->token_index = save_token(buffer);
-					token->token_type = O_MINUS;
-					// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
-					return  index;
-				}
+			// case O_MINUS:
+			// 	if (c > 47 && c < 58) // 0-9
+			// 	{
+			// 		catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
+			// 		state = L_INT;
+			// 	}
+			// 	else // is '-'
+			// 	{
+			// 		ungetc(c, fin);
+			// 		state = START;
+			// 		token->token_index = save_token(buffer);
+			// 		token->token_type = O_MINUS;
+			// 		// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
+			// 		return index;
+			// 	}
 
-				break;
+			// 	break;
 
 			case L_STRING:
 				if (c == '"')
