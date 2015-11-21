@@ -310,7 +310,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     );
 
     do {
-        print_stack(&res->struct_buff, &stack);
+        // print_stack(&res->struct_buff, &stack);
         printf("top %d\n", top_token->token_type);
         printf("input %d\n", input_token->token_type);
         
