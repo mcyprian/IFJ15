@@ -114,7 +114,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 			if (feof(fin))
 			{
-				new_item(struct_buffer, index, token);
+				//new_item(struct_buffer, index, token);
 				token->token_index = save_token(buffer);
 				token->token_type = EOFT;
 				// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
@@ -131,7 +131,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 		switch (state) 
 		{
 			case START:
-				new_item(struct_buffer, index, token); // pridat overenie, ci to vyslo
+				//new_item(struct_buffer, index, token); // pridat overenie, ci to vyslo
 
 				if ((c > 64 && c < 91) || (c > 96 && c < 123) || c == '_') // A-Z || a-z || _
 				{
