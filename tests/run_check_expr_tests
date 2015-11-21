@@ -1,0 +1,10 @@
+#!/bin/bash
+
+retVal=0
+for num in 1 2 3 4 5 ; do
+    echo "Running expr$num"
+    ./check_expr_test test_data/check_expr_test_data/expr$num 2> /dev/null
+    retVal=$?
+done
+
+exit $((retVal))
