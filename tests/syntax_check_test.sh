@@ -10,3 +10,4 @@ set -e
 ../bin/interpreter ./test_data/syntax_check_data/test6
 ../bin/interpreter ./test_data/syntax_check_data/test7
 ../bin/interpreter ./test_data/syntax_check_data/test8
+../bin/interpreter ./test_data/syntax_check_data/test9
