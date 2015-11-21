@@ -35,5 +35,3 @@ typedef struct
 index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buffer);
 
 int reservedWord(char *identifier);
-
-//int tokenize(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer *struct_buff);
