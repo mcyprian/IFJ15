@@ -72,7 +72,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT; 
 			}
 			else if (token->token_type == IDENTIFIER){
-				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(STATEMENT, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT; 
 			}
 			else if ((token->token_type >= K_CIN && token->token_type <= K_DO) || 
@@ -123,8 +123,7 @@ int check_syntax(int term, Resources * resources){
 			else if	(token->token_type == AUTO){
 				if ((iRet = check_syntax(AUTO, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
-				if ((iRet = check_expression(resources, &token, &token_index)))goto EXIT;
+				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR; 
 			break;		
@@ -138,23 +137,27 @@ int check_syntax(int term, Resources * resources){
 			else goto EXIT;
 			break;
 
-//**************** ASSIGNMENT **********************//
-		case ASSIGNMENT:
+//**************** STATEMENT **********************//
+		case STATEMENT:
 			if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
-			if ((iRet = check_syntax(TAIL_ASSIGNMENT, resources)) != 0)goto EXIT;
+			if ((iRet = check_syntax(TAIL_STATEMENT, resources)) != 0)goto EXIT;
 			break;
 
-//**************** TAIL_ASSIGNMENT **********************//
-		case TAIL_ASSIGNMENT:
+//**************** TAIL_STATEMENT **********************//
+		case TAIL_STATEMENT:
 			if (token->token_type == O_ASSIGN){
-				if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
-				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
 			}
 			else if (token->token_type == OPENING_BRACKET){
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
-				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
+			break;
+
+//**************** ASSIGNMENT ************************//
+		case ASSIGNMENT:
+			if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
+			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			break;
 
 //**************** FUNC_CALL **********************//
@@ -300,7 +303,15 @@ int check_syntax(int term, Resources * resources){
 
 //**************** FOR_FIRST **********************//
 		case FOR_FIRST:
-			if ((iRet = check_syntax(DEC_VAR, resources)) != 0)goto EXIT;
+			if ((token->token_type >= T_DOUBLE && token->token_type <= T_STRING) |
+				(token->token_type == AUTO)){
+				if ((iRet = check_syntax(DEC_VAR, resources)) != 0)goto EXIT;
+			}
+			else if (token->token_type == IDENTIFIER){
+				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
+			}
+			else goto SYN_ERR;
 			break;
 
 //**************** FOR_SECOND **********************//
