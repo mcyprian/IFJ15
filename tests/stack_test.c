@@ -17,7 +17,6 @@ START_TEST (test_main) {
     ck_assert_int_eq(stack.top, ZERO_INDEX);
     TToken *item;
     index_t index;
-    int values[NUM];
 
     ck_assert_int_eq(pop(&b, &stack), ZERO_INDEX);
 

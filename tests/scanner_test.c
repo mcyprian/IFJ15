@@ -42,7 +42,7 @@ int main(int argc, char ** argv){
             iRet = INTERNAL_ERROR;
             goto STRUCT_BUFF;
         }
-        if (token->token_type >= 13 && token->token_type <= 16 ||
+        if ((token->token_type >= 13 && token->token_type <= 16) ||
             token->token_type == 43)
             printf("%s %d\n", load_token(&test_buff, token->token_index), token->token_type);
         else 

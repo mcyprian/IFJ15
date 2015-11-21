@@ -37,7 +37,8 @@ int main(int argc, char ** argv){
 
     printf("RETURNED %d\n", iRet);
 
-    printf("First token after %d\n", token->token_type);
+    if (iRet == 0)
+        printf("First token after %d\n", token->token_type);
 
 	fclose(resources.source);
 
