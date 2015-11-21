@@ -10,7 +10,7 @@ typedef struct {
     long next;
 } TItem;
 
-#define COUNT 100000
+#define COUNT 1000
 START_TEST (test_init)
 {
 	TDynamic_structure_buffer b; 
@@ -107,12 +107,54 @@ START_TEST (free_elem_test)
 
     for (int i = 0; i < COUNT; i++) {
         get_free_element_index(&b, &index);
-        ck_assert_int_eq(b.flags[index], 1); 
+        ck_assert_int_eq(b.flags[index], 1);
         ck_assert_int_eq(free_element(&b, index), RETURN_OK);
-        ck_assert_int_eq(b.flags[index], 0); 
+        ck_assert_int_eq(b.flags[index], 0);
     }
     index++;
     ck_assert_int_eq(free_element(&b, index), RETURN_OK);
+    free_structure_buffer(&b);
+}
+END_TEST
+
+START_TEST (free_elem_test2)
+{
+    TDynamic_structure_buffer b;
+    index_t index;
+    TItem *item;
+
+    //ck_assert_int_eq(free_element(&b, index), INTERNAL_ERROR);
+    ck_assert_int_eq(init_structure_buffer(&b, COUNT, sizeof(TItem)), RETURN_OK);
+    //ck_assert_int_eq(free_element(&b, index), INTERNAL_ERROR);
+
+    for (int i = 1; i < COUNT; i++) {
+        ck_assert_int_eq(get_free_element_index(&b, &index), RETURN_OK);
+        ck_assert_int_eq(dereference_structure(&b, index, (void **)&item), RETURN_OK);
+        item->data = 3;
+        item->next = 4;
+        ck_assert_int_eq(b.flags[index], 1);
+        if (i % 5 == 0)
+        
+{
+		ck_assert_int_eq(dereference_structure(&b, index-1, (void **)&item), RETURN_OK);
+      		ck_assert_int_eq(free_element(&b, index-1), RETURN_OK);
+        	ck_assert_int_eq(b.flags[index-1], 0);
+        	ck_assert_int_eq(item->data, 0);
+        	ck_assert_int_eq(item->next, 0);
+
+      		dereference_structure(&b, index-2, (void **)&item);
+        	ck_assert_int_eq(b.flags[index-2], 1);
+        	ck_assert_int_eq(item->data, 3);
+        	ck_assert_int_eq(item->next, 4);
+
+        	dereference_structure(&b, index, (void **)&item);
+        	ck_assert_int_eq(b.flags[index], 1);
+        	ck_assert_int_eq(item->data, 3);
+        	ck_assert_int_eq(item->next, 4);
+        }
+    }
+
+    free_structure_buffer(&b);
 }
 END_TEST
 
@@ -120,7 +162,7 @@ END_TEST
 Suite * dynbuff_suite(void)
 {
 	Suite *s;
-	TCase *tc_init, *tc_normal, *tc_realloc, *tc_get_elem, *tc_free_elem;
+	TCase *tc_init, *tc_normal, *tc_realloc, *tc_get_elem, *tc_free_elem, *tc_free_elem2;
 	s = suite_create("DynamicStructureBuffer");
 			  
 	tc_init = tcase_create("Init");
@@ -142,6 +184,11 @@ Suite * dynbuff_suite(void)
 	tc_free_elem = tcase_create("FreeElem");
 	tcase_add_test(tc_free_elem, free_elem_test);
 	suite_add_tcase(s, tc_free_elem);
+
+	tc_free_elem2 = tcase_create("FreeElem2");
+	tcase_add_test(tc_free_elem2, free_elem_test2);
+	suite_add_tcase(s, tc_free_elem2);
+
     return s;
 }
 
@@ -158,3 +205,4 @@ int main ()
 	srunner_free(sr);
 	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
