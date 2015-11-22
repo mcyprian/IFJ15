@@ -16,42 +16,37 @@
 
 /** Enters a block of code
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @return 
  */
-int enter_scope(Resources *resources, TStack *stack);
+int enter_scope(Resources *resources);
 
 /** Leaves a block of code
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @return 
  */
-int leave_scope(Resources *resources, TStack *stack);
+int leave_scope(Resources *resources);
 
 /** Executed in the end of analysis
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @return 
  */
-int leave_general_scope(Resources *resources, TStack *stack);
+int leave_general_scope(Resources *resources);
 
 /** Declares a function in a table
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @param index_to_string_buff index to string buffer where name of the function is
  * @param return_type data type of returned value of the function
  * @return 
  */
-int declare_func(Resources *resources, TStack *stack, index_t index_to_string_buff, int return_type);
+int declare_func(Resources *resources, index_t index_to_string_buff, int return_type);
 
 /** Declares variable in a table
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @param index_to_string_buff index to string buffer where name of the variable is
  * @param data_type data type of the variable
  * @return 
  */
-int declare_var(Resources *resources, TStack *stack, index_t index_to_string_buff, int data_type);
+int declare_var(Resources *resources, index_t index_to_string_buff, int data_type);
 
 /** Adds argument to a function
  * @param resources pointer to structure with buffers
@@ -60,44 +55,40 @@ int declare_var(Resources *resources, TStack *stack, index_t index_to_string_buf
  * @param data_type data type of the argument
  * @return 
  */
-int add_arg(Resources *resources, TStack *stack, index_t name_of_arg, int data_type);
+int add_arg(Resources *resources, index_t name_of_arg, int data_type);
 
-int check_arg_declaration(Resources *resources, TStack *stack, index_t expected_name_of_arg, int expected_arg_type, int argi);
+int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, int expected_arg_type, int argi);
 
-int check_argc(Resources *resources, TStack *stack, int expected_argc);
+int check_argc(Resources *resources, int expected_argc);
 
 /** Checks if function is declared
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @param name_of_func index to buffer where name of the function is
  * @return 
  */
-int is_func_declared(Resources *resources, TStack *stack, index_t name_of_func, int return_type);
+int is_func_declared(Resources *resources, index_t name_of_func, int return_type);
 
 /** Checks if variable is declared
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @param name_of_var index to buffer where name of the variable is
  * @return 
  */
-int is_var_declared(Resources *resources, TStack *stack, index_t name_of_var);
+int is_var_declared(Resources *resources, index_t name_of_var);
 
 /** Checks the return data type of a function
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @param func_name index to buffer where name of the function is
  * @param expected_data_type expected data type
  * @return 
  */
-int check_return_type(Resources *resources, TStack *stack, index_t func_name, int expected_data_type);
+int check_return_type(Resources *resources, index_t func_name, int expected_data_type);
 
 /** Checks the data type of a variable
  * @param resources pointer to structure with buffers
- * @param stack Stack containing currently analysed scopes
  * @param var_name index to buffer where name of the variable is
  * @param expected_type expected data type
  * @return 
  */
-int check_var_type(Resources *resources, TStack *stack, index_t var_name, int expected_type);
+int check_var_type(Resources *resources, index_t var_name, int expected_type);
 
-int define_func(Resources *resources, TStack *stack);
+int define_func(Resources *resources);
