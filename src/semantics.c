@@ -11,11 +11,14 @@
 #include <datatypes.h>
 #include <semantics.h>
 #include <stack.h>
+#include <debug.h>
+
 
 static index_t currently_analyzed_function = 0;
 
 int enter_scope(Resources *resources)
 {
+    debug_print("%s\n", "ENTER_SCOPE");
     TTree *tmp;
     index_t i = 0;
 
@@ -30,6 +33,7 @@ int enter_scope(Resources *resources)
 
 int leave_scope(Resources *resources)
 {
+    debug_print("%s\n", "LEAVE_SCOPE");
     // TTree *tmp;
     // dereference_structure(&(resources->struct_buff_trees), stack->top, (void **)&tmp);
     
@@ -40,6 +44,7 @@ int leave_scope(Resources *resources)
 }
 
 int leave_general_scope(Resources *resources) {
+    debug_print("%s\n", "LEAVE_GENERAL_SCOPE");
     TTree *tmp;
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
     
@@ -51,6 +56,7 @@ int leave_general_scope(Resources *resources) {
 
 int declare_func(Resources *resources, index_t index_to_string_buff, int return_type) // TODO: declaration test
 {
+    debug_print("%s\n", "DECLARE_FUNC");
     currently_analyzed_function = index_to_string_buff;
     index_t i;
 
@@ -73,6 +79,7 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
 
 int declare_var(Resources *resources, index_t index_to_string_buff, int data_type)
 {
+    debug_print("%s\n", "DECLARE_VAR");
     index_t i = resources->stack.top;
 
     int is_declared = declaration_test(resources, index_to_string_buff, i, data_type);
@@ -89,6 +96,7 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
 
 int add_arg(Resources *resources, index_t name_of_arg, int data_type)
 {
+    debug_print("%s\n", "ADD_ARG");
     index_t i = resources->stack.top;
     add_func_arg(resources, currently_analyzed_function, i, data_type, name_of_arg);
 
@@ -97,6 +105,7 @@ int add_arg(Resources *resources, index_t name_of_arg, int data_type)
 
 int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, int expected_arg_type, int argi) 
 {
+    debug_print("%s\n", "CHECK_ARG_DECLARATION");
     index_t i = resources->stack.top;
 
     int actual_arg_type;
@@ -115,6 +124,7 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
 
 int check_argc(Resources *resources, int expected_argc)
 {
+    debug_print("%s\n", "CHECK_ARGC");
     index_t i = resources->stack.top;
     int actual_argc;
     load_num_of_args(resources, i, currently_analyzed_function, &actual_argc);
@@ -136,6 +146,7 @@ function was not declared -> 0
 */
 int is_func_declared(Resources *resources, index_t name_of_func, int return_type) 
 {
+    debug_print("%s\n", "IS_FUNC_DECLARED");
     TTree *tmp;
     int is_declared = 0;
     currently_analyzed_function = name_of_func;
@@ -164,6 +175,7 @@ int is_func_declared(Resources *resources, index_t name_of_func, int return_type
 }
 
 int is_var_declared(Resources *resources, index_t name_of_var) {
+    debug_print("%s\n", "IS_VAR_DECLARED");
     TTree *tmp;
     int is_declared = 1;
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
@@ -181,6 +193,7 @@ int is_var_declared(Resources *resources, index_t name_of_var) {
 }
 
 int check_return_type(Resources *resources, index_t func_name, int expected_data_type) {
+    debug_print("%s\n", "CHECK_RETURN_TYPE");
     TTree *tmp;
     int actual_data_type;
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
@@ -200,6 +213,7 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
 
 int check_var_type(Resources *resources, index_t var_name, int expected_type)
 {
+    debug_print("%s\n", "CHECK_VAR_TYPE");
     TTree *tmp;
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
@@ -218,6 +232,7 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
 
 int define_func(Resources *resources)
 {
+    debug_print("%s\n", "DEFINE_FUNC");
     if (check_definition_flag(resources, resources->stack.top, currently_analyzed_function))
         return -1; // sematicka chyba - dve definicia jednej funkcie
 
