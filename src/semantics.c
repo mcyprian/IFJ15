@@ -23,9 +23,13 @@ int enter_scope(Resources *resources)
     index_t i = 0;
 
     add_char(&(resources->string_buff), '$');
+    printf("1\n");
     declare_variable(resources, save_token(&(resources->string_buff)), &i, NO_DATA_TYPE);
+    printf("2\n");
     dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp);
+    printf("3\n");
     tmp->index_to_struct_buffer = i;
+    printf("4\n");
     push(&(resources->struct_buff_trees), &(resources->stack), i);
     
     return 0;
