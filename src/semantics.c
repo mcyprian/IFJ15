@@ -74,9 +74,17 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
 int declare_var(Resources *resources, index_t index_to_string_buff, int data_type)
 {
     index_t i = resources->stack.top;
-    declare_variable(resources, index_to_string_buff, &i, data_type);
 
-    return 0;
+    int is_declared = declaration_test(resources, index_to_string_buff, i, data_type);
+
+    if ( is_declared == 1){
+        declare_variable(resources, index_to_string_buff, &i, data_type);
+        return 0;
+    }
+    else if ( is_declared == 0)
+        return -1;  //semantic error double declaration
+    else 
+        return INTERNAL_ERROR;
 }
 
 int add_arg(Resources *resources, index_t name_of_arg, int data_type)
