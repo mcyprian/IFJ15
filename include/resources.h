@@ -16,6 +16,7 @@
 
 struct res{
 	FILE * source;
+	TStack * stack;
 	TDynamic_buffer string_buff;
 	TDynamic_structure_buffer struct_buff;
 	TDynamic_structure_buffer struct_buff_trees;

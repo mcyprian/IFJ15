@@ -31,6 +31,8 @@ int main(int argc, char ** argv){
 	if ((iRet = init_structure_buffer(&(resources.struct_buff), 256, sizeof(TToken))) != RETURN_OK)
 		goto STRING_BUFF;
 
+	init_stack(resources->stack);
+
 	if(argc != 2){
 		fprintf(stderr, "%s:%d Incorrect number of arguments\n", __func__, __LINE__);
 		iRet = INTERNAL_ERROR;
