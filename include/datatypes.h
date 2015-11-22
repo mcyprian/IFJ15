@@ -14,5 +14,6 @@ typedef unsigned long index_t;
 
 
 typedef struct res Resources;
-
+typedef struct stack TStack;
+typedef struct next TNext;
 #endif // !DATATYPES_H

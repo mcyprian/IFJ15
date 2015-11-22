@@ -221,7 +221,7 @@ int iterate_through_tree(Resources *resources, char *str, index_t actual_node_in
     TTree *actual_node;
     bool found = false;
     unsigned long key;
-    int v;
+    int v = NOT_FOUND;
 
     hash_key(str, &key);
     dereference_structure(&(resources->struct_buff_trees), actual_node_index, (void**)&actual_node);
@@ -593,7 +593,7 @@ int load_arg_data_type(Resources *resources, index_t index_to_root_node, index_t
 
 int load_arg(Resources *resources, index_t index_to_root_node, index_t index_to_func_id, int arg_index, index_t *index_to_arg_id, int *data_type){
 
-    args_assert(resources != NULL && index_to_string != ZERO_INDEX && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
 
     char *str;
     index_t found_node_index;

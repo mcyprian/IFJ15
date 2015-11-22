@@ -8,8 +8,9 @@
  */
 
 // TODO: check for internal error, fcia na vypisi zo zasobniku, 
-
+#include <datatypes.h>
 #include <semantics.h>
+#include <stack.h>
 
 static index_t currently_analyzed_function = 0;
 
@@ -22,7 +23,7 @@ int enter_scope(Resources *resources)
     declare_variable(resources, save_token(&(resources->string_buff)), &i, NO_DATA_TYPE);
     dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp);
     tmp->index_to_struct_buffer = i;
-    push(&(resources->struct_buff_trees), resources->stack, i);
+    push(&(resources->struct_buff_trees), &(resources->stack), i);
     
     return 0;
 }
@@ -33,7 +34,7 @@ int leave_scope(Resources *resources)
     // dereference_structure(&(resources->struct_buff_trees), stack->top, (void **)&tmp);
     
     // free_memory(&resources, tmp->index_to_struct_buffer);
-    pop(&(resources->struct_buff_trees), resources->stack);
+    pop(&(resources->struct_buff_trees), &(resources->stack));
 
     return 0;
 }
@@ -43,7 +44,7 @@ int leave_general_scope(Resources *resources) {
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
     
     free_memory(resources, tmp->index_to_struct_buffer);
-    pop(&(resources->struct_buff_trees), stack);
+    pop(&(resources->struct_buff_trees), &(resources->stack));
 
     return 0;
 }
@@ -53,7 +54,7 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     currently_analyzed_function = index_to_string_buff;
     index_t i;
 
-    switch (is_func_declared(resources, resources->stack, index_to_string_buff, return_type)) {
+    switch (is_func_declared(resources, index_to_string_buff, return_type)) {
         case 1:
             printf("function was declared\n");
             return 0;
@@ -94,13 +95,14 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
     index_t actual_name_of_arg;
     load_arg(resources, i, currently_analyzed_function, argi, &actual_name_of_arg, &actual_arg_type);
     
-    if ((expected_arg_type == actual_arg_type) && (expected_name_of_arg == actual_name_of_arg))
+    if ((expected_arg_type == actual_arg_type) && (expected_name_of_arg == actual_name_of_arg)){
         printf("arg declared ok\n");
         return 0;
-    else
+    }
+    else {
         printf("arg declared wrong\n");
         return 1;
-
+	}
 }
 
 int check_argc(Resources *resources, int expected_argc)
@@ -108,12 +110,14 @@ int check_argc(Resources *resources, int expected_argc)
     index_t i = resources->stack.top;
     int actual_argc;
     load_num_of_args(resources, i, currently_analyzed_function, &actual_argc);
-    if (expected_argc == actual_argc)
+    if (expected_argc == actual_argc){
         printf("argc ok\n");
         return 0;
-    else
+	}
+    else {
         printf("argc wrong\n");
         return 1;
+	}
 }
 
 /**
@@ -128,8 +132,8 @@ int is_func_declared(Resources *resources, index_t name_of_func, int return_type
     int is_declared = 0;
     currently_analyzed_function = name_of_func;
     
-    printf("%s\n", load_token(resources->string_buff, currently_analyzed_function));
-    printf("%s\n", load_token(resources->string_buff, name_of_func));
+    printf("%s\n", load_token(&(resources->string_buff), currently_analyzed_function));
+    printf("%s\n", load_token(&(resources->string_buff), name_of_func));
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
@@ -138,12 +142,14 @@ int is_func_declared(Resources *resources, index_t name_of_func, int return_type
     } // after while, tmp is global scope tree
     if (!declaration_test(resources, name_of_func, tmp->index_to_struct_buffer, FUNC)){ // was declared 0 else 1
         printf("func with this name was declared\n");
-        if (return_type == get_data_type(resources, tmp->index_to_struct_buffer, name_of_func, FUNC))
+        if (return_type == get_data_type(resources, tmp->index_to_struct_buffer, name_of_func, FUNC)){
             printf("func with this name and return type was declared\n");
             is_declared = 1;
-        else
+		}
+        else {
             printf("wrong return types of func\n");
             is_declared = -1;
+		}
     }
     printf("func was not declared\n");
     return is_declared;
@@ -155,9 +161,10 @@ int is_var_declared(Resources *resources, index_t name_of_var) {
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
     for (int i = resources->stack.length - 1; i > 0; i--) {
-        if (is_declared = declaration_test(resources, name_of_var, tmp->index_to_struct_buffer, VAR)) // is declared 0 else 1
+        if ((is_declared = declaration_test(resources, name_of_var, tmp->index_to_struct_buffer, VAR)) == 0){ // is declared 0 else 1
             printf("var was declared\n");
             break;
+		}
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     }
     printf("var was not declared\n");
@@ -211,7 +218,7 @@ int define_func(Resources *resources)
     index_t name;
     
     set_definition_flag(resources, resources->stack.top, currently_analyzed_function);
-    enter_scope(resources, resources->stack);
+    enter_scope(resources);
     
     load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
     

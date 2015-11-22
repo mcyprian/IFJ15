@@ -17,7 +17,7 @@ typedef enum non_terminals {
 	PROGRAM = 100,
 	PROGRAM_N,
 	BLOCK_STATMENT,
-	FUNC,
+	FUNCTION,
 	STATIC_PART,
 	TAIL_FUNC,
 	DEC_VAR,

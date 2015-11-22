@@ -15,6 +15,7 @@
 #include <debug.h>
 #include <error_macros.h>
 #include <precedence_analysis.h>
+#include <semantics.h>
 
 #include <datatypes.h>
 #include <resources.h>
@@ -41,7 +42,7 @@ int check_syntax(int term, Resources * resources){
 
 //**************** PROGRAM **********************//
 		case PROGRAM:
-			if ((iRet = check_syntax(FUNC, resources)) != 0)goto EXIT;
+			if ((iRet = check_syntax(FUNCTION, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(PROGRAM_N, resources)) != 0)goto EXIT;
 			break;
 
@@ -84,8 +85,8 @@ int check_syntax(int term, Resources * resources){
 			break;
 
 
-//**************** FUNC **********************//
-		case FUNC:
+//**************** FUNCTION **********************//
+		case FUNCTION:
 			if ((iRet = check_syntax(STATIC_PART, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_FUNC, resources)) != 0)goto EXIT;
 			break;
