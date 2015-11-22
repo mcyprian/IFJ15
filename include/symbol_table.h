@@ -12,9 +12,12 @@
 
 #include <datatypes.h>
 #include <resources.h>
+#include <stdbool.h>
 
 #define NOT_FOUND (-1)
 #define FOUND 0
+#define ARG_FOUND (-2)
+#define NO_DATA_TYPE 0
 
 enum data_types{
 	INTEGER,
@@ -39,13 +42,16 @@ typedef struct func_args {
 }TFunc_args;
 
 typedef struct tree {
+	index_t next;
+	index_t index_to_struct_buffer;
 	unsigned long key;
 	index_t index_to_dynamic_buff;
-	index_t right, left, next;
+	index_t right, left, next_node;
 	int type;	//function or variable
 	union Values value;
 	int data_type;	//(for function it means return value) one of enum data_types
 	TFunc_args *args;
+	bool definition;
 }TTree;
 
 
@@ -100,7 +106,7 @@ int declare_function(Resources *resources, index_t index_to_string, index_t *ind
  * @param index_to_root_node pointer to index_t variable storing index to dynamic structure buffer
  * @param data_type data type of the argument
  * @param index_to_dynamic_buff index to string of argument's identifier in dynamic buffer
- * @return 0 on success, INTERNAL_ERROR on malloc or realloc error
+ * @return 0 on success, INTERNAL_ERROR on malloc or realloc error, NOT_FOUND if function is not declared, ARG_FOUND if argument of given string is already declared
  */
 int add_func_arg(Resources *resources, index_t index_to_string, index_t index_to_root_node, int data_type, index_t index_to_dynamic_buff);
 
@@ -125,13 +131,14 @@ void free_memory(Resources *resources, index_t index_to_root_node);
  * @param index_to_string index to dynamic buffer (string of identifier)
  * @return returns int value, one of enum data_types
  */
-int get_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string);
+int get_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string, int type);
 
 /** Gives value of float variable
  * @param resources pointer to structure with buffers
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
  * @param value pointer to float variable to store variable data
+ * @param type defferentiates between variable data type and function return value data type (one of enum types_of_tokens)
  * @return returns RETURN_OK on succes, NOT_FOUND if variable is not in symbol_table or INTERNAL_ERROR on error
  */
 int load_float_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, float *value);
@@ -168,9 +175,36 @@ int load_num_of_args(Resources *resources, index_t index_to_root_node, index_t i
  * @param index_to_root_node index_t variable storing index to dynamic structure buffer
  * @param index_to_string index to dynamic buffer (string of identifier)
  * @param arg_index integer index to array of function's arguments 
- * @return returns data type of x-th argument (x is value in arg_index), NOT_FOUND if function is not in symbol table or INTERNAL_ERROR on error
+ * @return returns data type of x-th argument (x is value in arg_index), NOT_FOUND if function or argument is not in symbol table or INTERNAL_ERROR on error
  */
 int load_arg_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string, int arg_index);
+
+/** Loads index to identifier and data type of function x-th argument (x is arg_index)
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @param arg_index choose number of argument (indexed from 1)
+ * @param index_to_arg_id variable to store index to argument's id
+ * @param data_type variable to store argument's data type
+ * @return returns true if function was defined, false if was not, NOT_FOUND if was not declared or INTERNAL_ERROR on error
+ */
+int load_arg(Resources *resources, index_t index_to_root_node, index_t index_to_func_id, int arg_index, index_t *index_to_arg_id, int *data_type);
+
+/** Checks if function was definied
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @return returns true if function was defined, false if was not, NOT_FOUND if was not declared or INTERNAL_ERROR on error
+ */
+int check_definition_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Sets definition flag up
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on succes, NOT_FOUND if function was not declared or INTERNAL_ERROR on error
+ */
+int set_definition_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
 
 #endif
 
