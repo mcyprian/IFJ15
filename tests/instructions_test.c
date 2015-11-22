@@ -11,7 +11,9 @@ int main() {
     Buffers buffers;
     index_t ip = 1;
     TInstruction *instruction;
+#if DEBUG
     TReg *reg;
+#endif
 
     if ((iRet = init_structure_buffer(&(buffers.reg_buff), 16, sizeof(TReg))) != RETURN_OK)
         goto DEFAULT;
@@ -22,7 +24,7 @@ int main() {
     if ((iRet = init_structure_buffer(&(buffers.instruction_buff), 128, sizeof(TInstruction))) != RETURN_OK)
         goto DATA_BUFF;
 
-    int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Buffers *buffers, index_t first_op, index_t second_op, index_t dest);
+    int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Buffers *buffers, TInstruction *instruction);
 
     debug_print("%s\n", "FILLING ARRAY OF FUNCTIONS");
     execute_instruction[MOV] = mov;
@@ -52,23 +54,23 @@ int main() {
         ip++;
         debug_print("%s: %lu, %s: %d\n", "IP", ip, "INSTRUCTION", instruction->ins);
     
-    instruction_ret = execute_instruction[instruction->ins](&buffers,
-                                                instruction->dest,
-                                                instruction->first_operand,
-                                                instruction->second_operand);
-    
+    instruction_ret = execute_instruction[instruction->ins](&buffers, instruction);
+#if DEBUG    
     reg = access(buffers.reg_buff.buffer, TReg, 1lu);
-    printf("REGISTER1: %d\n", reg->i);
+    debug_print("%s: %d\n", "REGISTER1", reg->i);
     reg = access(buffers.reg_buff.buffer, TReg, 2lu);
-    printf("REGISTER2: %d\n", reg->i);
+    debug_print("%s: %d\n", "REGISTER2:", reg->i);
 
     debug_print("%s: %d\n", "INSTRUCT RET", instruction_ret);
+#endif
     } while (instruction_ret != -1);
 
+#if DEBUG    
     debug_print("%s\n", "INTERPRETING FINISHED");
     reg = access(buffers.reg_buff.buffer, TReg, 2lu);
-    printf("REGISTER2: %d\n", reg->i);
+    debug_print("%s: %d\n", "REGISTER2", reg->i);
 
+#endif
     free_structure_buffer(&(buffers.instruction_buff));
 
 DATA_BUFF:

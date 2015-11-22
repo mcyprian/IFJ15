@@ -17,8 +17,8 @@
 
 typedef struct {
     index_t dest;
-    index_t first_operand;
-    index_t second_operand;
+    index_t first_op;
+    index_t second_op;
     int ins;
 } TInstruction;
 
@@ -48,13 +48,13 @@ typedef union {
 int new_instruction(TDynamic_structure_buffer *buff, TInstruction *item, 
                 index_t dest, index_t first, index_t second, int ins);
 
-int mov(Buffers * buffers, index_t dest, index_t first_op, index_t second_op);
+int mov(Buffers * buffers, TInstruction *instruction);
 
-int add_data(Buffers * buffers, index_t dest, index_t first_op, index_t second_op);
+int add_data(Buffers * buffers, TInstruction *instruction);
 
-int add_reg(Buffers * buffers, index_t dest, index_t first_op, index_t second_op);
+int add_reg(Buffers * buffers, TInstruction *instruction);
 
-int mul_data(Buffers * buffers, index_t dest, index_t first_op, index_t second_op);
+int mul_data(Buffers * buffers, TInstruction *instruction);
 
-int halt(Buffers * buffers, index_t dest, index_t first_op, index_t second_op);
+int halt(Buffers * buffers, TInstruction *instruction);
 #endif // !INSTRUCTIONS_H
