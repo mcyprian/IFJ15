@@ -7,12 +7,11 @@
  * Sematic analysis of IFJ15 language
  */
 
-// TODO: check for internal error
+// TODO: check for internal error, fcia na vypisi zo zasobniku, 
 
 #include <sematics.h>
 
 static index_t currently_analyzed_function = 0;
-
 
 int enter_scope(Resources *resources, TStack *stack)
 {
@@ -60,9 +59,11 @@ int declare_func(Resources *resources, TStack *stack, index_t index_to_string_bu
             return 0;
         case 0:
             i = stack->top;
+            printf("function was not declared\n");
             declare_function(resources, index_to_string_buff, &i, return_type);
             return 1;
         case -1:
+            printf("wrong declaration of function\n");
             return -1; // odsledovat v synt an pre hlasenie sem. chyby
         default:
             return -1;
@@ -94,8 +95,10 @@ int check_arg_declaration(Resources *resources, TStack *stack, index_t expected_
     load_arg(resources, i, currently_analyzed_function, argi, &actual_name_of_arg, &actual_arg_type);
     
     if ((expected_arg_type == actual_arg_type) && (expected_name_of_arg == actual_name_of_arg))
+        printf("arg declared ok\n");
         return 0;
     else
+        printf("arg declared wrong\n");
         return 1;
 
 }
@@ -106,8 +109,10 @@ int check_argc(Resources *resources, TStack *stack, int expected_argc)
     int actual_argc;
     load_num_of_args(resources, i, currently_analyzed_function, &actual_argc);
     if (expected_argc == actual_argc)
+        printf("argc ok\n");
         return 0;
     else
+        printf("argc wrong\n");
         return 1;
 }
 
@@ -122,18 +127,25 @@ int is_func_declared(Resources *resources, TStack *stack, index_t name_of_func, 
     TTree *tmp;
     int is_declared = 0;
     currently_analyzed_function = name_of_func;
+    
+    printf("%s\n", load_token(resources->string_buff, currently_analyzed_function));
+    printf("%s\n", load_token(resources->string_buff, name_of_func));
+
     dereference_structure(&(resources->struct_buff_trees), stack->top, (void **)&tmp);
 
     while(tmp->next != ZERO_INDEX) {
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     } // after while, tmp is global scope tree
     if (!declaration_test(resources, name_of_func, tmp->index_to_struct_buffer, FUNC)){ // was declared 0 else 1
+        printf("func with this name was declared\n");
         if (return_type == get_data_type(resources, tmp->index_to_struct_buffer, name_of_func, FUNC))
+            printf("func with this name and return type was declared\n");
             is_declared = 1;
         else
+            printf("wrong return types of func\n");
             is_declared = -1;
     }
-
+    printf("func was not declared\n");
     return is_declared;
 }
 
@@ -144,9 +156,11 @@ int is_var_declared(Resources *resources, TStack *stack, index_t name_of_var) {
 
     for (int i = stack->length - 1; i > 0; i--) {
         if (is_declared = declaration_test(resources, name_of_var, tmp->index_to_struct_buffer, VAR)) // is declared 0 else 1
+            printf("var was declared\n");
             break;
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     }
+    printf("var was not declared\n");
 
     return is_declared; // is declared 0 else 1
 }
@@ -161,6 +175,11 @@ int check_return_type(Resources *resources, TStack *stack, index_t func_name, in
     } // while; tmp is global scope tree
     actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_name, FUNC);
 
+    if (actual_data_type == expected_data_type)
+        printf("same return types\n");
+    else
+        printf("wrong return types\n");
+
     return (actual_data_type == expected_data_type);
 }
 
@@ -170,11 +189,15 @@ int check_var_type(Resources *resources, TStack *stack, index_t var_name, int ex
 
     dereference_structure(&(resources->struct_buff_trees), stack->top, (void **)&tmp);
     for (int i = stack->length - 1; i > 0; i--) {
-        if (expected_type == get_data_type(resources, tmp->index_to_struct_buffer, var_name, VAR))
+        if (expected_type == get_data_type(resources, tmp->index_to_struct_buffer, var_name, VAR)) {
+            printf("same var types\n");
             return 0;
+        }
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     }
 
+    printf("wrong var types\n");
+    
     return 1;
 }
 
