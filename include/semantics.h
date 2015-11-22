@@ -15,7 +15,7 @@
 #include <symbol_table.h>
 
 // TODO: popis
-#define type_filter(type)                                      \
+#define sem_type_filter(type)                                      \
     ((type) == 14 || (type) == 21 ? (14) : ((type) == 15 || (type) == 20 ? (15)) : (type) == 16 || (type) == 22 ? (16) : (0))
 
 /** Enters a block of code

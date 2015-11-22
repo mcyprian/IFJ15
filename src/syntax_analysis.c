@@ -20,6 +20,17 @@
 #include <datatypes.h>
 #include <resources.h>
 
+
+#define get_if_null(resources, index, token)										\
+	do {														\
+	       if (token == NULL){											\
+			index = get_token(resources->source, &(resources->string_buff), &(resources->struct_buff));	\
+			dereference_structure(&(resources->struct_buff), index, (void **)&token);			\
+			debug_print("type=%d\n", token->token_type);							\
+		}													\
+	}while(0)													\
+								   
+
 int check_syntax(int term, Resources * resources){
 	debug_print("%s, term=%d\n", "INIT", term);
 	int iRet = RETURN_OK;
@@ -27,11 +38,10 @@ int check_syntax(int term, Resources * resources){
 	static TToken * token = NULL;
 	static index_t token_index = ZERO_INDEX;
 
-	if (token == NULL){
-		token_index = get_token(resources->source, &(resources->string_buff), &(resources->struct_buff));
-		dereference_structure(&(resources->struct_buff), token_index, (void **)&token);
-		debug_print("type=%d\n", token->token_type);
-	}
+	int type = 0;
+	index_t id = 0;
+
+	get_if_null(resources, token_index, token);
 	
 	if (token->token_type == ERRORT){
 		iRet = LEXICAL_ERROR;
@@ -39,6 +49,12 @@ int check_syntax(int term, Resources * resources){
 	}
 
 	switch(term){
+//**************** GLOBAL **********************//
+
+		case GLOBAL:
+			if ((iRet = enter_scope(resources)) != 0)goto EXIT;
+			if ((iRet = check_syntax(PROGRAM, resources)) != 0)goto EXIT;
+			break;
 
 //**************** PROGRAM **********************//
 		case PROGRAM:
@@ -60,12 +76,17 @@ int check_syntax(int term, Resources * resources){
 
 //**************** BLOCK_STATMENT **********************//
 		case BLOCK_STATMENT:
-			if (token->token_type == CLOSING_CURLY_BRACKET)goto EXIT;
+			if (token->token_type == CLOSING_CURLY_BRACKET){
+				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
+				goto EXIT;
+			}
 
 			if (token->token_type == OPENING_CURLY_BRACKET){
 				if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
+				if ((iRet = enter_scope(resources)) != 0)goto EXIT; 
 				if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
+				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			}
 			else if ((token->token_type >= T_DOUBLE && token->token_type <= T_STRING) ||
 				 (token->token_type == AUTO)){
@@ -94,8 +115,12 @@ int check_syntax(int term, Resources * resources){
 
 //**************** STATIC_PART **********************//
 		case STATIC_PART:
+			type = token->token_type;
 			if ((iRet = check_syntax(TYPE, resources)) != 0)goto EXIT;
+			get_if_null(resources, token_index, token);
+			id = token->token_index;
 			if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
+			if ((iRet = declare_func(resources, id, type)) != 0 )goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(PARAMS, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
@@ -117,8 +142,12 @@ int check_syntax(int term, Resources * resources){
 //**************** TAIL_FUNC **********************//
 		case DEC_VAR:
 			if (token->token_type >= T_DOUBLE && token->token_type <= T_STRING){
+				type = token->token_type;
 				if ((iRet = check_syntax(TYPE, resources)) != 0)goto EXIT;
+				get_if_null(resources, token_index, token);
+				id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
+				if ((iRet = declare_var(resources, id, type)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_VAR, resources)) != 0)goto EXIT;
 			}
 			else if	(token->token_type == AUTO){

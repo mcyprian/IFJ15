@@ -16,6 +16,7 @@
 #include <syntax_analysis.h>
 #include <built_functions.h>
 #include <ial.h>
+#include <symbol_table.h>
 #include <stack.h>
 #include <datatypes.h>
 
@@ -58,7 +59,7 @@ STRUCT_BUFF:
 	free_structure_buffer(&(resources.struct_buff));
 
 TREE_BUFF:
-	free_buffer(&(resources.struct_buff_tree));
+	free_structure_buffer(&(resources.struct_buff_trees));
 
 STRING_BUFF:
 	free_buffer(&(resources.string_buff));
