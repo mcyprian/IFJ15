@@ -8,7 +8,7 @@
  * Macro to print debug messages
  */
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG
 /** Prints debug message to stderr
