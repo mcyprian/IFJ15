@@ -3,6 +3,8 @@
 #include <error_macros.h>
 #include <debug.h>
 
+#define COUNT 100000
+
 int main() {
 
     int iRet = RETURN_OK;
@@ -23,25 +25,94 @@ int main() {
     int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Buffers *buffers, TInstruction *instruction);
 
     debug_print("%s\n", "FILLING ARRAY OF FUNCTIONS");
-    execute_instruction[MOV] = mov;
-    execute_instruction[ADD_DATA] = add_data;
-    execute_instruction[ADD_REG] = add_reg;
-    execute_instruction[ADD_CONST] = add_const;
-    execute_instruction[MUL_DATA] = mul_data;
+    execute_instruction[MOV_INT_REG] = mov_int_reg;
+    execute_instruction[MOV_INT_CONST] = add_int_reg_const;
+    execute_instruction[MOV_DBL_REG] = mov_dbl_reg;
+    execute_instruction[MOV_DBL_CONST] = mov_dbl_const;
+    execute_instruction[ADD_INT_REG_REG] = add_int_reg_reg;
+    execute_instruction[ADD_INT_REG_CONST] = add_int_reg_const;
+    execute_instruction[ADD_INT_CONST_CONST] = add_int_const_const;
+    execute_instruction[ADD_DBL_REG_REG] = add_dbl_reg_reg;
+    execute_instruction[ADD_DBL_REG_CONST] = add_dbl_reg_const;
+    execute_instruction[ADD_DBL_CONST_CONST] = add_dbl_const_const;
+    execute_instruction[SUB_INT_REG_REG] = sub_int_reg_reg;
+    execute_instruction[SUB_INT_REG_CONST] = sub_int_reg_const;
+    execute_instruction[SUB_INT_CONST_CONST] = sub_int_const_const;
+    execute_instruction[SUB_DBL_REG_REG] = sub_dbl_reg_reg;
+    execute_instruction[SUB_DBL_REG_CONST] = sub_dbl_reg_const;
+    execute_instruction[SUB_DBL_CONST_CONST] = sub_dbl_const_const;
+    execute_instruction[MUL_INT_REG_REG] = mul_int_reg_reg;
+    execute_instruction[MUL_INT_REG_CONST] = mul_int_reg_const;
+    execute_instruction[MUL_INT_CONST_CONST] = mul_int_const_const;
+    execute_instruction[MUL_DBL_REG_REG] = mul_dbl_reg_reg;
+    execute_instruction[MUL_DBL_REG_CONST] = mul_dbl_reg_const;
+    execute_instruction[MUL_DBL_CONST_CONST] = mul_dbl_const_const;
+    execute_instruction[DIV_INT_REG_REG] = div_int_reg_reg;
+    execute_instruction[DIV_INT_REG_CONST] = div_int_reg_const;
+    execute_instruction[DIV_INT_CONST_CONST] = div_int_const_const;
+    execute_instruction[DIV_DBL_REG_REG] = div_dbl_reg_reg;
+    execute_instruction[DIV_DBL_REG_CONST] = div_dbl_reg_const;
+    execute_instruction[DIV_DBL_CONST_CONST] = div_dbl_const_const;
+ 
     execute_instruction[HALT] = halt;
-
+/*
     debug_print("%s\n", "FILLING INT BUFFER");
     // set int values in data_buff
     *((int*)buffers.data_buff.buffer + 1) = 3;
     *((int*)buffers.data_buff.buffer + 2) = 2;
     *((int*)buffers.data_buff.buffer + 3) = 5;
-
+*/
     debug_print("%s\n", "GENERATING INSTRUCTIONS");
-    new_instruction(&buffers.instruction_buff, instruction, 1lu, 3lu, 2lu, MUL_DATA, BBB);
-    new_instruction(&buffers.instruction_buff, instruction, 2lu, 1lu, 1lu, ADD_REG, BBB);
-    new_instruction(&buffers.instruction_buff, instruction, 1lu, 2lu, 9, ADD_CONST, BBC);
-    new_instruction(&buffers.instruction_buff, instruction, 0lu, 0lu, 0lu, HALT, BBB);
-
+    for (int i = 0; i < COUNT; i++) {
+        // int ADD
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(2), MUL_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), int_type(3), ADD_INT_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), int_type(9), ADD_INT_REG_CONST);
+        // double ADD
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.3), double_type(33.2), ADD_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.0), double_type(2.0), MUL_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), double_type(3.0), ADD_DBL_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), double_type(9.0), ADD_DBL_REG_CONST);
+     
+        // int SUB
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(33), SUB_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(2), MUL_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), int_type(3), SUB_INT_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), int_type(9), SUB_INT_REG_CONST);
+        // double SUB
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.3), double_type(33.2), SUB_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.0), double_type(2.0), MUL_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), double_type(3.0), SUB_DBL_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), double_type(9.0), SUB_DBL_REG_CONST);
+     
+        // int MUL
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(33), MUL_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(2), MUL_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), int_type(3), MUL_INT_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), int_type(9), MUL_INT_REG_CONST);
+        // double MUL
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.3), double_type(33.2), MUL_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.0), double_type(2.0), MUL_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), double_type(3.0), MUL_DBL_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), double_type(9.0), MUL_DBL_REG_CONST);
+    
+        // int DIV
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(33), DIV_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(2), DIV_INT_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), int_type(3), DIV_INT_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), int_type(9), DIV_INT_REG_CONST);
+        // double DIV
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.3), double_type(33.2), DIV_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), double_type(5.0), double_type(2.0), DIV_DBL_CONST_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), index_t_type(1lu), double_type(3.0), DIV_DBL_REG_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), index_t_type(2lu), double_type(9.0), DIV_DBL_REG_CONST);
+     
+        // MOV 
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), int_type(3), int_type(0), MOV_INT_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(2lu), double_type(3.0), double_type(0), MOV_DBL_CONST);
+        new_instruction(&buffers.instruction_buff, instruction, index_t_type(0lu), index_t_type(0lu), index_t_type(0lu), HALT);
+    }
     debug_print("%s\n", "INTERPRETING");
     do {
         dereference_structure(&buffers.instruction_buff, ip, (void**)&instruction);
