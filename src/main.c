@@ -32,6 +32,9 @@ int main(int argc, char ** argv){
 	if ((iRet = init_structure_buffer(&(resources.struct_buff), 256, sizeof(TToken))) != RETURN_OK)
 		goto STRING_BUFF;
 
+	if ((iRet = init_structure_buffer(&(resources.struct_buff_trees), 256, sizeof(TTree))) != RETURN_OK)
+		goto TREE_BUFF;
+
 	init_stack(&(resources.stack));
 
 	if(argc != 2){
@@ -53,6 +56,9 @@ int main(int argc, char ** argv){
 
 STRUCT_BUFF:
 	free_structure_buffer(&(resources.struct_buff));
+
+TREE_BUFF:
+	free_buffer(&(resources.struct_buff_tree));
 
 STRING_BUFF:
 	free_buffer(&(resources.string_buff));
