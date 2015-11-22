@@ -15,22 +15,35 @@
 #define access(buffer, type, index)           \
     ((type*)buffer + (index))
 
+typedef union {
+    int i;
+    double d;
+    index_t index;
+} TReg;
+
 typedef struct {
-    index_t dest;
-    index_t first_op;
-    index_t second_op;
+    TReg dest;
+    TReg first_op;
+    TReg second_op;
     int ins;
 } TInstruction;
 
-#define NUM_OF_INSTRUCTIONS 5
+#define NUM_OF_INSTRUCTIONS 6
 
 enum instructions
 {
-    MOV,      // 0
-    ADD_DATA, // 1
-    ADD_REG,  // 2
-    MUL_DATA, // 3
-    HALT      // 4
+    MOV,       // 0
+    ADD_DATA,  // 1
+    ADD_REG,   // 2
+    ADD_CONST, // 3
+    MUL_DATA,  // 4
+    HALT       // 5
+};
+
+enum instruction_type {
+         //  dest   first_op  second_op
+    BBB, // buffer   buffer    buffer
+    BBC  // buffer   buffer    const
 };
 
 typedef struct {
@@ -39,20 +52,18 @@ typedef struct {
     TDynamic_structure_buffer instruction_buff;
 } Buffers;
 
-typedef union {
-    int i;
-    double d;
-    index_t index;
-} TReg;
 
 int new_instruction(TDynamic_structure_buffer *buff, TInstruction *item, 
-                index_t dest, index_t first, index_t second, int ins);
+                index_t dest, index_t first, index_t second, 
+                int ins, int type);
 
 int mov(Buffers * buffers, TInstruction *instruction);
 
 int add_data(Buffers * buffers, TInstruction *instruction);
 
 int add_reg(Buffers * buffers, TInstruction *instruction);
+
+int add_const(Buffers *buffers, TInstruction *instruction);
 
 int mul_data(Buffers * buffers, TInstruction *instruction);
 
