@@ -63,6 +63,7 @@ int is_func_declared(Resources *resources, index_t name_of_func)
     TTree *tmp;
     int is_declared = -1;
     currently_analyzed_function = name_of_func;
+    arg_counter = 0;
     
     printf("%s\n", load_token(&(resources->string_buff), currently_analyzed_function));
     printf("%s\n", load_token(&(resources->string_buff), name_of_func));
