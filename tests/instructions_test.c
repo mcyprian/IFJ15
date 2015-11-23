@@ -3,7 +3,7 @@
 #include <error_macros.h>
 #include <debug.h>
 
-#define COUNT 100000
+#define COUNT 50000
 
 int main() {
 
