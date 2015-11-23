@@ -127,10 +127,10 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
             i = resources->stack.top;
             printf("function was not declared\n");
             declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
-            return 1;
+            return 0;
         case -1:
             printf("wrong declaration of function\n");
-            return -1; // odsledovat v synt an pre hlasenie sem. chyby
+            return 1; // odsledovat v synt an pre hlasenie sem. chyby
         default:
             return -1;
     }
@@ -148,7 +148,7 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
         return 0;
     }
     else if ( is_declared == 0)
-        return -1;  //semantic error double declaration
+        return 1;  //semantic error double declaration
     else 
         return INTERNAL_ERROR;
 }
