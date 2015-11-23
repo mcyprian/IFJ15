@@ -492,7 +492,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     
     
     catch_internal_error(
-         dereference_structure(&res->struct_buff, input_index, (void **)last_token);
+         dereference_structure(&res->struct_buff, input_index, (void **)last_token),
          INTERNAL_ERROR,
          "Failed to dereference structure buffer."
     );
@@ -504,7 +504,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     );
     debug_print("%s: %d\n", "TYPE OF EXPRESSION", top_token->original_type);
     // send type of expression back to syntax_analysis
-    *last_token->original_type = top_token->original_type;
+    (*last_token)->original_type = top_token->original_type;
 
     debug_print("%s: %d\n", "RETURN", RETURN_OK);
     return RETURN_OK;

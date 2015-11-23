@@ -45,7 +45,7 @@ START_TEST (test_get_types) {
     ck_assert_int_eq(get_types(&b, &stack, NULL), INTERNAL_ERROR);
     ck_assert_int_eq(get_types(&b, &stack, values), SYNTAX_ERROR);
 
-    ck_assert_int_eq(overwrite_top(&b, &stack, SHIFT), RETURN_OK);
+    ck_assert_int_eq(overwrite_top(&b, &stack, SHIFT, 0), RETURN_OK);
 
     ck_assert_int_eq(get_types(&b, &stack, values), RETURN_OK);
     
@@ -73,7 +73,7 @@ START_TEST (test_get_types) {
     for (i = 0; i < 2; i++)
         pop(&b, &stack);
     
-    overwrite_top(&b, &stack, IDENTIFIER);
+    overwrite_top(&b, &stack, IDENTIFIER, 0);
     get_types(&b, &stack, values);
     ck_assert_int_eq(values[1], IDENTIFIER);
 
@@ -99,7 +99,7 @@ START_TEST (test_rules) {
         push(&b, &stack, index);
     }
     get_rule(&b, &stack);
-    reduce(&b, &stack);
+    reduce(&b, &stack, 0);
 
     for (i = 0; i < 4; i++) {
         new_item(&b, index, item);
@@ -107,7 +107,7 @@ START_TEST (test_rules) {
         push(&b, &stack, index);
     }
     get_rule(&b, &stack);
-    reduce(&b, &stack);
+    reduce(&b, &stack, 0);
 
     for (i = 0; i < 4; i++) {
         new_item(&b, index, item);
@@ -115,7 +115,7 @@ START_TEST (test_rules) {
         push(&b, &stack, index);
     }
     get_rule(&b, &stack);
-    reduce(&b, &stack);
+    reduce(&b, &stack, 0);
  
     free_structure_buffer(&b);
 }
