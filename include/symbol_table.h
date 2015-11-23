@@ -52,6 +52,7 @@ typedef struct tree {
 	int data_type;	//(for function it means return value) one of enum data_types
 	TFunc_args *args;
 	bool definition;
+	bool is_declared_now;
 }TTree;
 
 
