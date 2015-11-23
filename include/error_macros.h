@@ -140,14 +140,13 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
  * @param msg error message
  * @param v set macro to be verbal
  *
- * TODO free memory before exit
  */
 #define catch_input_error(var, value, msg)                              \
     do {                                                                \
         if ((var) == (value)) {                                         \
                 fprintf(stderr, "[RUNTIME ERROR] (%s:%s:%d) " msg "\n", \
                         __FILE__, __func__, __LINE__);                  \
-                exit (INPUT_ERROR);                                     \
+                return INPUT_ERROR;                                     \
         }                                                               \
     } while (0)
 
@@ -157,14 +156,13 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
  * @param msg error message
  * @param v set macro to be verbal
  *
- * TODO free memory before exit
  */
 #define catch_uninicialized_error(var, value, msg)                      \
     do {                                                                \
         if ((var) == (value)) {                                         \
                 fprintf(stderr, "[UNINIT ERROR] (%s:%s:%d) " msg "\n",  \
                         __FILE__, __func__, __LINE__);                  \
-                exit(UNINIT_ERROR);                                     \
+                return UNINIT_ERROR;                                    \
         }                                                               \
     } while (0)
 
@@ -174,7 +172,6 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
  * @param msg error message
  * @param v set macro to be verbal
  *
- * TODO free memory before exit
  */
 #define catch_div_zero_error(var, value, msg)                           \
     do {                                                                \
@@ -208,7 +205,6 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
  * @param msg error message
  * @param v set macro to be verbal
  *
- * TODO free memory before exit
  */
 #define catch_internal_error(var, value, msg)                           \
     do {                                                                \
