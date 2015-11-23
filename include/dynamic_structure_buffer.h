@@ -25,6 +25,15 @@ typedef struct {
    char * flags;
 } TDynamic_structure_buffer;
 
+
+/** Fast acceess to buffer data
+ * @param buffer pointer to TDynamic_structure_buffer
+ * @param type type buffer was initialized to
+ * @param index index to buffer element
+ */
+#define access(buffer, type, index)           \
+        ((type*)buffer + (index))
+
 /** Makes work with structure buffer easier.
  * @param buff Pointer to TDynamic_structure_buffer
  * @param index index_t variable to store index of new element

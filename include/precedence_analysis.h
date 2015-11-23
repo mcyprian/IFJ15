@@ -24,10 +24,16 @@ enum operations {
 
 #define MAX_RULE_LENGTH 3
 
+#define NUM_OF_TOKENS 15
+
+
 #define type_filter(type)                                      \
     ((type) <= 13 || (type) >= 45 ? (type) : ((type) > 16 ? END_OF_EXPR : L_INT))
 
-#define NUM_OF_TOKENS 15
+
+#define get_original_type(token)                               \
+    ((token)->original_type == 0 ? (token)->token_type : (token)->original_type)
+
 
 extern const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS];
 
@@ -52,16 +58,18 @@ int get_types(TDynamic_structure_buffer *b, TStack *stack,  int *values);
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
  * @param new_type new token type of stack top
+ * @param original_type original token type of stack top
  * @return RETURN_OK on success, INTERNAL_ERROR or SYNTAX_ERROR on error
  */
-int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type);
+int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type);
 
 /** Reduce top of the stack to nonterminal RVALUE
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
+ * @param original_type original token type of token being reduced
  * @return RETURN_OK on success, INTERNAL_ERROR on error
  */
-int reduce(TDynamic_structure_buffer *b, TStack *stack);
+int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type);
 
 /** Search for right rule to reduction of stack top
  * @param b pointer to dynamic_structure_buffer

@@ -13,10 +13,7 @@
 #include <dynamic_structure_buffer.h>
 #include <debug.h>
 
-#define access(buffer, type, index)           \
-    ((type*)buffer + (index))
-
-typedef union {
+typedef union {    // TODO move to datatypes
     int i;
     double d;
     index_t index;
