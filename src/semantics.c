@@ -151,7 +151,7 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
     debug_print("%s\n", "DECLARE_VAR");
     index_t i = resources->stack.top;
 
-    int is_declared = declaration_test(resources, index_to_string_buff, i, sem_type_filter(data_type));
+    int is_declared = declaration_test(resources, index_to_string_buff, i, VAR);
 
     if ( is_declared == NOT_FOUND){
         declare_variable(resources, index_to_string_buff, &i, sem_type_filter(data_type));
