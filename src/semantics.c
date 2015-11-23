@@ -14,7 +14,7 @@
 #include <debug.h>
 
 
-static index_t currently_analyzed_function = 0;
+static index_t currently_analyzed_function;
 static int arg_counter;
 
 int enter_scope(Resources *resources)
