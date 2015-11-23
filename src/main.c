@@ -51,7 +51,7 @@ int main(int argc, char ** argv){
 		goto STRUCT_BUFF;
 	}
 
-	iRet = check_syntax(PROGRAM, &resources);
+	iRet = check_syntax(GLOBAL, &resources);
 
 	fclose(resources.source);
 
