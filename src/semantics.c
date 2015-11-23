@@ -35,6 +35,7 @@ int enter_scope(Resources *resources)
     printf("4\n");
     push(&(resources->struct_buff_trees), &(resources->stack), i);
     
+    debug_print("%s\n", "ENTER_SCOPE_RETURN_0");
     return 0;
 }
 
@@ -43,6 +44,7 @@ int leave_scope(Resources *resources)
     debug_print("%s\n", "LEAVE_SCOPE");
     pop(&(resources->struct_buff_trees), &(resources->stack));
 
+    debug_print("%s\n", "LEAVE_SCOPE_RETURN_0");
     return 0;
 }
 
@@ -54,6 +56,7 @@ int leave_general_scope(Resources *resources) {
     free_memory(resources, tmp->index_to_struct_buffer);
     pop(&(resources->struct_buff_trees), &(resources->stack));
 
+    debug_print("%s\n", "LEAVE_GENERAL_SCOPE_RETURN_0");
     return 0;
 }
 
@@ -78,6 +81,7 @@ int is_func_declared(Resources *resources, index_t name_of_func)
         is_declared = 0;
     }
     
+    debug_print("%s%d\n", "IS_FUNC_DECLARED_RETURN_", is_declared);
     return is_declared;
 }
 
@@ -110,6 +114,7 @@ int is_func_declared_withrv(Resources *resources, index_t name_of_func, int retu
         }
     }
     printf("func was not declared\n");
+    debug_print("%s%d\n", "IS_FUNC_DECLARED_WITHRV_RETURN_", is_declared);
     return is_declared;
 }
 
@@ -123,16 +128,20 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
         case 1:
             printf("function was declared\n");
+            debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return 0;
         case 0:
             i = resources->stack.top;
             printf("function was not declared\n");
             declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
+            debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return 0;
         case -1:
             printf("wrong declaration of function\n");
+            debug_print("%s\n", "DECLARE_FUNC_RETURN_1");
             return 1; // odsledovat v synt an pre hlasenie sem. chyby
         default:
+            debug_print("%s\n", "DECLARE_FUNC_RETURN_-1");
             return -1;
     }
 }
@@ -146,10 +155,13 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
 
     if ( is_declared == NOT_FOUND){
         declare_variable(resources, index_to_string_buff, &i, sem_type_filter(data_type));
+        debug_print("%s\n", "DECLARE_VAR_RETURN_0");
         return 0;
     }
     else if ( is_declared == 0)
+        debug_print("%s\n", "DECLARE_VAR_RETURN_1");
         return 1;  //semantic error double declaration
+    debug_print("%s\n", "DECLARE_VAR_RETURN_INTERNALL_ERROR");
     return INTERNAL_ERROR;
 }
 
@@ -159,6 +171,7 @@ int add_arg(Resources *resources, index_t name_of_arg, int data_type)
     index_t i = resources->stack.top;
     add_func_arg(resources, currently_analyzed_function, i, data_type, name_of_arg);
 
+    debug_print("%s\n", "ADD_ARG_RETURN_0");
     return 0;
 }
 
@@ -170,33 +183,43 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
     int actual_arg_type, iret;
     index_t actual_name_of_arg;
     if ((iret = load_arg(resources, i, currently_analyzed_function, argi, &actual_name_of_arg, &actual_arg_type)) == NOT_FOUND)
-        return 0;
+    {
+        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_1");
+        return 1;
+    }
     
     if ((expected_arg_type == actual_arg_type) && (expected_name_of_arg == actual_name_of_arg)){
         printf("arg declared ok\n");
-        return 1;
+        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_0");
+        return 0;
     }
     else {
         printf("arg declared wrong\n");
-        return 0;
+        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_1");
+        return 1;
     }
 }
 
 int set_arg(Resources *resources, index_t name_of_arg, int data_type)
 {
+    debug_print("%s\n", "SET_ARG");
     index_t i = resources->stack.top;
 
     arg_counter++;
-    if(check_declaration_status(resources, i, currently_analyzed_function)){
+    if(!check_declaration_status(resources, i, currently_analyzed_function)){
         add_arg(resources, name_of_arg, sem_type_filter(data_type));
+        debug_print("%s\n", "SET_ARG_RETURN_OK");
         return RETURN_OK;
     }
     else {
         if(check_arg_declaration(resources, name_of_arg, sem_type_filter(data_type), arg_counter)){
+            debug_print("%s\n", "SET_ARG_RETURN_OK");
             return RETURN_OK;
         }
-        else
-            return 1;   //semantic error wrong argument declaration
+        else{
+            debug_print("%s\n", "SET_ARG_RETURN_1");    
+           return 1;   //semantic error wrong argument declaration
+        }
     }
 }
 
@@ -209,10 +232,12 @@ int check_argc(Resources *resources)
     load_num_of_args(resources, i, currently_analyzed_function, &actual_argc);
     if (arg_counter == actual_argc){
         printf("argc ok\n");
+        debug_print("%s\n", "CHECK_ARGC_RETURN_0");
         return 0;
     }
     else {
         printf("argc wrong\n");
+        debug_print("%s\n", "CHECK_ARGC_RETURN_1");
         return 1;
     }
 }
@@ -231,6 +256,7 @@ int is_var_declared(Resources *resources, index_t name_of_var) {
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     }
     
+    debug_print("%s%d\n", "IS_VAR_DECLARED", is_declared);
     return is_declared; // is declared 0 else 1
 }
 
@@ -262,6 +288,7 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
     for (int i = resources->stack.length - 1; i > 0; i--) {
         if (sem_type_filter(expected_type) == get_data_type(resources, tmp->index_to_struct_buffer, var_name, VAR)) {
             printf("same var types\n");
+            debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_0");
             return 0;
         }
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
@@ -269,6 +296,7 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
 
     printf("wrong var types\n");
     
+    debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_1");
     return 1;
 }
 
@@ -292,6 +320,7 @@ int define_func(Resources *resources)
         declare_variable(resources, name, &currently_analyzed_function, data_type);
     }
 
+    debug_print("%s\n", "DEFINE_FUNC_RETURN_0");
     return 0;
 }
 
