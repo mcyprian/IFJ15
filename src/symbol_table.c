@@ -669,3 +669,29 @@ int set_definition_flag(Resources *resources, index_t index_to_root_node, index_
         return NOT_FOUND;
 
 }
+
+
+int check_declaration_status(Resources *resources, index_t index_to_root_node, index_t index_to_func_id){
+
+    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), index_to_func_id);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, FUNC);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        if (found_node->is_declared_now)
+            return true;
+        else
+            return false;
+    }
+    else
+        return NOT_FOUND;
+}
