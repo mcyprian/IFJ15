@@ -54,7 +54,7 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
 
 int set_arg(Resources *resources, index_t name_of_arg, int data_type);
 
-int check_argc(Resources *resources, int expected_argc);
+int check_argc(Resources *resources);
 
 /** Checks if function is declared
  * @param resources pointer to structure with buffers
