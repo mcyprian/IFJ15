@@ -158,9 +158,10 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
         debug_print("%s\n", "DECLARE_VAR_RETURN_0");
         return 0;
     }
-    else if ( is_declared == 0)
+    else if ( is_declared == 0){
         debug_print("%s\n", "DECLARE_VAR_RETURN_1");
-        return 1;  //semantic error double declaration
+        return SEMANTIC_ERROR;  //semantic error double declaration
+    }
     debug_print("%s\n", "DECLARE_VAR_RETURN_INTERNALL_ERROR");
     return INTERNAL_ERROR;
 }
