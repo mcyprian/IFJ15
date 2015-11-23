@@ -16,7 +16,7 @@
 
 // TODO: popis
 #define sem_type_filter(type)                                      \
-    ((type) == 14 || (type) == 21 ? (14) : ((type) == 15 || (type) == 20 ? (15)) : (type) == 16 || (type) == 22 ? (16) : (0))
+    (((type) == 14 || (type) == 21) ? (14) :(((type) == 15 || (type) == 20) ? (15) :(((type) == 16 || (type) == 22) ? (16) : (0))))
 
 /** Enters a block of code
  * @param resources pointer to structure with buffers
@@ -52,16 +52,7 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
  */
 int declare_var(Resources *resources, index_t index_to_string_buff, int data_type);
 
-/** Adds argument to a function
- * @param resources pointer to structure with buffers
- * @param name_of_func index to buffer where name of the function is
- * @param name_of_arg index to buffer where name of the argument is
- * @param data_type data type of the argument
- * @return 
- */
-int add_arg(Resources *resources, index_t name_of_arg, int data_type);
-
-int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, int expected_arg_type, int argi);
+int set_arg(Resources *resources, index_t name_of_arg, int data_type);
 
 int check_argc(Resources *resources, int expected_argc);
 
