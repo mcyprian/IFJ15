@@ -61,7 +61,7 @@ int check_argc(Resources *resources, int expected_argc);
  * @param name_of_func index to buffer where name of the function is
  * @return 
  */
-int is_func_declared(Resources *resources, index_t name_of_func, int return_type);
+int is_func_declared(Resources *resources, index_t name_of_func);
 
 /** Checks if variable is declared
  * @param resources pointer to structure with buffers
