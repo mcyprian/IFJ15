@@ -139,8 +139,8 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			}
 			else if (token->token_type == OPENING_CURLY_BRACKET){
+				if ((iRet = define_func(resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
-				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
@@ -155,6 +155,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(TYPE, resources)) != 0)goto EXIT;
 				get_if_null(resources, token_index, token);
 				id = token->token_index;
+				last_id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 				if ((iRet = declare_var(resources, id, type)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_VAR, resources)) != 0)goto EXIT;
@@ -164,6 +165,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(AUTO, resources)) != 0)goto EXIT;
 				get_if_null(resources, token_index, token);
 				id = token->token_index;
+				last_id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 				if ((iRet = declare_var(resources, id, type)) != 0)goto EXIT;
 				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
@@ -174,8 +176,7 @@ int check_syntax(int term, Resources * resources){
 //**************** TAIL_VAR **********************//
 		case TAIL_VAR:
 			if (token->token_type == O_ASSIGN){
-				if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
-				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
 			}
 			else goto EXIT;
 			break;
@@ -203,6 +204,9 @@ int check_syntax(int term, Resources * resources){
 		case ASSIGNMENT:
 			if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+			if ((iRet = check_var_type(resources, last_id, token->original_type)) == TYPE_ERROR)goto EXIT;
+			else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
+			else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
 			break;
 
 //**************** FUNC_CALL **********************//
@@ -217,6 +221,10 @@ int check_syntax(int term, Resources * resources){
 			if (token->token_type == CLOSING_BRACKET)goto EXIT;
 			else {
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				id = token->original_type;
+				if ((iRet = check_arg_type(resources, id)) == TYPE_ERROR)goto EXIT;
+				else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
+				else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -227,6 +235,10 @@ int check_syntax(int term, Resources * resources){
 			else {
 				if ((iRet = check_syntax(COMMA, resources)) != 0)goto EXIT;
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				id = token->original_type;
+				if ((iRet = check_arg_type(resources, id)) == TYPE_ERROR)goto EXIT;
+				else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
+		        else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
