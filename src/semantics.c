@@ -88,11 +88,12 @@ int is_func_declared_withrv(Resources *resources, index_t name_of_func, int retu
     currently_analyzed_function = name_of_func;
     index_t i = resources->stack.top;
 
-    if (!declaration_test(resources, name_of_func, i, FUNC))
+    if (!declaration_test(resources, name_of_func, i, FUNC)) {
         if (return_type == get_data_type(resources, resources->stack.top, name_of_func, FUNC))
             is_declared = RETURN_OK;
         else
             is_declared = SEMANTIC_ERROR;
+    }
 
     debug_print("%s%d\n", "IS_FUNC_DECLARED_WITHRV_RETURN_", is_declared);
     return is_declared;
