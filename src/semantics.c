@@ -487,6 +487,28 @@ int check_argc_function_call(Resources *resources)
     }
 }
 
+int get_return_type(Resources *resources, index_t func_name) {
+    debug_print("%s\n", "GET_RETURN_TYPE");
+    TTree *tmp;
+    int actual_data_type;
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+    while(tmp->next != ZERO_INDEX) {
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
+    } // while; tmp is global scope tree
+    actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_name, FUNC);
+
+    return actual_data_type;
+}
+
 
 
 // int set_value_var(Resources *resources, char *id, int data_type) {

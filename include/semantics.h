@@ -149,3 +149,5 @@ int check_arg_type(Resources *resources, int type);
  * @return RETURN_OK on success, TYPE_ERROR on error
  */
 int check_argc_function_call(Resources *resources);
+
+int get_return_type(Resources *resources, index_t func_name);
