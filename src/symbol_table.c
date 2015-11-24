@@ -469,6 +469,34 @@ int get_data_type(Resources *resources, index_t index_to_root_node, index_t inde
 }
 
 
+int check_var_data_types(Resources *resources, index_t index_to_root_node, index_t index_to_string, int expected_data_type){
+
+    args_assert(resources != NULL && index_to_string != ZERO_INDEX && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), index_to_string);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, VAR);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        if ( found_node->data_type == expected_data_type )
+            return RETURN_OK;
+        else if ( found_node->data_type == AUTO ){
+            found_node->data_type = expected_data_type;
+            return RETURN_OK;
+        }
+    }
+    else
+        return NOT_FOUND;
+}
+
+
 int load_float_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, float *value){
 
     args_assert(resources != NULL && index_to_string != ZERO_INDEX && index_to_root_node != ZERO_INDEX && value != NULL, INTERNAL_ERROR);
