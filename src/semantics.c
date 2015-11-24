@@ -359,6 +359,56 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
         return TYPE_CAST_FIRST;  //pretypuj prvy token
 }
 
+int check_arg_type(Resources *resources, int type)
+{
+    debug_print("%s\n", "CHECK_ARG_TYPE");
+    TTree *tmp;
+    int declared_type;
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+    while(tmp->next != ZERO_INDEX) {
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+    } // after while, tmp is global scope tree
+
+    arg_counter++;
+    declared_type = load_arg_data_type(resources, tmp->index_to_struct_buffer, currently_analyzed_function, arg_counter);
+    if (type == declared_type){
+        debug_print("%s\n", "CHECK_ARG_TYPE_RETURN_OK");
+        return RETURN_OK;
+    }
+    else if (type == L_STRING || declared_type == L_STRING){
+        debug_print("%s\n", "CHECK_ARG_TYPE_RETURN_TYPE_ERROR");
+        return TYPE_ERROR;
+       } 
+    else {
+        debug_print("%s\n", "CHECK_ARG_TYPE_RETURN_TYPE_CAST"); 
+        return TYPE_CAST;   //pretypuj
+    }
+}
+
+int check_argc_function_call(Resources *resources)
+{
+    debug_print("%s\n", "CHECK_ARGC_FUNCTION_CALL");
+    TTree *tmp;
+    int actual_argc;
+
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+    while(tmp->next != ZERO_INDEX) {
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+    } // after while, tmp is global scope tree
+
+    load_num_of_args(resources, tmp->index_to_struct_buffer, currently_analyzed_function, &actual_argc);
+    if (arg_counter == actual_argc){
+        debug_print("%s\n", "CHECK_ARGC_FUNCTION_CALL_RETURN_OK");
+        return RETURN_OK;
+    }
+    else {
+        debug_print("%s\n", "CHECK_ARGC_FUNCTION_CALL_RETURN_TYPE_ERROR");
+        return TYPE_ERROR;
+    }
+}
+
 
 
 // int set_value_var(Resources *resources, char *id, int data_type) {

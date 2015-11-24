@@ -99,3 +99,7 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type);
 int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token);
 
 int define_func(Resources *resources);
+
+int check_arg_type(Resources *resources, int type);
+
+int check_argc_function_call(Resources *resources);
