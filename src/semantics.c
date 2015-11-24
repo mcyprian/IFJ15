@@ -325,7 +325,74 @@ int define_func(Resources *resources)
     return 0;
 }
 
+int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
+{
+    int frst_token_type, scnd_token_type;
+    TToken *token;
+    TTree *tmp;
+    int is_declared = 1;
 
+    dereference_structure(&(resources->struct_buff), frst_token, (void**)&token);
+    if (token->original_type == IDENTIFIER){
+
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+        for (int i = resources->stack.length - 1; i > 0; i--) {
+            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == 0){ // is declared 0 else 1
+                printf("var was declared\n");
+                break;
+            }
+
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        }
+        if (is_declared == 0){
+            frst_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
+        }
+        else
+            return SEMANTIC_ERROR;  //semantic error undeclared variable
+
+    }
+    else {
+        frst_token_type = sem_type_filter(token->original_type);
+    }
+
+    dereference_structure(&(resources->struct_buff), scnd_token, (void**)&token);
+    if (token->original_type == IDENTIFIER){
+
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+        for (int i = resources->stack.length - 1; i > 0; i--) {
+            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == 0){ // is declared 0 else 1
+                printf("var was declared\n");
+                break;
+            }
+
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        }
+        if (is_declared == 0){
+            scnd_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
+        }
+        else
+            return SEMANTIC_ERROR;  //semantic error undeclared variable
+
+    }
+    else {
+        scnd_token_type = sem_type_filter(token->original_type);
+    }
+
+    if (frst_token_type == scnd_token_type){
+        return RETURN_OK;
+    }
+    else if (frst_token_type == L_STRING || scnd_token_type == L_STRING){
+        return SEMANTIC_ERROR;
+    }
+    else if (frst_token_type == L_DOUBLE){
+        return TYPE_CAST_SECOND;  //pretypuj druhy token
+    }
+    else {
+        return TYPE_CAST_FIRST;  //pretypuj prvy token
+    }
+}
 
 
 
