@@ -493,7 +493,7 @@ int check_var_data_types(Resources *resources, index_t index_to_root_node, index
             return RETURN_OK;
         }
 	else if (expected_data_type != L_STRING){
-		return TYPE_CAST;
+		return found_node->data_type;
 	}
         else
             return SEMANTIC_ERROR;

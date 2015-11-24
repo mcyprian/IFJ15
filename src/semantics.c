@@ -260,9 +260,9 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
             debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
             return RETURN_OK;
         }
-	else if (i == TYPE_CAST){
-            debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_TYPE_CAST");
-	    return TYPE_CAST;
+	else if (i == L_DOUBLE || i == L_INT){
+            debug_print("%s%d\n", "CHECK_VAR_TYPE_RETURN_",i);
+	    return i;
 	} 
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     }
