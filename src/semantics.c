@@ -24,40 +24,34 @@ int enter_scope(Resources *resources)
     index_t i = 0;
 
     add_char(&(resources->string_buff), '$');
-    printf("1\n");
     index_t test = save_token(&(resources->string_buff));
-    printf("%s\n", load_token(&(resources->string_buff), test));
     declare_variable(resources, test, &i, NO_DATA_TYPE);
-    printf("2\n");
     dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp);
-    printf("3\n");
     tmp->index_to_struct_buffer = i;
-    printf("4\n");
     push(&(resources->struct_buff_trees), &(resources->stack), i);
     
     debug_print("%s\n", "ENTER_SCOPE_RETURN_0");
-    return 0;
+    return RETURN_OK;
 }
 
 int leave_scope(Resources *resources)
 {
     debug_print("%s\n", "LEAVE_SCOPE");
     pop(&(resources->struct_buff_trees), &(resources->stack));
-
     debug_print("%s\n", "LEAVE_SCOPE_RETURN_0");
-    return 0;
+    return RETURN_OK;
 }
 
 int leave_general_scope(Resources *resources) {
     debug_print("%s\n", "LEAVE_GENERAL_SCOPE");
     TTree *tmp;
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
     
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
     free_memory(resources, tmp->index_to_struct_buffer);
     pop(&(resources->struct_buff_trees), &(resources->stack));
 
     debug_print("%s\n", "LEAVE_GENERAL_SCOPE_RETURN_0");
-    return 0;
+    return RETURN_OK;
 }
 
 int is_func_declared(Resources *resources, index_t name_of_func)
@@ -67,19 +61,14 @@ int is_func_declared(Resources *resources, index_t name_of_func)
     int is_declared = -1;
     currently_analyzed_function = name_of_func;
     arg_counter = 0;
-    
-    printf("%s\n", load_token(&(resources->string_buff), currently_analyzed_function));
-    printf("%s\n", load_token(&(resources->string_buff), name_of_func));
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
     while(tmp->next != ZERO_INDEX) {
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     } // after while, tmp is global scope tree
-    if (!declaration_test(resources, name_of_func, tmp->index_to_struct_buffer, FUNC)){ // was declared 0 else -1
-        printf("func with this name was declared\n");
-        is_declared = 0;
-    }
+    if (!declaration_test(resources, name_of_func, tmp->index_to_struct_buffer, FUNC)) // was declared 0 else -1
+        is_declared = RETURN_OK;
     
     debug_print("%s%d\n", "IS_FUNC_DECLARED_RETURN_", is_declared);
     return is_declared;
@@ -95,25 +84,16 @@ function was not declared -> 0
 int is_func_declared_withrv(Resources *resources, index_t name_of_func, int return_type) 
 {
     debug_print("%s\n", "IS_FUNC_DECLARED_WITHRV");
-    int is_declared = 0;
+    int is_declared = NOT_FOUND;
     currently_analyzed_function = name_of_func;
     index_t i = resources->stack.top;
-    
-    printf("%s\n", load_token(&(resources->string_buff), currently_analyzed_function));
-    printf("%s\n", load_token(&(resources->string_buff), name_of_func));
 
-    if (!declaration_test(resources, name_of_func, i, FUNC)){ // was declared 0 else 1
-        printf("func with this name was declared\n");
-        if (return_type == get_data_type(resources, resources->stack.top, name_of_func, FUNC)){
-            printf("func with this name and return type was declared\n");
-            is_declared = 1;
-        }
-        else {
-            printf("wrong return types of func\n");
-            is_declared = -1;
-        }
-    }
-    printf("func was not declared\n");
+    if (!declaration_test(resources, name_of_func, i, FUNC))
+        if (return_type == get_data_type(resources, resources->stack.top, name_of_func, FUNC))
+            is_declared = RETURN_OK;
+        else
+            is_declared = SEMANTIC_ERROR;
+
     debug_print("%s%d\n", "IS_FUNC_DECLARED_WITHRV_RETURN_", is_declared);
     return is_declared;
 }
@@ -126,23 +106,20 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     arg_counter = 0;
 
     switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
-        case 1:
-            printf("function was declared\n");
+        case RETURN_OK:
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
-            return 0;
-        case 0:
+            return RETURN_OK;
+        case NOT_FOUND:
             i = resources->stack.top;
-            printf("function was not declared\n");
             declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
-            return 0;
-        case -1:
-            printf("wrong declaration of function\n");
+            return RETURN_OK;
+        case SEMANTIC_ERROR:
             debug_print("%s\n", "DECLARE_FUNC_RETURN_1");
-            return 1; // odsledovat v synt an pre hlasenie sem. chyby
+            return SEMANTIC_ERROR; // odsledovat v synt an pre hlasenie sem. chyby
         default:
             debug_print("%s\n", "DECLARE_FUNC_RETURN_-1");
-            return -1;
+            return INTERNAL_ERROR;
     }
 }
 
@@ -150,20 +127,20 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
 {
     debug_print("%s\n", "DECLARE_VAR");
     index_t i = resources->stack.top;
-
     int is_declared = declaration_test(resources, index_to_string_buff, i, VAR);
 
-    if ( is_declared == NOT_FOUND){
-        declare_variable(resources, index_to_string_buff, &i, sem_type_filter(data_type));
-        debug_print("%s\n", "DECLARE_VAR_RETURN_0");
-        return 0;
+    switch (is_declared) {
+        case NOT_FOUND: 
+            declare_variable(resources, index_to_string_buff, &i, sem_type_filter(data_type));
+            debug_print("%s\n", "DECLARE_VAR_RETURN_0");
+            return RETURN_OK;
+        case FOUND:
+            debug_print("%s\n", "DECLARE_VAR_RETURN_1");
+            return SEMANTIC_ERROR;  //semantic error double declaration
+        default:
+            debug_print("%s\n", "DECLARE_VAR_RETURN_INTERNALL_ERROR");
+            return INTERNAL_ERROR;
     }
-    else if ( is_declared == 0){
-        debug_print("%s\n", "DECLARE_VAR_RETURN_1");
-        return SEMANTIC_ERROR;  //semantic error double declaration
-    }
-    debug_print("%s\n", "DECLARE_VAR_RETURN_INTERNALL_ERROR");
-    return INTERNAL_ERROR;
 }
 
 int add_arg(Resources *resources, index_t name_of_arg, int data_type)
@@ -171,9 +148,8 @@ int add_arg(Resources *resources, index_t name_of_arg, int data_type)
     debug_print("%s\n", "ADD_ARG");
     index_t i = resources->stack.top;
     add_func_arg(resources, currently_analyzed_function, i, data_type, name_of_arg);
-
     debug_print("%s\n", "ADD_ARG_RETURN_0");
-    return 0;
+    return RETURN_OK;
 }
 
 int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, int expected_arg_type, int argi) 
@@ -181,23 +157,21 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
     debug_print("%s\n", "CHECK_ARG_DECLARATION");
     index_t i = resources->stack.top;
 
-    int actual_arg_type, iret;
+    int actual_arg_type, iRet;
     index_t actual_name_of_arg;
-    if ((iret = load_arg(resources, i, currently_analyzed_function, argi, &actual_name_of_arg, &actual_arg_type)) == NOT_FOUND)
+    if ((iRet = load_arg(resources, i, currently_analyzed_function, argi, &actual_name_of_arg, &actual_arg_type)) == NOT_FOUND)
     {
-        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_1");
-        return 1;
+        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_TYPE_ERROR");
+        return TYPE_ERROR;
     }
     
     if ((expected_arg_type == actual_arg_type) && (expected_name_of_arg == actual_name_of_arg)){
-        printf("arg declared ok\n");
-        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_0");
-        return 0;
+        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_OK");
+        return RETURN_OK;
     }
     else {
-        printf("arg declared wrong\n");
-        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_1");
-        return 1;
+        debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_TYPE_ERROR");
+        return TYPE_ERROR;
     }
 }
 
@@ -218,8 +192,8 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
             return RETURN_OK;
         }
         else{
-            debug_print("%s\n", "SET_ARG_RETURN_1");    
-           return 1;   //semantic error wrong argument declaration
+            debug_print("%s\n", "SET_ARG_RETURN_TYPE_ERROR");    
+           return TYPE_ERROR;
         }
     }
 }
@@ -232,33 +206,31 @@ int check_argc(Resources *resources)
 
     load_num_of_args(resources, i, currently_analyzed_function, &actual_argc);
     if (arg_counter == actual_argc){
-        printf("argc ok\n");
         debug_print("%s\n", "CHECK_ARGC_RETURN_0");
-        return 0;
+        return RETURN_OK;
     }
     else {
-        printf("argc wrong\n");
         debug_print("%s\n", "CHECK_ARGC_RETURN_1");
-        return 1;
+        return TYPE_ERROR;
     }
 }
 
 int is_var_declared(Resources *resources, index_t name_of_var) {
     debug_print("%s\n", "IS_VAR_DECLARED");
     TTree *tmp;
-    int is_declared = 1;
+    int is_declared = SEMANTIC_ERROR;
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
     for (int i = resources->stack.length - 1; i > 0; i--) {
         if ((is_declared = declaration_test(resources, name_of_var, tmp->index_to_struct_buffer, VAR)) == 0){ // is declared 0 else 1
-            printf("var was declared\n");
+            is_declared = RETURN_OK;
             break;
         }
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     }
     
     debug_print("%s%d\n", "IS_VAR_DECLARED", is_declared);
-    return is_declared; // is declared 0 else 1
+    return is_declared;
 }
 
 int check_return_type(Resources *resources, index_t func_name, int expected_data_type) {
@@ -272,12 +244,7 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
     } // while; tmp is global scope tree
     actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_name, FUNC);
 
-    if (actual_data_type == sem_type_filter(expected_data_type))
-        printf("same return types\n");
-    else
-        printf("wrong return types\n");
-
-    return (actual_data_type == sem_type_filter(expected_data_type));
+    return (actual_data_type == sem_type_filter(expected_data_type) ? RETURN_OK : TYPE_ERROR);
 }
 
 int check_var_type(Resources *resources, index_t var_name, int expected_type)
@@ -288,24 +255,23 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
     for (int i = resources->stack.length - 1; i > 0; i--) {
         if (!check_var_data_types(resources, tmp->index_to_struct_buffer, var_name, sem_type_filter(expected_type))) {
-            debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_0");
-            printf("same var types\n");
-            return 0;
+            debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
+            return RETURN_OK;
         }
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     }
-
-    printf("wrong var types\n");
     
     debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_1");
-    return 1;
+    return TYPE_ERROR;
 }
 
 int define_func(Resources *resources)
 {
     debug_print("%s\n", "DEFINE_FUNC");
-    if (check_definition_flag(resources, resources->stack.top, currently_analyzed_function))
-        return -1; // sematicka chyba - dve definicia jednej funkcie
+    if (check_definition_flag(resources, resources->stack.top, currently_analyzed_function)) {
+        debug_print("%s\n", "DEFINE_FUNC_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR; // sematicka chyba - dve definicia jednej funkcie
+    }
 
     int argc;
     int data_type;
@@ -321,16 +287,16 @@ int define_func(Resources *resources)
         declare_variable(resources, name, &currently_analyzed_function, data_type);
     }
 
-    debug_print("%s\n", "DEFINE_FUNC_RETURN_0");
-    return 0;
+    debug_print("%s\n", "DEFINE_FUNC_RETURN_OK");
+    return RETURN_OK;
 }
-
+// debug printy prvy token, druhy token, ktory sa pretipuje
 int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
 {
     int frst_token_type, scnd_token_type;
     TToken *token;
     TTree *tmp;
-    int is_declared = 1;
+    int is_declared = SEMANTIC_ERROR;
 
     dereference_structure(&(resources->struct_buff), frst_token, (void**)&token);
     if (token->original_type == IDENTIFIER){
@@ -338,23 +304,19 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
         dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
         for (int i = resources->stack.length - 1; i > 0; i--) {
-            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == 0){ // is declared 0 else 1
-                printf("var was declared\n");
+            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == RETURN_OK) // is declared 0 else 1
                 break;
-            }
-
             dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
         }
-        if (is_declared == 0){
+        if (is_declared == RETURN_OK)
             frst_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
-        }
-        else
+        else {
+            debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
-
+        }
     }
-    else {
+    else
         frst_token_type = sem_type_filter(token->original_type);
-    }
 
     dereference_structure(&(resources->struct_buff), scnd_token, (void**)&token);
     if (token->original_type == IDENTIFIER){
@@ -362,36 +324,33 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
         dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
         for (int i = resources->stack.length - 1; i > 0; i--) {
-            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == 0){ // is declared 0 else 1
-                printf("var was declared\n");
+            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == RETURN_OK) // is declared 0 else 1
                 break;
-            }
-
             dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
         }
-        if (is_declared == 0){
+        if (is_declared == 0)
             scnd_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
-        }
-        else
+        else {
+            debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
-
+        }
     }
     else {
         scnd_token_type = sem_type_filter(token->original_type);
     }
 
-    if (frst_token_type == scnd_token_type){
+    if (frst_token_type == scnd_token_type) {
+        debug_print("%s\n", "CHECK_TOKENS_RETURN_OK");
         return RETURN_OK;
     }
-    else if (frst_token_type == L_STRING || scnd_token_type == L_STRING){
+    else if ((frst_token_type == L_STRING) || (scnd_token_type == L_STRING)) {
+        debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
         return SEMANTIC_ERROR;
     }
-    else if (frst_token_type == L_DOUBLE){
+    else if (frst_token_type == L_DOUBLE)
         return TYPE_CAST_SECOND;  //pretypuj druhy token
-    }
-    else {
+    else
         return TYPE_CAST_FIRST;  //pretypuj prvy token
-    }
 }
 
 
