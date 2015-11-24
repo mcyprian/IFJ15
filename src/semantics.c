@@ -58,7 +58,7 @@ int is_func_declared(Resources *resources, index_t name_of_func)
 {
     debug_print("%s\n", "IS_FUNC_DECLARED_WITHRV");
     TTree *tmp;
-    int is_declared = -1;
+    int is_declared = NOT_FOUND;
     currently_analyzed_function = name_of_func;
     arg_counter = 0;
 
