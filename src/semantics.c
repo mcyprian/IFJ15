@@ -66,7 +66,7 @@ int is_func_declared(Resources *resources, index_t name_of_func)
 {
     debug_print("%s\n", "IS_FUNC_DECLARED_WITHRV");
     TTree *tmp;
-    int is_declared = NOT_FOUND;
+    int is_declared = SEMANTIC_ERROR;
     currently_analyzed_function = name_of_func;
     arg_counter = 0;
     catch_internal_error(
@@ -325,12 +325,13 @@ int define_func(Resources *resources)
     
     set_definition_flag(resources, resources->stack.top, currently_analyzed_function);
     enter_scope(resources);
+    index_t r = resources->stack.top;
     
     load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
     
     for(int i = argc; i > 0; i--) {
         load_arg(resources, i, currently_analyzed_function, i, &name, &data_type);
-        declare_variable(resources, name, &currently_analyzed_function, data_type);
+        declare_variable(resources, name, &r, data_type);
     }
 
     debug_print("%s\n", "DEFINE_FUNC_RETURN_OK");
