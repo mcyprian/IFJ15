@@ -185,7 +185,6 @@ int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
-    // TODO set to fce return type when reducing fce call
     tmp->original_type = original_type;
     tmp->token_type = new_type;   
     return RETURN_OK;
@@ -358,9 +357,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     TToken *tmp = NULL;
     index_t top_index = ZERO_INDEX;
     index_t input_index = ZERO_INDEX;
-    int iRet;
     TStack stack;
+    int iRet;
     int err;
+    int return_type;
 
     init_stack(&stack);
 
@@ -393,13 +393,15 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
         
         if (top_token->token_type == IDENTIFIER 
             && input_token->token_type == OPENING_BRACKET) {
+            debug_print("%s\n", "FUNCTION CALL IN EXPR");
             
             catch_semantic_error(is_func_declared(res, top_token->token_index),
                                  SEMANTIC_ERROR,
                                  "Function declaration check failed.", 1
             );
+            return_type = get_return_type(res, top_token->token_index);
+            catch_internal_error(return_type, SYNTAX_ERROR, "Failed to get function return type.");
 
-            debug_print("%s\n", "FUNCTION CALL IN EXPR");
             dereference_structure(&res->struct_buff, input_index, (void **)last_token);
             iRet = check_syntax(FUNC_CALL, res);
             if (iRet != RETURN_OK) {
@@ -407,7 +409,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                 return iRet;
             } else {
                 // Reduction of function call
-                err = reduce(&res->struct_buff, &stack, 0); // set return type to last arg
+                err = reduce(&res->struct_buff, &stack, return_type);
                 catch_internal_error(err, INTERNAL_ERROR, "Failed to reduce");
                 catch_syntax_error(err, SYNTAX_ERROR, "Failed to reduce",1);
                 top_index = stack.top;
