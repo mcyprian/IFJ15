@@ -95,6 +95,6 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type);
  * @param scnd_token index to structure buffer with tokens
  * @return returns RETURN_OK if same data types, TYPE_CAST_FIRST if first token must be changed to double, TYPE_CAST_SECOND if second, SEMANTIC_ERROR on semantic error
  */
-int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
+int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token);
 
 int define_func(Resources *resources);
