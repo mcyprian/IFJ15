@@ -321,16 +321,20 @@ int check_syntax(int term, Resources * resources){
 		case TAIL_IF:
 			if ((token->token_type >= T_DOUBLE && token->token_type <= T_STRING) ||
 				 (token->token_type == AUTO)){
+				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(DEC_VAR, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
+				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			}
 			else if ((token->token_type >= K_CIN && token->token_type <= K_DO) || 
 						(token->token_type >= K_FOR && token->token_type <= K_WHILE)){
 				if ((iRet = check_syntax(CONSTRUCTION, resources)) != 0)goto EXIT;
 			}
 			else if (token->token_type == IDENTIFIER){
-				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
+				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(STATEMENT, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
+				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			}
 			else if (token->token_type == OPENING_CURLY_BRACKET){
 				if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
@@ -350,6 +354,7 @@ int check_syntax(int term, Resources * resources){
 
 //**************** FOR_CYCLE **********************//
 		case FOR_CYCLE:
+			if ((iRet = enter_scope(resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(K_FOR, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(FOR_FIRST, resources)) != 0)goto EXIT;
@@ -359,6 +364,7 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(FOR_THIRD, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
+			if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			break;
 
 //**************** FOR_FIRST **********************//
@@ -419,8 +425,10 @@ int check_syntax(int term, Resources * resources){
 		case TAIL_CONSTR:
 			if ((token->token_type >= T_DOUBLE && token->token_type <= T_STRING) || 
 				(token->token_type == AUTO)){
+				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(DEC_VAR, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
+				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			}
 			else if ((token->token_type >= K_CIN && token->token_type <= K_DO) || 
 						(token->token_type >= K_FOR && token->token_type <= K_WHILE)){
@@ -432,8 +440,10 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
 			}
 			else if (token->token_type == IDENTIFIER){
-				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
+				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(STATEMENT, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
+				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
 			break;
