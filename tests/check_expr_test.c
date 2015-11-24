@@ -35,8 +35,6 @@ int main(int argc, char ** argv){
 
 	iRet = check_syntax(TEST_EXPR, &resources);
 
-    printf("RETURNED %d\n", iRet);
-
 	fclose(resources.source);
 
 STRUCT_BUFF:

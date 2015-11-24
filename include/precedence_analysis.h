@@ -37,6 +37,15 @@ enum operations {
 
 extern const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS];
 
+
+/** Sets index to first non terminal (token) on top of the stack
+ * @param b pointer to dynamic_structure_buffer
+ * @param stack pointer to stack
+ * @param first index pointer that will be set to index of first token
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ * */
+int get_first_token(TDynamic_structure_buffer *b, TStack *stack, index_t *first);
+
 #if DEBUG
 /** Visualise current token_types on the stack
  * @param b pointer to dynamic_structure_buffer
@@ -72,11 +81,11 @@ int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int
 int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type);
 
 /** Search for right rule to reduction of stack top
- * @param b pointer to dynamic_structure_buffer
+ * @param res pointer to respurces
  * @param stack pointer to stack
- * @return RETURN_OK on success, INTERNAL_ERROR or SYNAX_ERROR on error
+ * @return RETURN_OK on success, INTERNAL_ERROR,  SYNAX_ERROR or SEMANTIC_ERROR on error
  */
-int get_rule(TDynamic_structure_buffer *b, TStack *stack);
+int get_rule(Resources *res, TStack *stack);
 
 /** Checks if expression is syntactically correct
  * @param res pointer to resources structure

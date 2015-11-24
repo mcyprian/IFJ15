@@ -5,6 +5,8 @@
 #include <error.h>
 #include <scanner.h>
 #include <precedence_analysis.h>
+#include <resources.h>
+#include <datatypes.h>
 #include <check.h>
 
 #define NUM 100
@@ -25,8 +27,8 @@ START_TEST (test_main) {
 END_TEST
 
 START_TEST (test_get_types) {
-    TDynamic_structure_buffer b;
-    init_structure_buffer(&b, NUM, sizeof(TToken));
+    Resources res;
+    init_structure_buffer(&res.struct_buff, NUM, sizeof(TToken));
     TStack stack;
     init_stack(&stack);
     TToken *item;
@@ -35,55 +37,55 @@ START_TEST (test_get_types) {
     int i;
     
     for (int i = 0; i < 5; i++) {
-        new_item(&b, index, item);
+        new_item(&res.struct_buff, index, item);
         item->token_type = i;
-        push(&b, &stack, index);
+        push(&res.struct_buff, &stack, index);
     
     }
     ck_assert_int_eq(get_types(NULL, &stack, values), INTERNAL_ERROR);
-    ck_assert_int_eq(get_types(&b, NULL, values), INTERNAL_ERROR);
-    ck_assert_int_eq(get_types(&b, &stack, NULL), INTERNAL_ERROR);
-    ck_assert_int_eq(get_types(&b, &stack, values), SYNTAX_ERROR);
+    ck_assert_int_eq(get_types(&res.struct_buff, NULL, values), INTERNAL_ERROR);
+    ck_assert_int_eq(get_types(&res.struct_buff, &stack, NULL), INTERNAL_ERROR);
+    ck_assert_int_eq(get_types(&res.struct_buff, &stack, values), SYNTAX_ERROR);
 
-    ck_assert_int_eq(overwrite_top(&b, &stack, SHIFT, 0), RETURN_OK);
+    ck_assert_int_eq(overwrite_top(&res.struct_buff, &stack, SHIFT, 0), RETURN_OK);
 
-    ck_assert_int_eq(get_types(&b, &stack, values), RETURN_OK);
+    ck_assert_int_eq(get_types(&res.struct_buff, &stack, values), RETURN_OK);
     
     ck_assert_int_eq(values[0], 0);
 
 #if DEBUG 
-    print_stack(&b, &stack);
+    print_stack(&res.struct_buff, &stack);
 #endif
 
     for (i = 0; i < 3; i++) {
-        new_item(&b, index, item);
+        new_item(&res.struct_buff, index, item);
         item->token_type = i;
-        push(&b, &stack, index);
+        push(&res.struct_buff, &stack, index);
     
     }
 #if DEBUG
-    print_stack(&b, &stack);
+    print_stack(&res.struct_buff, &stack);
 #endif
 
-    get_types(&b, &stack, values);
+    get_types(&res.struct_buff, &stack, values);
     
     for (i = 0; i < 3; i++) 
         ck_assert_int_eq(values[i + 1], i);
 
     for (i = 0; i < 2; i++)
-        pop(&b, &stack);
+        pop(&res.struct_buff, &stack);
     
-    overwrite_top(&b, &stack, IDENTIFIER, 0);
-    get_types(&b, &stack, values);
+    overwrite_top(&res.struct_buff, &stack, IDENTIFIER, 0);
+    get_types(&res.struct_buff, &stack, values);
     ck_assert_int_eq(values[1], IDENTIFIER);
 
-    free_structure_buffer(&b);
+    free_structure_buffer(&res.struct_buff);
 }
 END_TEST
 
 START_TEST (test_rules) {
-    TDynamic_structure_buffer b;
-    init_structure_buffer(&b, NUM, sizeof(TToken));
+    Resources  res;
+    init_structure_buffer(&res.struct_buff, NUM, sizeof(TToken));
     TStack stack;
     init_stack(&stack);
     TToken *item;
@@ -94,30 +96,30 @@ START_TEST (test_rules) {
     int tokens_three[] = {SHIFT, OPENING_BRACKET, RVALUE, CLOSING_BRACKET};
 
     for (i = 0; i < 2; i++) {
-        new_item(&b, index, item);
+        new_item(&res.struct_buff, index, item);
         item->token_type = tokens_one[i];
-        push(&b, &stack, index);
+        push(&res.struct_buff, &stack, index);
     }
-    get_rule(&b, &stack);
-    reduce(&b, &stack, 0);
+    get_rule(&res, &stack);
+    reduce(&res.struct_buff, &stack, 0);
 
     for (i = 0; i < 4; i++) {
-        new_item(&b, index, item);
+        new_item(&res.struct_buff, index, item);
         item->token_type = tokens_two[i];
-        push(&b, &stack, index);
+        push(&res.struct_buff, &stack, index);
     }
-    get_rule(&b, &stack);
-    reduce(&b, &stack, 0);
+    get_rule(&res, &stack);
+    reduce(&res.struct_buff, &stack, 0);
 
     for (i = 0; i < 4; i++) {
-        new_item(&b, index, item);
+        new_item(&res.struct_buff, index, item);
         item->token_type = tokens_three[i];
-        push(&b, &stack, index);
+        push(&res.struct_buff, &stack, index);
     }
-    get_rule(&b, &stack);
-    reduce(&b, &stack, 0);
+    get_rule(&res, &stack);
+    reduce(&res.struct_buff, &stack, 0);
  
-    free_structure_buffer(&b);
+    free_structure_buffer(&res.struct_buff);
 }
 END_TEST
  
