@@ -21,6 +21,7 @@ struct res{
 	TDynamic_buffer string_buff;
 	TDynamic_structure_buffer struct_buff;
 	TDynamic_structure_buffer struct_buff_trees;
+	TDynamic_structure_buffer instruction_buffer;
 };
 
 #endif //!RESOURCES_H
