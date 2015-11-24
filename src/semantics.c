@@ -287,9 +287,9 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
     for (int i = resources->stack.length - 1; i > 0; i--) {
-        if (sem_type_filter(expected_type) == get_data_type(resources, tmp->index_to_struct_buffer, var_name, VAR)) {
-            printf("same var types\n");
+        if (!check_var_data_types(resources, tmp->index_to_struct_buffer, var_name, sem_type_filter(expected_type))) {
             debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_0");
+            printf("same var types\n");
             return 0;
         }
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
