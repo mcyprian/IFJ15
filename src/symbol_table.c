@@ -17,6 +17,7 @@
 #include <datatypes.h>
 #include <resources.h>
 #include <dynamic_buffer.h>
+#include <semantics.h>
 
 int hash_key(char *str, unsigned long *hash) {
 
@@ -491,6 +492,9 @@ int check_var_data_types(Resources *resources, index_t index_to_root_node, index
             found_node->data_type = expected_data_type;
             return RETURN_OK;
         }
+	else if (expected_data_type != L_STRING){
+		return TYPE_CAST;
+	}
         else
             return SEMANTIC_ERROR;
     }

@@ -20,6 +20,7 @@
 
 #define TYPE_CAST_FIRST 11
 #define TYPE_CAST_SECOND 22
+#define TYPE_CAST 11
 
 /** Enters a block of code
  * @param resources pointer to structure with buffers
