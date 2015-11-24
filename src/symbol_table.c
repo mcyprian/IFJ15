@@ -491,6 +491,8 @@ int check_var_data_types(Resources *resources, index_t index_to_root_node, index
             found_node->data_type = expected_data_type;
             return RETURN_OK;
         }
+        else
+            return SEMANTIC_ERROR;
     }
     else
         return NOT_FOUND;
