@@ -25,7 +25,7 @@ int main() {
     debug_print("%s\n", "FILLING ARRAY OF FUNCTIONS");
     int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Buffers *buffers, TInstruction *instruction) = { 
         mov_int_reg,
-        add_int_reg_const,
+        mov_int_const,
         mov_dbl_reg,
         mov_dbl_const,
         add_int_reg_reg,
@@ -88,11 +88,14 @@ int main() {
         ne_dbl_reg_reg,
         ne_dbl_reg_const,
         ne_dbl_const_const,
+        cast_int_reg,
+        cast_int_const,
+        cast_dbl_reg,
+        cast_dbl_const,
         halt
     };
     debug_print("%s\n", "GENERATING INSTRUCTIONS");
    
-    
     for (int i = 0; i < COUNT; i++) {
         // int ADD
         new_instruction(&buffers.instruction_buff, instruction, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
@@ -189,7 +192,14 @@ int main() {
         new_instruction_dbl_dbl(&buffers.instruction_buff, instruction, 1lu, 3.14, 3.15, NE_DBL_CONST_CONST);
         
         new_instruction_reg_dbl(&buffers.instruction_buff, instruction, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
-    } 
+    }
+        // CAST
+        new_instruction_int_int(&buffers.instruction_buff, instruction, 2lu, 3, 0, CAST_INT_CONST);
+        
+        new_instruction_int_int(&buffers.instruction_buff, instruction, 1lu, 2lu, 0, CAST_DBL_REG);
+        
+        new_instruction_dbl_dbl(&buffers.instruction_buff, instruction, 2lu, 3.66, 0, CAST_DBL_CONST);
+        
         new_instruction_reg_reg(&buffers.instruction_buff, instruction, 0lu, 0lu, 0lu, HALT);
     
     debug_print("%s\n", "INTERPRETING");

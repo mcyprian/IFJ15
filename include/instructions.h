@@ -26,7 +26,7 @@ typedef struct {
     int ins;
 } TInstruction;
 
-#define NUM_OF_INSTRUCTIONS 65   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 69   // TODO set final number
 
 enum instructions
 {
@@ -94,8 +94,12 @@ enum instructions
     NE_DBL_REG_REG,        // 61
     NE_DBL_REG_CONST,      // 62
     NE_DBL_CONST_CONST,    // 63
+    CAST_INT_REG,          // 64
+    CAST_INT_CONST,        // 65
+    CAST_DBL_REG,          // 66
+    CAST_DBL_CONST,        // 67
  
-    HALT                   // 64
+    HALT                   // 68
 };
 
 typedef struct {
@@ -117,7 +121,7 @@ static inline TReg index_t_type (index_t index) {
 }
 
 
-static int new_instruction(TDynamic_structure_buffer *buff, TInstruction *item, 
+static inline int new_instruction(TDynamic_structure_buffer *buff, TInstruction *item, 
                     TReg dest, TReg first, TReg second, int ins) {
     
     index_t index = ZERO_INDEX;
@@ -1118,6 +1122,50 @@ static inline int ne_dbl_const_const(Buffers *buffers, TInstruction *instruction
     
     access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->i
     = instruction->first_op.d != instruction->second_op.d;
+    
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->i);
+    return 1;
+}
+
+//****************************** CASTING ******************************// 
+static inline int cast_int_reg(Buffers *buffers, TInstruction *instruction) {
+    debug_print("%s\n", "CAST_INT_REG");
+    debug_print("%s: %d\n", "OP1 CONTENT", access(buffers->reg_buff.buffer, TReg, instruction->first_op.index)->i);
+    access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->d
+    = (double)access(buffers->reg_buff.buffer, TReg, instruction->first_op.index)->i;
+    
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->d);
+    return 1;
+}
+
+static inline int cast_int_const(Buffers *buffers, TInstruction *instruction) {
+    debug_print("%s\n", "CAST_INT_CONST");
+    debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
+    
+    access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->d
+    = (double)instruction->first_op.i;
+    
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->d);
+    return 1;
+}
+
+static inline int cast_dbl_reg(Buffers *buffers, TInstruction *instruction) {
+    debug_print("%s\n", "CAST_DBL_REG");
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(buffers->reg_buff.buffer, TReg, instruction->first_op.index)->d);
+    
+    access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->i
+    = (int)access(buffers->reg_buff.buffer, TReg, instruction->first_op.index)->d;
+    
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->i);
+    return 1;
+}
+
+static inline int cast_dbl_const(Buffers *buffers, TInstruction *instruction) {
+    debug_print("%s\n", "CAST_DBL_CONST");
+    debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
+    
+    access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->i
+    = (int)instruction->first_op.d;
     
     debug_print("%s: %d\n", "REGISTER CONTENT", access(buffers->reg_buff.buffer, TReg, instruction->dest.index)->i);
     return 1;
