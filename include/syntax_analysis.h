@@ -14,10 +14,11 @@
 
 
 typedef enum non_terminals {
-	PROGRAM = 100,
+	GLOBAL = 100,
+	PROGRAM ,
 	PROGRAM_N,
 	BLOCK_STATMENT,
-	FUNC,
+	FUNCTION,
 	STATIC_PART,
 	TAIL_FUNC,
 	DEC_VAR,

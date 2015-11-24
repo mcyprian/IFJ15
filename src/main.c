@@ -12,11 +12,13 @@
 #include <debug.h>
 #include <error_macros.h>
 #include <scanner.h>
-#include <datatypes.h>
 #include <resources.h>
 #include <syntax_analysis.h>
 #include <built_functions.h>
 #include <ial.h>
+#include <symbol_table.h>
+#include <stack.h>
+#include <datatypes.h>
 
 int main(int argc, char ** argv){
 
@@ -31,6 +33,11 @@ int main(int argc, char ** argv){
 	if ((iRet = init_structure_buffer(&(resources.struct_buff), 256, sizeof(TToken))) != RETURN_OK)
 		goto STRING_BUFF;
 
+	if ((iRet = init_structure_buffer(&(resources.struct_buff_trees), 256, sizeof(TTree))) != RETURN_OK)
+		goto TREE_BUFF;
+
+	init_stack(&(resources.stack));
+
 	if(argc != 2){
 		fprintf(stderr, "%s:%d Incorrect number of arguments\n", __func__, __LINE__);
 		iRet = INTERNAL_ERROR;
@@ -44,12 +51,15 @@ int main(int argc, char ** argv){
 		goto STRUCT_BUFF;
 	}
 
-	iRet = check_syntax(PROGRAM, &resources);
+	iRet = check_syntax(GLOBAL, &resources);
 
 	fclose(resources.source);
 
 STRUCT_BUFF:
 	free_structure_buffer(&(resources.struct_buff));
+
+TREE_BUFF:
+	free_structure_buffer(&(resources.struct_buff_trees));
 
 STRING_BUFF:
 	free_buffer(&(resources.string_buff));

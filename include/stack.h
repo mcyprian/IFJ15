@@ -13,14 +13,14 @@
 #include <datatypes.h>
 #include <dynamic_structure_buffer.h>
 
-typedef struct {
+struct next{
     index_t next;
-} TNext;
+};
 
-typedef struct {
+struct stack{
     index_t top;
     unsigned long length;
-} TStack;
+};
 
 /** Initialize stack
  * @param stack to be inicialized

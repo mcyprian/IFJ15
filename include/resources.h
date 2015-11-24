@@ -12,10 +12,12 @@
 #include <resources.h>
 #include <dynamic_buffer.h>
 #include <dynamic_structure_buffer.h>
-#include <resources.h>
+#include <datatypes.h>
+#include <stack.h>
 
 struct res{
 	FILE * source;
+	TStack stack;
 	TDynamic_buffer string_buff;
 	TDynamic_structure_buffer struct_buff;
 	TDynamic_structure_buffer struct_buff_trees;

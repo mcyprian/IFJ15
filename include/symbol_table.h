@@ -52,6 +52,7 @@ typedef struct tree {
 	int data_type;	//(for function it means return value) one of enum data_types
 	TFunc_args *args;
 	bool definition;
+	bool is_declared_now;
 }TTree;
 
 
@@ -205,6 +206,24 @@ int check_definition_flag(Resources *resources, index_t index_to_root_node, inde
  * @return returns RETURN_OK on succes, NOT_FOUND if function was not declared or INTERNAL_ERROR on error
  */
 int set_definition_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Checks if function is currently being declared
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @return returns true if function is being delared, false if not, INTERNALL_ERROR on error
+ */
+int check_declaration_status(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Control variable data type
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param exected_data_type data type to compare with
+ * @return returns RETURN_OK on succes, SEMANTIC_ERROR if wrong data types, INTERNAL_ERROR on error, NOT_FOUND if variable was not declared
+ */
+int check_var_data_types(Resources *resources, index_t index_to_root_node, index_t index_to_string, int expected_data_type);
+
 
 #endif
 
