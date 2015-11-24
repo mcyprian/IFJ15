@@ -15,8 +15,11 @@
 #include <symbol_table.h>
 
 // TODO: popis
-#define sem_type_filter(type)                                      \
-    (((type) == 14 || (type) == 21) ? (14) :(((type) == 15 || (type) == 20) ? (15) :(((type) == 16 || (type) == 22) ? (16) : (0))))
+#define sem_type_filter(type)      \
+    ( (type) == 14 || (type) == 21 ? 14 : ((type) == 15 || (type) == 20 ? 15 :((type) == 16 || (type) == 22 ? 16 :((type) == 32 ? 32 : 0 ))))
+
+#define TYPE_CAST_FIRST 11
+#define TYPE_CAST_SECOND 22
 
 /** Enters a block of code
  * @param resources pointer to structure with buffers
@@ -85,5 +88,13 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
  * @return 
  */
 int check_var_type(Resources *resources, index_t var_name, int expected_type);
+
+/** Compares two token data types
+ * @param resources pointer to structure with buffers
+ * @param frst_token index to structure buffer with tokens
+ * @param scnd_token index to structure buffer with tokens
+ * @return returns RETURN_OK if same data types, TYPE_CAST_FIRST if first token must be changed to double, TYPE_CAST_SECOND if second, SEMANTIC_ERROR on semantic error
+ */
+int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
 
 int define_func(Resources *resources);
