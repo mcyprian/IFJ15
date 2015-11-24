@@ -324,10 +324,9 @@ int define_func(Resources *resources)
     index_t name;
     
     set_definition_flag(resources, resources->stack.top, currently_analyzed_function);
+    load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
     enter_scope(resources);
     index_t r = resources->stack.top;
-    
-    load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
     
     for(int i = argc; i > 0; i--) {
         load_arg(resources, i, currently_analyzed_function, i, &name, &data_type);
