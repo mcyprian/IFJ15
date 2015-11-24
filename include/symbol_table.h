@@ -215,5 +215,15 @@ int set_definition_flag(Resources *resources, index_t index_to_root_node, index_
  */
 int check_declaration_status(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
 
+/** Control variable data type
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param exected_data_type data type to compare with
+ * @return returns RETURN_OK on succes, SEMANTIC_ERROR if wrong data types, INTERNAL_ERROR on error, NOT_FOUND if variable was not declared
+ */
+int check_var_data_types(Resources *resources, index_t index_to_root_node, index_t index_to_string, int expected_data_type);
+
+
 #endif
 
