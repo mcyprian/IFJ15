@@ -7,7 +7,6 @@
  * Sematic analysis of IFJ15 language
  */
 
-// TODO: check for internal error, fcia na vypisi zo zasobniku, 
 #include <datatypes.h>
 #include <semantics.h>
 #include <stack.h>
@@ -26,7 +25,12 @@ int enter_scope(Resources *resources)
     add_char(&(resources->string_buff), '$');
     index_t test = save_token(&(resources->string_buff));
     declare_variable(resources, test, &i, NO_DATA_TYPE);
-    dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp);
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
     tmp->index_to_struct_buffer = i;
     push(&(resources->struct_buff_trees), &(resources->stack), i);
     
@@ -46,7 +50,11 @@ int leave_general_scope(Resources *resources) {
     debug_print("%s\n", "LEAVE_GENERAL_SCOPE");
     TTree *tmp;
     
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     free_memory(resources, tmp->index_to_struct_buffer);
     pop(&(resources->struct_buff_trees), &(resources->stack));
 
@@ -61,11 +69,18 @@ int is_func_declared(Resources *resources, index_t name_of_func)
     int is_declared = NOT_FOUND;
     currently_analyzed_function = name_of_func;
     arg_counter = 0;
-
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
     while(tmp->next != ZERO_INDEX) {
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
     } // after while, tmp is global scope tree
     if (!declaration_test(resources, name_of_func, tmp->index_to_struct_buffer, FUNC)) // was declared 0 else -1
         is_declared = RETURN_OK;
@@ -220,14 +235,22 @@ int is_var_declared(Resources *resources, index_t name_of_var) {
     debug_print("%s\n", "IS_VAR_DECLARED");
     TTree *tmp;
     int is_declared = SEMANTIC_ERROR;
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
-
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    
     for (int i = resources->stack.length - 1; i > 0; i--) {
         if ((is_declared = declaration_test(resources, name_of_var, tmp->index_to_struct_buffer, VAR)) == 0){ // is declared 0 else 1
             is_declared = RETURN_OK;
             break;
         }
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
     }
     
     debug_print("%s%d\n", "IS_VAR_DECLARED", is_declared);
@@ -238,10 +261,18 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
     debug_print("%s\n", "CHECK_RETURN_TYPE");
     TTree *tmp;
     int actual_data_type;
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
     while(tmp->next != ZERO_INDEX) {
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
     } // while; tmp is global scope tree
     actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_name, FUNC);
 
@@ -254,17 +285,26 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
     TTree *tmp;
     int i;
 
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+    
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     for (int j = resources->stack.length - 1; j > 0; j--) {
         if ((i = check_var_data_types(resources, tmp->index_to_struct_buffer, var_name, sem_type_filter(expected_type))) == RETURN_OK) {
             debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
             return RETURN_OK;
         }
-	else if (i == L_DOUBLE || i == L_INT){
+        else if (i == L_DOUBLE || i == L_INT){
             debug_print("%s%d\n", "CHECK_VAR_TYPE_RETURN_",i);
-	    return i;
-	} 
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+            return i;
+        }
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
     }
     
     debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_1");
@@ -304,15 +344,25 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
     TTree *tmp;
     int is_declared = SEMANTIC_ERROR;
 
-    dereference_structure(&(resources->struct_buff), frst_token, (void**)&token);
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff), frst_token, (void**)&token),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     if (token->original_type == IDENTIFIER){
-
-        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
-
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
         for (int i = resources->stack.length - 1; i > 0; i--) {
             if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == RETURN_OK) // is declared 0 else 1
                 break;
-            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+            catch_internal_error(
+                dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+                INTERNAL_ERROR,
+                "Failed to dereference structure buffer."
+            );
         }
         if (is_declared == RETURN_OK)
             frst_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
@@ -324,15 +374,26 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
     else
         frst_token_type = sem_type_filter(token->original_type);
 
-    dereference_structure(&(resources->struct_buff), scnd_token, (void**)&token);
+    
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff), scnd_token, (void**)&token),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     if (token->original_type == IDENTIFIER){
-
-        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
-
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
         for (int i = resources->stack.length - 1; i > 0; i--) {
             if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == RETURN_OK) // is declared 0 else 1
                 break;
-            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+            catch_internal_error(
+                dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+                INTERNAL_ERROR,
+                "Failed to dereference structure buffer."
+            );
         }
         if (is_declared == 0)
             scnd_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
@@ -364,10 +425,18 @@ int check_arg_type(Resources *resources, int type)
     debug_print("%s\n", "CHECK_ARG_TYPE");
     TTree *tmp;
     int declared_type;
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
     while(tmp->next != ZERO_INDEX) {
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
     } // after while, tmp is global scope tree
 
     arg_counter++;
@@ -392,10 +461,18 @@ int check_argc_function_call(Resources *resources)
     TTree *tmp;
     int actual_argc;
 
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
-
+    
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     while(tmp->next != ZERO_INDEX) {
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
     } // after while, tmp is global scope tree
 
     load_num_of_args(resources, tmp->index_to_struct_buffer, currently_analyzed_function, &actual_argc);
