@@ -207,6 +207,7 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_var_type(resources, last_id, token->original_type)) == TYPE_ERROR)goto EXIT;
 			else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
 			else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
+			iRet = 0;
 			break;
 
 //**************** FUNC_CALL **********************//
@@ -225,6 +226,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_arg_type(resources, id)) == TYPE_ERROR)goto EXIT;
 				else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
 				else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
+				iRet = 0;
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
