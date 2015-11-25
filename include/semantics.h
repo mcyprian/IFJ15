@@ -151,3 +151,5 @@ int check_arg_type(Resources *resources, int type);
 int check_argc_function_call(Resources *resources);
 
 int get_return_type(Resources *resources, index_t func_name);
+
+int get_var_type(Resources *resources, index_t var_name);

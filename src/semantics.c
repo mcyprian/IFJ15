@@ -509,6 +509,43 @@ int get_return_type(Resources *resources, index_t func_name) {
     return actual_data_type;
 }
 
+int get_var_type(Resources *resources, index_t var_name)
+{
+    debug_print("%s\n", "GET_VAR_TYPE");
+
+    TTree *tmp;
+    int is_declared = SEMANTIC_ERROR;
+    int type;
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    
+    for (int i = resources->stack.length - 1; i > 0; i--) {
+        if (declaration_test(resources, var_name, tmp->index_to_struct_buffer, VAR) == 0){ // is declared 0 else 1
+            is_declared = RETURN_OK;
+            break;
+        }
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
+    }
+
+    if (is_declared == RETURN_OK){
+        type = get_data_type(resources, tmp->index_to_struct_buffer, var_name, VAR);
+        debug_print("%s%d\n","GET_VAR_TYPE_RETURN ", type);
+        return type;
+    }
+    else {
+        debug_print("%s\n","GET_VAR_TYPE_RETURN_SEMANTIC_ERROR");
+	return SEMANTIC_ERROR;
+    }
+}
+
 
 
 // int set_value_var(Resources *resources, char *id, int data_type) {
