@@ -282,6 +282,7 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
 int check_var_type(Resources *resources, index_t var_name, int expected_type)
 {
     debug_print("%s\n", "CHECK_VAR_TYPE");
+    args_assert(expected_type == 14 || expected_type == 21 || expected_type == 15 || expected_type == 20 || expected_type == 16 || expected_type == 22 || expected_type == 32, INTERNAL_ERROR);
     TTree *tmp;
     int i;
 
@@ -307,7 +308,7 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
         );
     }
     
-    debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_1");
+    debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_4");
     return TYPE_ERROR;
 }
 
