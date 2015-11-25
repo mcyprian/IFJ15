@@ -324,6 +324,14 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(K_IF, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				
+				if (token->original_type == L_DOUBLE){
+					debug_print("%s\n", "CAST TO INT");
+				}			
+				else if(token->original_type == L_STRING){
+					debug_print("%s\n", "ERROR CAST");
+				}
+	
 				if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_IF, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(ELSE, resources)) != 0)goto EXIT;
@@ -390,6 +398,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(DEC_VAR, resources)) != 0)goto EXIT;
 			}
 			else if (token->token_type == IDENTIFIER){
+				last_id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
 			}
@@ -399,20 +408,43 @@ int check_syntax(int term, Resources * resources){
 //**************** FOR_SECOND **********************//
 		case FOR_SECOND:
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+			
+			if (token->original_type == L_DOUBLE){
+				debug_print("%s\n", "CAST TO INT");
+			}
+			else if(token->original_type == L_STRING){
+				debug_print("%s\n", "ERROR CAST");
+			}
+
 			break;
 
 //**************** FOR_THIRD **********************//
 		case FOR_THIRD:
+			last_id = token->token_index;
 			if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+
+			if ((iRet = check_var_type(resources, last_id, token->original_type)) == TYPE_ERROR)goto EXIT;
+            else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
+            else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
+            iRet = 0;
+
 			break;
 
 //**************** WHILE **********************//
 		case WHILE:
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
+			
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+			if (token->original_type == L_DOUBLE){
+				debug_print("%s\n", "CAST TO INT");
+			}
+			else if(token->original_type == L_STRING){
+			debug_print("%s\n", "ERROR CAST");
+			}
+			
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 			break;
@@ -425,7 +457,15 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;			
+			
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+			if (token->original_type == L_DOUBLE){
+					debug_print("%s\n", "CAST TO INT");
+			}
+			else if(token->original_type == L_STRING){
+				debug_print("%s\n", "ERROR CAST");
+			}
+
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
@@ -478,7 +518,18 @@ int check_syntax(int term, Resources * resources){
 		case COUT_PARAMS:
 			if (token->token_type == O_LEFT_ARROW){
 				if ((iRet = check_syntax(O_LEFT_ARROW, resources)) != 0)goto EXIT;
+				
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				if (token->original_type == L_INT){
+					debug_print("%s\n", "print int");
+				}
+				else if (token->original_type == L_DOUBLE){
+					debug_print("%s\n", "print double");
+				}
+				else if (token->original_type == L_STRING){
+					debug_print("%s\n", "print string");
+				}				
+
 				if ((iRet = check_syntax(COUT_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -488,7 +539,18 @@ int check_syntax(int term, Resources * resources){
 		case COUT_PARAMS_N:
 			if (token->token_type == O_LEFT_ARROW){
 				if ((iRet = check_syntax(O_LEFT_ARROW, resources)) != 0)goto EXIT;
+				
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				if (token->original_type == L_INT){
+					debug_print("%s\n", "print int");
+				}
+				else if (token->original_type == L_DOUBLE){
+					debug_print("%s\n", "print double");
+				}
+				else if (token->original_type == L_STRING){
+					debug_print("%s\n", "print string");
+				}
+
 				if ((iRet = check_syntax(COUT_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -504,7 +566,18 @@ int check_syntax(int term, Resources * resources){
 		case CIN_PARAMS:
 			if (token->token_type == O_RIGHT_ARROW){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
+				
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				if (token->original_type == L_INT){
+						debug_print("%s\n", "get int");
+				}
+				else if (token->original_type == L_DOUBLE){
+						debug_print("%s\n", "get double");
+				}
+				else if (token->original_type == L_STRING){
+				debug_print("%s\n", "get string");
+				}
+
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -514,7 +587,18 @@ int check_syntax(int term, Resources * resources){
 		case CIN_PARAMS_N:
 			if (token->token_type == O_RIGHT_ARROW){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
+				
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+				if (token->original_type == L_INT){
+						debug_print("%s\n", "get int");
+				}
+				else if (token->original_type == L_DOUBLE){
+						debug_print("%s\n", "get double");
+				}
+				else if (token->original_type == L_STRING){	
+						debug_print("%s\n", "get string");		
+				}
+
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			break;
