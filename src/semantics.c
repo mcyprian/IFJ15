@@ -55,6 +55,15 @@ int leave_general_scope(Resources *resources) {
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
+
+    while(tmp->next != ZERO_INDEX) {
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
+    } // after while, tmp is global scope tree
+
     free_memory(resources, tmp->index_to_struct_buffer);
     pop(&(resources->struct_buff_trees), &(resources->stack));
 
