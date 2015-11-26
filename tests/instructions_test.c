@@ -2,6 +2,9 @@
 #include <dynamic_structure_buffer.h>
 #include <error_macros.h>
 #include <debug.h>
+#include <dynamic_buffer.h>
+#include <ial.h>
+#include <built_functions.h>
 
 #define COUNT 5000
 
@@ -24,7 +27,7 @@ int main() {
 
    debug_print("%s\n", "GENERATING INSTRUCTIONS");
    
-    for (int i = 0; i < COUNT; i++) {
+    //for (int i = 0; i < COUNT; i++) {
         // int ADD
         new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, MUL_INT_CONST_CONST);
@@ -120,13 +123,22 @@ int main() {
         new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, NE_DBL_CONST_CONST);
         
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
-    }
+    //}
         // CAST
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, CAST_INT_CONST);
         
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 2lu, 0, CAST_DBL_REG);
         
         new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.66, 0, CAST_DBL_CONST);
+
+        // FIND
+        init_buffer(&(resources.string_buff), 1);
+        add_str(&(resources.string_buff), "987654321");
+        index_t index1 = save_token(&(resources.string_buff));
+        add_str(&(resources.string_buff), "87");
+        index_t index2 = save_token(&(resources.string_buff));
+
+        new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, FIND_CONST_CONST);
         
         new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
     
@@ -157,3 +169,4 @@ DEFAULT:
     debug_print("%s: %d\n", "RETURN", iRet);
     return iRet;
 }
+

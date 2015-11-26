@@ -17,7 +17,7 @@
 #include <ial.h>
 #include <built_functions.h>
 
-#define NUM_OF_INSTRUCTIONS 69   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 80   // TODO set final number
 
 enum instructions
 {
@@ -89,18 +89,18 @@ enum instructions
     CAST_INT_CONST,        // 65
     CAST_DBL_REG,          // 66
     CAST_DBL_CONST,        // 67 
-    CONCAT_REG_REG,        // 68
-    CONCAT_REG_CONST,      // 69
-    CONCAT_CONST_CONST,    // 70
-    SUBSTR_REG_REG,        // 71
-    LENGTH_REG,            // 72
-    LENGTH_CONST,          // 73
-    FIND_REG_REG,          // 74
-    FIND_REG_CONST,        // 75
-    FIND_CONST_CONST,      // 76
-    SORT_REG,              // 77
-    SORT_CONST,            // 78
-    HALT                   // 79
+    HALT,                  // 68
+    CONCAT_REG_REG,        // 69
+    CONCAT_REG_CONST,      // 70
+    CONCAT_CONST_CONST,    // 71
+    SUBSTR_REG_REG,        // 72
+    LENGTH_REG,            // 73
+    LENGTH_CONST,          // 74
+    FIND_REG_REG,          // 75
+    FIND_REG_CONST,        // 76
+    FIND_CONST_CONST,      // 77
+    SORT_REG,              // 78
+    SORT_CONST,            // 79
 };
 
 
@@ -1289,3 +1289,4 @@ static inline int halt(Resources *resources, TInstruction *instruction) {
 
 
 #endif // !INSTRUCTIONS_H
+

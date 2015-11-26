@@ -71,6 +71,17 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         cast_int_const,
         cast_dbl_reg,
         cast_dbl_const,
-        halt
+        halt,
+	concat_reg_reg,
+	concat_reg_const,
+	concat_const_const,
+	substr_reg_reg,
+	length_reg,
+	length_const,
+	find_reg_reg,
+	find_reg_const,
+	find_const_const,
+	sort_reg,
+	sort_const
     };
 
