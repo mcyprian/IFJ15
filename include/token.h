@@ -19,6 +19,7 @@ typedef struct {
     index_t token_index;           // Index to token string in dynamic_buffer
     int token_type;
     int original_type;
+    char id_flag;
 } TToken;
 
 enum token_types

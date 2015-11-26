@@ -37,6 +37,9 @@ enum operations {
 
 extern const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS];
 
+long to_int(char *str);
+
+double to_double(char *str);
 
 /** Sets index to first non terminal (token) on top of the stack
  * @param b pointer to dynamic_structure_buffer
@@ -86,6 +89,10 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type);
  * @return RETURN_OK on success, INTERNAL_ERROR,  SYNAX_ERROR or SEMANTIC_ERROR on error
  */
 int get_rule(Resources *res, TStack *stack);
+
+int short_reduction(TDynamic_structure_buffer *b, TStack *stack, int original_type);
+
+int long_reduction(Resources *res, TToken **reduced_tokens, TStack *stack, int original_type);
 
 /** Checks if expression is syntactically correct
  * @param res pointer to resources structure

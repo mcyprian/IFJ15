@@ -76,9 +76,9 @@ enum {RETURN_OK = 0, LEXICAL_ERROR = 1, SYNTAX_ERROR, SEMANTIC_ERROR, TYPE_ERROR
     do {                                                                 \
         if ((var) == (value)) {                                          \
             if(v)                                                        \
-                fprintf(stderr, "[SEMANTIC ERROR] (%s:%s:%d) " msg "\n", \
+                fprintf(stderr, "[SEMANTIC_ERROR] (%s:%s:%d) " msg "\n", \
                         __FILE__, __func__, __LINE__);                   \
-                return SEMANTIC_ERROR`;                                  \
+                return SEMANTIC_ERROR;                                   \
         }                                                                \
     } while (0)
 
