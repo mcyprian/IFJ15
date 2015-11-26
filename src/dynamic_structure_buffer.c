@@ -106,3 +106,24 @@ int free_element(TDynamic_structure_buffer *b, index_t index){
 	
 	return RETURN_OK;
 }
+
+int push_stack(TDynamic_structure_buffer *b, TStack_variable ** var){
+	args_assert(b != NULL, INTERNAL_ERROR);
+
+	index_t index;
+	int iRet = RETURN_OK;		
+	if ((iRet = get_free_element_index(b, &index)) != RETURN_OK)return iRet;
+	if ((iRet = dereference_structure(b, index, (void **)var)) != RETURN_OK)return iRet;
+	b->flags[b->next_free++] = 1;
+	return RETURN_OK;
+}
+
+int pop_stack(TDynamic_structure_buffer *b){
+	args_assert(b != NULL, INTERNAL_ERROR);
+	
+	if (b->next_free > 1){
+		b->flags[--b->next_free] = 0;
+		return RETURN_OK;	
+	}
+	else return -1;
+}

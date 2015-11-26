@@ -85,5 +85,7 @@ int dereference_structure(TDynamic_structure_buffer *b, index_t  index, void ** 
  */
 int free_element(TDynamic_structure_buffer *b, index_t index);
 
+int push_stack(TDynamic_structure_buffer *b, TStack_variable ** var);
+int pop_stack(TDynamic_structure_buffer *b);
 #endif // !DYNAMIC_STRUCTURE_H
 

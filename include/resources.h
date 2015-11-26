@@ -22,6 +22,29 @@ struct res{
 	TDynamic_structure_buffer struct_buff;
 	TDynamic_structure_buffer struct_buff_trees;
 	TDynamic_structure_buffer instruction_buffer;
+	TDynamic_structure_buffer runtime_stack;
+	index_t start_main;
+	index_t ip;
+	index_t bp;
+};
+
+union value{ 
+	int i;
+	double d;
+	index_t index;
+};
+
+struct stack_variable{
+	int type;
+	int defined;
+	TValue value;
+};
+
+struct instruction{
+    TValue dest;
+    TValue first_op;
+    TValue second_op;
+    int ins;
 };
 
 #endif //!RESOURCES_H
