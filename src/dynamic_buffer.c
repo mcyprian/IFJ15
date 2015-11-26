@@ -47,7 +47,7 @@ void free_buffer(TDynamic_buffer *b) {
 
 int add_char(TDynamic_buffer *b, char c) {
     args_assert(b != NULL && c != '\0', INTERNAL_ERROR);
-    if (b->writing_index + 2 > b->length) 
+    if (b->writing_index + 1 > b->length) 
         catch_internal_error(realloc_buffer(b, 2), INTERNAL_ERROR, "Failed to realloc buffer.");
     b->buffer[b->writing_index] = c;
     b->writing_index++;
@@ -105,7 +105,7 @@ int empty_buffer(TDynamic_buffer *b) {
     debug_print("%s\n", "EMPTY BUFFER");
     args_assert(b != NULL, INTERNAL_ERROR);
     b->writing_index = 1;
-    b->reading_index = 0;
+    b->reading_index = 1;
     b->buffer[b->writing_index] = '\0';
     return 0;
 }
