@@ -243,11 +243,11 @@ static inline int new_instruction_dbl_dbl(TDynamic_structure_buffer *buff, TInst
 //****************************** MOV ******************************// 
 static inline int mov_int_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MOV_INT_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i;
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -255,21 +255,21 @@ static inline int mov_int_const(Resources *resources, TInstruction *instruction)
     debug_print("%s\n", "MOV_INT_CONST");
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int mov_dbl_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MOV_DBL_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -277,74 +277,37 @@ static inline int mov_dbl_const(Resources *resources, TInstruction *instruction)
     debug_print("%s\n", "MOV_DBL_CONST");
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
     = instruction->first_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
-
-//****************************** ADD ******************************// 
-/*
-static inline int add_int_data_data(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "ADD_INT_DATA_DATA");
-    
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = *access(resources->data_buff.buffer, int, instruction->first_op.index)
-    + *access(resources->data_buff.buffer, int, instruction->second_op.index);
-    return 1;
-}
-
-static inline int add_int_reg_data(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "ADD_INT_REG_DATA");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", *access(resources->data_buff.buffer, int, instruction->second_op.index));
-    
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    + *access(resources->data_buff.buffer, int, instruction->second_op.index);
-    
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i );
-    return 1;
-}
-static inline int add_int_data_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "ADD_INT_DATA_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", *access(resources->data_buff.buffer, int, instruction->first_op.index));
-    debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
-  
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = *access(resources->data_buff.buffer, int, instruction->first_op.index)
-    + instruction->second_op.i;
-
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
-    return 1;
-}
-*/
 
 static inline int add_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    + access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    + access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int add_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     + instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -353,37 +316,37 @@ static inline int add_int_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i + instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int add_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    + access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    + access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
 static inline int add_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     + instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -392,38 +355,38 @@ static inline int add_dbl_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
     = instruction->first_op.d + instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
 //****************************** SUB ******************************// 
 static inline int sub_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    - access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    - access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int sub_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     - instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -432,37 +395,37 @@ static inline int sub_int_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i - instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int sub_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    - access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    - access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
 static inline int sub_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     - instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -471,10 +434,10 @@ static inline int sub_dbl_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
     = instruction->first_op.d - instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -482,28 +445,28 @@ static inline int sub_dbl_const_const(Resources *resources, TInstruction *instru
 
 static inline int mul_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    * access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    * access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int mul_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     * instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -512,37 +475,37 @@ static inline int mul_int_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i * instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int mul_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    * access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    * access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
 static inline int mul_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     * instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -551,10 +514,10 @@ static inline int mul_dbl_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
     = instruction->first_op.d * instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -562,28 +525,28 @@ static inline int mul_dbl_const_const(Resources *resources, TInstruction *instru
 
 static inline int div_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    / access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    / access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int div_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     / instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -592,37 +555,37 @@ static inline int div_int_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i / instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int div_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    / access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    / access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
 static inline int div_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     / instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -631,10 +594,10 @@ static inline int div_dbl_const_const(Resources *resources, TInstruction *instru
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
     = instruction->first_op.d / instruction->second_op.d;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -642,28 +605,28 @@ static inline int div_dbl_const_const(Resources *resources, TInstruction *instru
 
 static inline int eq_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    == access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    == access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int eq_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     == instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -672,37 +635,37 @@ static inline int eq_int_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i == instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int eq_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    == access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    == access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int eq_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     == instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -711,10 +674,10 @@ static inline int eq_dbl_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.d == instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -722,28 +685,28 @@ static inline int eq_dbl_const_const(Resources *resources, TInstruction *instruc
 
 static inline int g_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    > access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    > access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int g_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     > instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -752,37 +715,37 @@ static inline int g_int_const_const(Resources *resources, TInstruction *instruct
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i > instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int g_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    > access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    > access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int g_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     > instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -791,10 +754,10 @@ static inline int g_dbl_const_const(Resources *resources, TInstruction *instruct
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.d > instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -802,28 +765,28 @@ static inline int g_dbl_const_const(Resources *resources, TInstruction *instruct
 
 static inline int l_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    < access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    < access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int l_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     < instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -832,37 +795,37 @@ static inline int l_int_const_const(Resources *resources, TInstruction *instruct
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i < instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int l_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    < access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    < access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int l_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     < instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -871,10 +834,10 @@ static inline int l_dbl_const_const(Resources *resources, TInstruction *instruct
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.d < instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -882,28 +845,28 @@ static inline int l_dbl_const_const(Resources *resources, TInstruction *instruct
 
 static inline int ge_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    >= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    >= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int ge_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     >= instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -912,37 +875,37 @@ static inline int ge_int_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i >= instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int ge_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    >= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    >= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int ge_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     >= instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -951,10 +914,10 @@ static inline int ge_dbl_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.d >= instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -962,28 +925,28 @@ static inline int ge_dbl_const_const(Resources *resources, TInstruction *instruc
 
 static inline int le_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    <= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    <= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int le_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     <= instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -992,37 +955,37 @@ static inline int le_int_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i <= instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int le_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    <= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    <= access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int le_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     <= instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -1031,10 +994,10 @@ static inline int le_dbl_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.d <= instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -1042,28 +1005,28 @@ static inline int le_dbl_const_const(Resources *resources, TInstruction *instruc
 
 static inline int ne_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_INT_REG_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
-    != access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->i;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
+    != access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->i;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int ne_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_INT_REG_CONST");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i
     != instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -1072,37 +1035,37 @@ static inline int ne_int_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.i != instruction->second_op.i;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int ne_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_DBL_REG_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
-    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
+    debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
-    != access(resources->runtime_stack.buffer, TValue, instruction->second_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
+    != access(resources->runtime_stack.buffer, TValue, instruction->second_op.index + resources->bp)->d;
     
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 static inline int ne_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_DBL_REG_CONST");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d
     != instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -1111,21 +1074,21 @@ static inline int ne_dbl_const_const(Resources *resources, TInstruction *instruc
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = instruction->first_op.d != instruction->second_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
 //****************************** CASTING ******************************// 
 static inline int cast_int_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "CAST_INT_REG");
-    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i);
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
-    = (double)access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->i;
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i);
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
+    = (double)access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->i;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
@@ -1133,21 +1096,21 @@ static inline int cast_int_const(Resources *resources, TInstruction *instruction
     debug_print("%s\n", "CAST_INT_CONST");
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d
     = (double)instruction->first_op.i;
     
-    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->d);
+    debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->d);
     return 1;
 }
 
 static inline int cast_dbl_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "CAST_DBL_REG");
-    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d);
+    debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
-    = (int)access(resources->runtime_stack.buffer, TValue, instruction->first_op.index)->d;
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
+    = (int)access(resources->runtime_stack.buffer, TValue, instruction->first_op.index + resources->bp)->d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -1155,10 +1118,10 @@ static inline int cast_dbl_const(Resources *resources, TInstruction *instruction
     debug_print("%s\n", "CAST_DBL_CONST");
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     
-    access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i
+    access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i
     = (int)instruction->first_op.d;
     
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index)->i);
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TValue, instruction->dest.index + resources->bp)->i);
     return 1;
 }
 
@@ -1166,7 +1129,7 @@ static inline int cast_dbl_const(Resources *resources, TInstruction *instruction
 
 static inline int halt(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "HALT");
-    fprintf(stderr, "%s: %lu %d \n", "INTERPRETER TERMINATING", instruction->dest.index, *(int*)resources->runtime_stack.buffer);
+    fprintf(stderr, "%s: %lu %d \n", "INTERPRETER TERMINATING", instruction->dest.index + resources->bp, *(int*)resources->runtime_stack.buffer);
     return -1;
 }
 
