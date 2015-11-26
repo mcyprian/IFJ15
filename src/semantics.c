@@ -367,7 +367,7 @@ int define_func(Resources *resources)
     );
     
     for(int i = argc; i > 0; i--) {
-        load_arg(resources, i, currently_analyzed_function, i, &name, &data_type);
+        load_arg(resources, r, currently_analyzed_function, i, &name, &data_type);
         declare_variable(resources, name, &r, data_type);
         tmp->var_declar_count = tmp->var_declar_count + 1;
         printf("var_declar_count: %lu\n", tmp->var_declar_count);
