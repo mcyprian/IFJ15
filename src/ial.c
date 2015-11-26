@@ -58,3 +58,62 @@ int find(TDynamic_buffer *b, index_t string, TDynamic_buffer *c, index_t substri
 	else
 		return -1;
 }
+
+index_t sort(TDynamic_buffer *b, index_t string)
+{
+	save_token(b);	// whatever is in b, puts '\0' after that
+	HeapSort(load_token(b, string));
+
+	return string;
+}
+
+void SiftDown(char *a, int left, int right)
+{
+	int i,j,tmp;
+	bool cont;
+	i = left;
+	j = 2 * i;
+	tmp = a[i];
+	cont = (j <= right);
+
+	while (cont)
+	{
+		if (j < right)
+		{
+			if (a[j] < a[j + 1])
+				j++;
+		}
+
+		if (tmp >= a[j])
+			cont = false;
+		else
+		{
+			a[i] = a[j];
+			i = j;
+			j = 2 * i;
+			cont = (j <= right);
+		}
+	}
+
+	a[i] = tmp;
+}
+
+void HeapSort(char *a)
+{
+	int i,left,right,tmp;
+	int n = (int)strlen(a) - 1;
+
+	left = n / 2 ;
+	right = n ;
+	for (i = left; i >= 0; i--)
+		SiftDown(a, i, right);
+
+	for (right = n ; right >= 1; right--)
+	{
+		tmp = a[0];
+		a[0] = a[right];
+		a[right] = tmp;
+		SiftDown(a, 0, right - 1);
+	}
+}
+
