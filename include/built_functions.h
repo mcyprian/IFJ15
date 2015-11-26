@@ -23,9 +23,9 @@ int lenght(TDynamic_buffer *b, index_t index);
  * @param b pointer to TDyanmic buffer
  * @index index returned from save_token (index in the buffer where the string starts)
  * @index i index where substring starts in the given string
- * @return substring on success, NULL on error
+ * @return index where the substring string starts (in buffer b)
  */
-char *substr(TDynamic_buffer *b, index_t index, index_t i, int n);
+index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n);
 
 /** Concats 2 strings
  * @param b pointer to TDyanmic buffer where the first string is 
