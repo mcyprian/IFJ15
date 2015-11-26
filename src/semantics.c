@@ -34,7 +34,7 @@ int enter_scope(Resources *resources)
     tmp->index_to_struct_buffer = i;
     tmp->var_declar_count = 0;
     push(&(resources->struct_buff_trees), &(resources->stack), i);
-    
+  
     debug_print("%s\n", "ENTER_SCOPE_RETURN_0");
     return RETURN_OK;
 }
@@ -354,9 +354,11 @@ int define_func(Resources *resources)
     int data_type;
     index_t name;
     TTree *tmp;
+    index_t general_scope_tree = resources->stack.top;
 
     set_definition_flag(resources, resources->stack.top, currently_analyzed_function);
     load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
+
     enter_scope(resources);
     index_t r = resources->stack.top;
 
@@ -365,7 +367,7 @@ int define_func(Resources *resources)
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
-    
+
     for(int i = argc; i > 0; i--) {
         load_arg(resources, general_scope_tree, currently_analyzed_function, i, &name, &data_type);
         declare_variable(resources, name, &r, data_type);
