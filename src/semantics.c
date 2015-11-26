@@ -349,10 +349,10 @@ int define_func(Resources *resources)
 // debug printy prvy token, druhy token, ktory sa pretipuje
 int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
 {
-    int frst_token_type, scnd_token_type;
+    int frst_token_type = NOT_FOUND;
+    int scnd_token_type = NOT_FOUND;
     TToken *token;
     TTree *tmp;
-    int is_declared = SEMANTIC_ERROR;
 
     catch_internal_error(
         dereference_structure(&(resources->struct_buff), frst_token, (void**)&token),
@@ -366,7 +366,7 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
             "Failed to dereference structure buffer."
         );
         for (int i = resources->stack.length - 1; i > 0; i--) {
-            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == RETURN_OK) // is declared 0 else 1
+            if ((frst_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR)) != NOT_FOUND) // is declared 0 else 1
                 break;
             catch_internal_error(
                 dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
@@ -374,9 +374,8 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
                 "Failed to dereference structure buffer."
             );
         }
-        if (is_declared == RETURN_OK)
-            frst_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
-        else {
+        if (frst_token_type == NOT_FOUND)
+	{
             debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
         }
@@ -397,7 +396,7 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
             "Failed to dereference structure buffer."
         );
         for (int i = resources->stack.length - 1; i > 0; i--) {
-            if ((is_declared = declaration_test(resources, token->token_index, tmp->index_to_struct_buffer, VAR)) == RETURN_OK) // is declared 0 else 1
+            if ((scnd_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR)) != NOT_FOUND) // is declared 0 else 1
                 break;
             catch_internal_error(
                 dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
@@ -405,9 +404,8 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
                 "Failed to dereference structure buffer."
             );
         }
-        if (is_declared == 0)
-            scnd_token_type = get_data_type(resources, tmp->index_to_struct_buffer, token->token_index, VAR);
-        else {
+        if (scnd_token_type == NOT_FOUND)
+	{
             debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
         }
@@ -555,8 +553,102 @@ int get_var_type(Resources *resources, index_t var_name)
     }
 }
 
+int save_func_index(Resources *resources, index_t func_name, index_t index_to_store)
+{
+    debug_print("%s\n","SAVE_FUNC_INDEX");
+    TTree *tmp;
+    int iret;
 
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
-// int set_value_var(Resources *resources, char *id, int data_type) {
+    while(tmp->next != ZERO_INDEX) {
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+    } // after while, tmp is global scope tree
 
-// }
+    if( (iret = save_frame(resources, tmp->index_to_struct_buffer, func_name, index_to_store, FUNC)) != NOT_FOUND ){
+        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
+        return RETURN_OK;
+    }
+    else {
+        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}
+
+int save_var_index(Resources *resources, index_t var_name, index_t index_to_store)
+{
+    debug_print("%s\n","SAVE_VAR_INDEX");
+    TTree *tmp;
+    int iret;
+
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+        for (int i = resources->stack.length - 1; i > 0; i--) {
+            if ((iret = save_frame(resources, tmp->index_to_struct_buffer, var_name, index_to_store, VAR)) != NOT_FOUND){ // is declared 0 else 1
+                break;
+            }
+
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        }
+
+    if( iret != NOT_FOUND ){
+        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_OK");
+        return RETURN_OK;
+    }
+    else {
+        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}
+
+int load_func_index(Resources *resources, index_t func_name, index_t *load_index)
+{
+    debug_print("%s\n","SAVE_FUNC_INDEX");
+    TTree *tmp;
+    int iret;
+    index_t tmp_load_index;
+
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+    while(tmp->next != ZERO_INDEX) {
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+    } // after while, tmp is global scope tree
+
+    if( (iret = load_frame(resources, tmp->index_to_struct_buffer, func_name, &tmp_load_index, FUNC)) != NOT_FOUND ){
+        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
+        *load_index = tmp_load_index;
+        return RETURN_OK;
+    }
+    else {
+        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}
+
+int load_var_index(Resources *resources, index_t var_name, index_t *load_index)
+{
+    debug_print("%s\n","SAVE_VAR_INDEX");
+    TTree *tmp;
+    int iret;
+    index_t tmp_load_index;
+
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+        for (int i = resources->stack.length - 1; i > 0; i--) {
+            if ((iret = load_frame(resources, tmp->index_to_struct_buffer, var_name, &tmp_load_index, VAR)) != NOT_FOUND){ // is declared 0 else 1
+                break;
+            }
+
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+        }
+
+    if( iret != NOT_FOUND ){
+        *load_index = tmp_load_index;
+        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_OK");
+        return RETURN_OK;
+    }
+    else {
+        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}

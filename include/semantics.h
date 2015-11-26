@@ -153,3 +153,11 @@ int check_argc_function_call(Resources *resources);
 int get_return_type(Resources *resources, index_t func_name);
 
 int get_var_type(Resources *resources, index_t var_name);
+
+int save_func_index(Resources *resources, index_t func_name, index_t index_to_store);
+
+int save_var_index(Resources *resources, index_t var_name, index_t index_to_store);
+
+int load_func_index(Resources *resources, index_t func_name, index_t *load_index);
+
+int load_var_index(Resources *resources, index_t var_name, index_t *load_index);

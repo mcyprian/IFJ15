@@ -729,3 +729,51 @@ int check_declaration_status(Resources *resources, index_t index_to_root_node, i
     else
         return NOT_FOUND;
 }
+
+
+int save_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t index_to_store, int type){
+
+    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), id);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, type);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        found_node->frame_index = index_to_store;
+        return RETURN_OK;
+    }
+    else
+        return NOT_FOUND;
+}
+
+
+int load_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t *load_index, int type){
+
+    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), id);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, type);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        *load_index = found_node->frame_index;
+        return RETURN_OK;
+    }
+    else
+        return NOT_FOUND;
+}

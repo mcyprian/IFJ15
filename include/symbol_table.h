@@ -53,6 +53,7 @@ typedef struct tree {
 	TFunc_args *args;
 	bool definition;
 	bool is_declared_now;
+	index_t frame_index;
 }TTree;
 
 
@@ -224,6 +225,10 @@ int check_declaration_status(Resources *resources, index_t index_to_root_node, i
  */
 int check_var_data_types(Resources *resources, index_t index_to_root_node, index_t index_to_string, int expected_data_type);
 
+int save_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t index_to_store, int type);
+
+
+int load_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t *load_index, int type);
 
 #endif
 
