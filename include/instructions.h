@@ -14,6 +14,8 @@
 #include <datatypes.h>
 #include <resources.h>
 #include <debug.h>
+#include <ial.h>
+#include <built_functions.h>
 
 #define NUM_OF_INSTRUCTIONS 69   // TODO set final number
 
@@ -87,8 +89,18 @@ enum instructions
     CAST_INT_CONST,        // 65
     CAST_DBL_REG,          // 66
     CAST_DBL_CONST,        // 67 
-
-    HALT                   // 68
+    CONCAT_REG_REG,        // 68
+    CONCAT_REG_CONST,      // 69
+    CONCAT_CONST_CONST,    // 70
+    SUBSTR_REG_REG,        // 71
+    LENGTH_REG,            // 72
+    LENGTH_CONST,          // 73
+    FIND_REG_REG,          // 74
+    FIND_REG_CONST,        // 75
+    FIND_CONST_CONST,      // 76
+    SORT_REG,              // 77
+    SORT_CONST,            // 78
+    HALT                   // 79
 };
 
 
@@ -1075,6 +1087,7 @@ static inline int ne_dbl_const_const(Resources *resources, TInstruction *instruc
 }
 
 //****************************** CASTING ******************************// 
+
 static inline int cast_int_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "CAST_INT_REG");
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
@@ -1115,6 +1128,152 @@ static inline int cast_dbl_const(Resources *resources, TInstruction *instruction
     = (int)instruction->first_op.d;
     
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
+    return 1;
+}
+
+//****************************** CONCAT ****************************//
+
+static inline int concat_reg_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "CONCAT_REG_REG");
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
+    = concat(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
+                                     access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
+    return 1;
+}
+
+static inline int concat_reg_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "CONCAT_REG_CONST");
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
+    = concat(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
+    instruction->second_op.index);
+
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
+    return 1;
+}
+
+static inline int concat_const_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "CONCAT_CONST_CONST");
+    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
+    = concat(&(resources->string_buff), instruction->first_op.index, 
+    instruction->second_op.index);
+
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
+    return 1;
+}
+    
+//****************************** SUBSTR ****************************//
+
+static inline int substr_reg_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "SUBSTR_REG_REG");
+
+    TStack_variable *var;
+    push_stack(&(resources->runtime_stack), &var);
+    var->value.index = substr(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
+                                                      access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index,
+                                                      access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
+    var->type = L_STRING;
+
+    debug_print("%s\n", "END OF SUBSTR_REG_REG");
+    return 1;
+}
+
+//****************************** LENGTH ****************************//
+
+static inline int length_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "LENGTH_REG");
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
+    = length(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
+    return 1;
+}
+
+static inline int length_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "LENGTH_CONST");
+    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+    
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
+    = length(&(resources->string_buff), instruction->first_op.index);
+    
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
+    return 1;
+}
+
+//****************************** FIND ****************************//
+
+static inline int find_reg_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "FIND_REG_REG");
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
+    = find(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
+                                     access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
+    return 1;
+}
+
+static inline int find_reg_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "FIND_REG_CONST");
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
+    = find(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
+    instruction->second_op.index);
+
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
+    return 1;
+}
+
+static inline int find_const_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "FIND_CONST_CONST");
+    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
+    = find(&(resources->string_buff), instruction->first_op.index, 
+    instruction->second_op.index);
+
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
+    return 1;
+}
+
+//****************************** SORT ****************************//
+
+static inline int sort_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "SORT_REG");
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
+    = sort(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
+    return 1;
+}
+
+static inline int sort_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "SORT_CONST");
+    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+    
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
+    = sort(&(resources->string_buff), instruction->first_op.index);
+    
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
     return 1;
 }
 

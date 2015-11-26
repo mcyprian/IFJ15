@@ -9,7 +9,7 @@
 
 #include <built_functions.h>
 
-int lenght(TDynamic_buffer *b, index_t index)
+int length(TDynamic_buffer *b, index_t index)
 {
 	return (int)strlen(load_token(b, index));
 }
@@ -35,10 +35,10 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 	return return_index;
 }
 
-index_t concat(TDynamic_buffer *b, index_t index1, TDynamic_buffer *c, index_t index2)
+index_t concat(TDynamic_buffer *b, index_t index1, index_t index2)
 {
 	char *string1 = load_token(b, index1);
-	char *string2 = load_token(c, index2);
+	char *string2 = load_token(b, index2);
 
 	save_token(b);	// whatever is in b, puts '\0' after that
 
@@ -47,7 +47,7 @@ index_t concat(TDynamic_buffer *b, index_t index1, TDynamic_buffer *c, index_t i
 
 	if (add_str(b, string2) == INTERNAL_ERROR)
 		return 0;
-	
+
 	index_t index = save_token(b);
 
 	return index;

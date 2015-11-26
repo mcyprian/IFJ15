@@ -9,11 +9,11 @@
 
 #include <ial.h>
 
-int find(TDynamic_buffer *b, index_t string, TDynamic_buffer *c, index_t substring)
+int find(TDynamic_buffer *b, index_t string, index_t substring)
 {
 	/* creating fail */
 
-	char *search = load_token(c, substring);
+	char *search = load_token(b, substring);
 	char *s = load_token(b, string);
 	int search_lenght = (int)strlen(search);
 
