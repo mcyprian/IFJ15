@@ -32,6 +32,7 @@ int enter_scope(Resources *resources)
     );
 
     tmp->index_to_struct_buffer = i;
+    tmp->var_declar_count = 0;
     push(&(resources->struct_buff_trees), &(resources->stack), i);
     
     debug_print("%s\n", "ENTER_SCOPE_RETURN_0");
@@ -41,6 +42,17 @@ int enter_scope(Resources *resources)
 int leave_scope(Resources *resources)
 {
     debug_print("%s\n", "LEAVE_SCOPE");
+    TTree *tmp;
+    index_t r = resources->stack.top;
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), r, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+    for (int i = tmp->var_declar_count; i > 0; i--) {
+        // generuj instrukciu POP
+    }
     pop(&(resources->struct_buff_trees), &(resources->stack));
     debug_print("%s\n", "LEAVE_SCOPE_RETURN_0");
     return RETURN_OK;
@@ -151,12 +163,21 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
 int declare_var(Resources *resources, index_t index_to_string_buff, int data_type)
 {
     debug_print("%s\n", "DECLARE_VAR");
+    TTree *tmp;
     index_t i = resources->stack.top;
     int is_declared = declaration_test(resources, index_to_string_buff, i, VAR);
 
     switch (is_declared) {
         case NOT_FOUND: 
             declare_variable(resources, index_to_string_buff, &i, sem_type_filter(data_type));
+            catch_internal_error(
+                dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp),
+                INTERNAL_ERROR,
+                "Failed to dereference structure buffer."
+            );
+            tmp->var_declar_count = tmp->var_declar_count + 1;
+            printf("var_declar_count: %lu\n", tmp->var_declar_count);
+            // generuj funkciu PUSH
             debug_print("%s\n", "DECLARE_VAR_RETURN_0");
             return RETURN_OK;
         case FOUND:
@@ -332,15 +353,25 @@ int define_func(Resources *resources)
     int argc;
     int data_type;
     index_t name;
-    
+    TTree *tmp;
+
     set_definition_flag(resources, resources->stack.top, currently_analyzed_function);
     load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
     enter_scope(resources);
     index_t r = resources->stack.top;
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), r, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
     
     for(int i = argc; i > 0; i--) {
         load_arg(resources, i, currently_analyzed_function, i, &name, &data_type);
         declare_variable(resources, name, &r, data_type);
+        tmp->var_declar_count = tmp->var_declar_count + 1;
+        printf("var_declar_count: %lu\n", tmp->var_declar_count);
+        // generuj funkciu PUSH
     }
 
     debug_print("%s\n", "DEFINE_FUNC_RETURN_OK");

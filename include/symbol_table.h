@@ -54,6 +54,7 @@ typedef struct tree {
 	bool definition;
 	bool is_declared_now;
 	index_t frame_index;
+	index_t var_declar_count;
 }TTree;
 
 
