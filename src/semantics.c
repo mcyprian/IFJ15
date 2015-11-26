@@ -160,6 +160,75 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     }
 }
 
+int declare_builtin_funcs(Resources *resources)
+{
+    debug_print("%s\n", "DECLARE_FUNC");
+    index_t i = resources->stack.top;
+    index_t string_index, first_arg, second_arg, third_arg;
+
+    add_str(&(resources->string_buff), "sort");
+    currently_analyzed_function = string_index = save_token(&(resources->string_buff));
+    declare_function(resources, string_index, &i, L_STRING);
+    add_str(&(resources->string_buff), "string");
+    first_arg = save_token(&(resources->string_buff));
+    set_arg(resources, first_arg, L_STRING);
+    arg_counter = 1;
+    check_argc(resources);
+
+    add_str(&(resources->string_buff), "find");
+    currently_analyzed_function = string_index = save_token(&(resources->string_buff));
+    declare_function(resources, string_index, &i, L_INT);
+    add_str(&(resources->string_buff), "string");
+    first_arg = save_token(&(resources->string_buff));
+    set_arg(resources, first_arg, L_STRING);
+    add_str(&(resources->string_buff), "substring");
+    second_arg = save_token(&(resources->string_buff));
+    set_arg(resources, second_arg, L_STRING);
+    arg_counter = 2;
+    check_argc(resources);
+
+    add_str(&(resources->string_buff), "length");
+    currently_analyzed_function = string_index = save_token(&(resources->string_buff));
+    declare_function(resources, string_index, &i, L_INT);
+    add_str(&(resources->string_buff), "index");
+    first_arg = save_token(&(resources->string_buff));
+    set_arg(resources, first_arg, L_STRING);
+    arg_counter = 1;
+    check_argc(resources);
+
+    add_str(&(resources->string_buff), "concat");
+    currently_analyzed_function = string_index = save_token(&(resources->string_buff));
+    declare_function(resources, string_index, &i, L_STRING);
+    add_str(&(resources->string_buff), "index1");
+    first_arg = save_token(&(resources->string_buff));
+    set_arg(resources, first_arg, L_STRING);
+    add_str(&(resources->string_buff), "index2");
+    second_arg = save_token(&(resources->string_buff));
+    set_arg(resources, second_arg, L_STRING);
+    arg_counter = 2;
+    check_argc(resources);
+
+
+    add_str(&(resources->string_buff), "substr");
+    currently_analyzed_function = string_index = save_token(&(resources->string_buff));
+    declare_function(resources, string_index, &i, L_STRING);
+    add_str(&(resources->string_buff), "index");
+    first_arg = save_token(&(resources->string_buff));
+    set_arg(resources, first_arg, L_STRING);
+    add_str(&(resources->string_buff), "i");
+    second_arg = save_token(&(resources->string_buff));
+    set_arg(resources, second_arg, L_INT);
+    add_str(&(resources->string_buff), "n");
+    third_arg = save_token(&(resources->string_buff));
+    set_arg(resources, third_arg, L_INT);
+    arg_counter = 3;
+    check_argc(resources);
+
+    debug_print("%s\n", "DECLARE_FUNC_RETURN_OK");
+}
+
+
+
 int declare_var(Resources *resources, index_t index_to_string_buff, int data_type)
 {
     debug_print("%s\n", "DECLARE_VAR");
