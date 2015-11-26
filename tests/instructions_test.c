@@ -5,6 +5,8 @@
 
 #define COUNT 5000
 
+extern int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstruction *instruction);
+
 int main() {
 
     int iRet = RETURN_OK;

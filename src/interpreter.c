@@ -12,8 +12,7 @@
 #include <debug.h>
 #include <instructions.h>
 
-
-index_t start = 1;
+extern int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstruction *instruction);
 
 int run_program(Resources * resources){
 
@@ -21,23 +20,22 @@ int run_program(Resources * resources){
 	args_assert(resources != NULL, INTERNAL_ERROR);
 	int iRet = RETURN_OK;
 
-	if (start == ZERO_INDEX){
+	if (resources->start_main == ZERO_INDEX){
 		iRet = RUNTIME_ERROR;
 		goto DEFAULT;
 	}
 
-	index_t ip = start;
+	resources->ip = resources->start_main;
 	TInstruction * instruction;
 	register int instruction_ret;
 	do {
-        dereference_structure(&(resources->instruction_buffer), ip, (void**)&instruction);
-        ip++;
-        debug_print("%s: %lu, %s: %d\n", "IP", ip, "INSTRUCTION", instruction->ins);
+        dereference_structure(&(resources->instruction_buffer), resources->ip, (void**)&instruction);
+        debug_print("%s: %lu, %s: %d\n", "IP", resources->ip, "INSTRUCTION", instruction->ins);
     
         instruction_ret = execute_instruction[instruction->ins](resources, instruction);
     
         debug_print("%s: %d\n", "INSTRUCT RET", instruction_ret);
-        ip++;
+        resources->ip++;
     } while (instruction_ret != -1);
 	
 
