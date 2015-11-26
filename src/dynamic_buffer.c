@@ -21,8 +21,8 @@ int init_buffer(TDynamic_buffer *b, size_t initial_length) {
     b->buffer = malloc(initial_length);
     catch_internal_error(b->buffer, NULL, "Failed to allocate memory for buffer."); 
     b->length = initial_length;
-    b->writing_index = 0;
-    b->reading_index = 0;
+    b->writing_index = 1;
+    b->reading_index = 1;
     b->buffer[b->writing_index] = '\0';
     return 0;
 }
@@ -89,7 +89,7 @@ char *get_str(TDynamic_buffer *b, unsigned num) {
 
 index_t save_token(TDynamic_buffer *b) {
     args_assert(b != NULL, INTERNAL_ERROR);
-    static index_t start = 0;
+    static index_t start = 1;
     b->writing_index++;
     index_t previous = start;
     start = b->writing_index;
@@ -104,7 +104,7 @@ char *load_token(TDynamic_buffer *b, index_t index) {
 int empty_buffer(TDynamic_buffer *b) {
     debug_print("%s\n", "EMPTY BUFFER");
     args_assert(b != NULL, INTERNAL_ERROR);
-    b->writing_index = 0;
+    b->writing_index = 1;
     b->reading_index = 0;
     b->buffer[b->writing_index] = '\0';
     return 0;
