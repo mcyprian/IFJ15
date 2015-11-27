@@ -502,7 +502,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
-				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
+				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			}
 			else if (token->token_type == IDENTIFIER){
 				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
