@@ -166,9 +166,15 @@ int declare_builtin_funcs(Resources *resources)
     index_t i = resources->stack.top;
     index_t string_index, first_arg, second_arg, third_arg;
 
+    
+
     add_str(&(resources->string_buff), "sort");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    declare_function(resources, string_index, &i, L_STRING);
+    catch_internal_error(
+        declare_function(resources, string_index, &i, L_STRING),
+        INTERNAL_ERROR,
+        "Failed to declare function."
+    );
     add_str(&(resources->string_buff), "string");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -177,7 +183,11 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "find");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    declare_function(resources, string_index, &i, L_INT);
+    catch_internal_error(
+        declare_function(resources, string_index, &i, L_INT),
+        INTERNAL_ERROR,
+        "Failed to declare function."
+    );
     add_str(&(resources->string_buff), "string");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -189,7 +199,11 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "length");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    declare_function(resources, string_index, &i, L_INT);
+    catch_internal_error(
+        declare_function(resources, string_index, &i, L_INT),
+        INTERNAL_ERROR,
+        "Failed to declare function."
+    );
     add_str(&(resources->string_buff), "index");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -198,7 +212,11 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "concat");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    declare_function(resources, string_index, &i, L_STRING);
+    catch_internal_error(
+        declare_function(resources, string_index, &i, L_STRING),
+        INTERNAL_ERROR,
+        "Failed to declare function."
+    );
     add_str(&(resources->string_buff), "index1");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -211,7 +229,11 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "substr");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    declare_function(resources, string_index, &i, L_STRING);
+    catch_internal_error(
+        declare_function(resources, string_index, &i, L_STRING),
+        INTERNAL_ERROR,
+        "Failed to declare function."
+    );
     add_str(&(resources->string_buff), "index");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -322,11 +344,11 @@ int check_argc(Resources *resources)
 
     load_num_of_args(resources, i, currently_analyzed_function, &actual_argc);
     if (arg_counter == actual_argc){
-        debug_print("%s\n", "CHECK_ARGC_RETURN_0");
+        debug_print("%s\n", "CHECK_ARGC_RETURN_OK");
         return RETURN_OK;
     }
     else {
-        debug_print("%s\n", "CHECK_ARGC_RETURN_1");
+        debug_print("%s\n", "CHECK_ARGC_RETURN_TYPE_ERROR");
         return TYPE_ERROR;
     }
 }

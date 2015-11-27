@@ -62,6 +62,12 @@ int is_func_declared_withrv(Resources *resources, index_t name_of_func, int retu
  */
 int declare_func(Resources *resources, index_t index_to_string_buff, int return_type);
 
+/** Declared built in funcitons sort, find, concat, substr, length
+ * @param resources pointer to structure with buffers
+ * @return RETURN_OK on success, else SEMANTIC_ERROR or TYPE_ERROR on error, INTERNAL_ERROR on internal error
+ */
+int declare_builtin_funcs(Resources *resources);
+
 /** Declares variable in a table
  * @param resources pointer to structure with buffers
  * @param index_to_string_buff index to string buffer where name of the variable is
