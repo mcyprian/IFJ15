@@ -221,7 +221,7 @@ int check_syntax(int term, Resources * resources){
 //**************** ARGS **********************//
 		case ARGS:
 			if (token->token_type == CLOSING_BRACKET){
-				check_argc_function_call(resources);
+				iRet = check_argc_function_call(resources);
 				goto EXIT;
 			}
 			else {
@@ -238,7 +238,7 @@ int check_syntax(int term, Resources * resources){
 //**************** ARGS_N **********************//
 		case ARGS_N:
 			if (token->token_type == CLOSING_BRACKET){
-				check_argc_function_call(resources);
+				iRet = check_argc_function_call(resources);
 				goto EXIT;
 			}
 			else {
