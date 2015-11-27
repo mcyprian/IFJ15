@@ -15,7 +15,7 @@
 #include <resources.h>
 #include <debug.h>
 
-#define NUM_OF_INSTRUCTIONS 80   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 81   // TODO set final number
 
 enum instructions
 {
@@ -98,7 +98,8 @@ enum instructions
     JMP_TRUE_CONST_CONST,  // 76
     JMP_TRUE_CONST_REG,    // 77
     JMP_TRUE_REG_CONST,    // 78
-    HALT                   // 79
+    SET_POINTER,           // 79
+    HALT                   // 80
 };
 
 
@@ -1497,6 +1498,46 @@ static inline int jmp_true_reg_const(Resources *resources, TInstruction *instruc
     return RETURN_OK;
 }
 
+enum {IP, BP, RV};
+// setting resources->ip, resources->bp or resources->return_value to value stored in first_op
+static inline int set_pointer(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "SET POINTER");
+
+    switch (instruction->dest.i) {
+        case IP:
+            debug_print("%s: %ld\n", "NEW VALUE IN IP", instruction->first_op.index);
+            resources->ip = instruction->first_op.index;
+            break;
+        case BP:
+            resources->bp = instruction->first_op.index;
+            debug_print("%s: %ld\n", "NEW VALUE IN BP", instruction->first_op.index);
+            break;
+        case RV:
+            resources->return_value = instruction->first_op.index;
+            debug_print("%s: %ld\n", "NEW VALUE IN RV", instruction->first_op.index);
+            break;
+    }
+    return RETURN_OK;
+}
+
+#define function_call(resources, function_adress)                                                                           \
+    do {                                                                                                                    \
+        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, resources.ip, 0lu, PUSH_INDEX);                         \
+        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, resources.bp, 0lu, PUSH_INDEX);                         \
+        new_instruction_reg_reg(&resources.instruction_buffer, function_adress, 0lu, 0lu, JMP_CONST);                       \
+        new_instruction_reg_reg(&resources.instruction_buffer, BP, resources.runtime_stack.next_free -1, 0lu, SET_POINTER); \
+    } while(0)
+
+#define function_return(resources)                                                                                             \
+    do {                                                                                                                       \
+        new_instruction_reg_reg(&resources.instruction_buffer, RV, resources.runtime_stack.next_free -1, 0lu, SET_POINTER);    \
+        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, POP_EMPTY);                                      \
+        new_instruction_reg_reg(&resources.instruction_buffer, BP, resources.runtime_stack.next_free -1, 0lu, SET_POINTER);    \
+        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, POP_EMPTY);                                      \
+        new_instruction_reg_reg(&resources.instruction_buffer, IP, resources.runtime_stack.next_free -1, 0lu, SET_POINTER);    \
+        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, POP_EMPTY);                                      \
+        new_instruction_reg_reg(&resources.instruction_buffer, resources.ip, 0lu, 0lu, JMP_CONST);                             \
+    } while(0)
 
 //****************************** HALT ******************************// 
 

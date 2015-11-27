@@ -12,7 +12,7 @@ int main() {
     int iRet = RETURN_OK;
     int instruction_ret = 0;
     Resources resources;
-    resources.ip = 1;
+    resources.ip = 12;
     resources.bp = 0;
 
     if ((iRet = init_structure_buffer(&(resources.runtime_stack), 16, sizeof(TStack_variable))) != RETURN_OK)
@@ -26,15 +26,17 @@ int main() {
    
         // int ADD
         new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, MUL_INT_CONST_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 3, ADD_INT_REG_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 1lu, 2lu, 9, ADD_INT_REG_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
         // double ADD
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, ADD_DBL_CONST_CONST);
+/*        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, ADD_DBL_CONST_CONST);
         new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.0, 2.0, MUL_DBL_CONST_CONST);
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 3.0, ADD_DBL_REG_CONST);
         new_instruction_reg_dbl(&resources.instruction_buffer, 1lu, 2lu, 9.0, ADD_DBL_REG_CONST);
-     
+*/      
+        function_return(resources);
+ /*    
         // int SUB
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 33, SUB_INT_CONST_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, MUL_INT_CONST_CONST);
@@ -96,7 +98,7 @@ int main() {
         
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, L_DBL_CONST_CONST);
         
-        // GREATER OR GEUALS
+        // GREATER OR EUALS
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, GE_INT_CONST_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, GE_INT_CONST_CONST);
         
@@ -104,7 +106,7 @@ int main() {
         
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, GE_DBL_CONST_CONST);
        
-        // LESS OR LEUALS
+        // LESS OR EUALS
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, LE_INT_CONST_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, LE_INT_CONST_CONST);
         
@@ -112,7 +114,7 @@ int main() {
         
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, LE_DBL_CONST_CONST);
         
-        // NOT NEUALS
+        // NOT EUALS
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, NE_INT_CONST_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, NE_INT_CONST_CONST);
         
@@ -120,10 +122,11 @@ int main() {
         
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
         // CAST
+*/
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, POP_EMPTY);
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 4lu, 0, JMP_TRUE_CONST_REG);
+        function_call(resources, 1lu);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 9, 0, PUSH_INT);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT);
         
@@ -141,13 +144,13 @@ int main() {
         if (instruction_ret == UNINIT_ERROR)
             printf("UNINITIALIZED VALUE\n");
         resources.ip++;
-        
+ /*       
         for (int i = 1; i < 4; i++)
             debug_print("%s: %d %d\n", "STACK_CONTENT", access(resources.runtime_stack.buffer, TStack_variable, i + resources.bp)->value.i, i);
-        
+*/        
         debug_print("%s: %d\n", "STACK_TOP", access(resources.runtime_stack.buffer, TStack_variable, (resources.runtime_stack.next_free - 1) + resources.bp)->value.i);
-        debug_print("%s: %d\n", "REGISTER1", access(resources.runtime_stack.buffer, TStack_variable, 1lu)->value.i);
-        debug_print("%s: %d\n", "REGISTER2", access(resources.runtime_stack.buffer, TStack_variable, 2lu)->value.i);
+  //      debug_print("%s: %d\n", "REGISTER1", access(resources.runtime_stack.buffer, TStack_variable, 1lu)->value.i);
+  //      debug_print("%s: %d\n", "REGISTER2", access(resources.runtime_stack.buffer, TStack_variable, 2lu)->value.i);
 
     } while (instruction_ret != -1);
 

@@ -82,6 +82,7 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         jmp_true_const_const,
         jmp_true_const_reg,
         jmp_true_reg_const,
+        set_pointer,
         halt
     };
 
