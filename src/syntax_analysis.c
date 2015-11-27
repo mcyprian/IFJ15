@@ -54,6 +54,7 @@ int check_syntax(int term, Resources * resources){
 
 		case GLOBAL:
 			if ((iRet = enter_scope(resources)) != 0)goto EXIT;
+			if ((iRet = declare_builtin_funcs(resources)) != 0) goto EXIT;
 			if ((iRet = check_syntax(PROGRAM, resources)) == 0){
 				iRet = leave_general_scope(resources);
 				goto EXIT;
