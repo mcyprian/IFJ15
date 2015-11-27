@@ -225,6 +225,7 @@ int declare_builtin_funcs(Resources *resources)
     check_argc(resources);
 
     debug_print("%s\n", "DECLARE_FUNC_RETURN_OK");
+    return RETURN_OK;
 }
 
 
