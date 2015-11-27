@@ -246,12 +246,18 @@ static inline int new_instruction_dbl_dbl(TDynamic_structure_buffer *buff, index
 //****************************** MOV ******************************// 
 static inline int mov_int_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MOV_INT_REG");
+
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
+
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i;
-    
+   
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mov_int_const(Resources *resources, TInstruction *instruction) {
@@ -261,19 +267,24 @@ static inline int mov_int_const(Resources *resources, TInstruction *instruction)
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mov_dbl_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MOV_DBL_REG");
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mov_dbl_const(Resources *resources, TInstruction *instruction) {
@@ -283,12 +294,19 @@ static inline int mov_dbl_const(Resources *resources, TInstruction *instruction)
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = instruction->first_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
+//****************************** ADD ******************************// 
 static inline int add_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -297,12 +315,16 @@ static inline int add_int_reg_reg(Resources *resources, TInstruction *instructio
     + access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int add_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -310,8 +332,9 @@ static inline int add_int_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     + instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int add_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -322,12 +345,16 @@ static inline int add_int_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i + instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int add_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -336,12 +363,16 @@ static inline int add_dbl_reg_reg(Resources *resources, TInstruction *instructio
     + access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int add_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "ADD_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -349,8 +380,9 @@ static inline int add_dbl_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     + instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int add_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -361,13 +393,19 @@ static inline int add_dbl_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = instruction->first_op.d + instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** SUB ******************************// 
 static inline int sub_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -376,12 +414,16 @@ static inline int sub_int_reg_reg(Resources *resources, TInstruction *instructio
     - access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int sub_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -389,8 +431,9 @@ static inline int sub_int_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     - instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int sub_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -401,12 +444,16 @@ static inline int sub_int_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i - instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int sub_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -415,12 +462,16 @@ static inline int sub_dbl_reg_reg(Resources *resources, TInstruction *instructio
     - access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int sub_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUB_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -428,8 +479,9 @@ static inline int sub_dbl_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     - instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int sub_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -440,14 +492,20 @@ static inline int sub_dbl_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = instruction->first_op.d - instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** MUL ******************************// 
 
 static inline int mul_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -456,12 +514,16 @@ static inline int mul_int_reg_reg(Resources *resources, TInstruction *instructio
     * access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mul_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -469,8 +531,9 @@ static inline int mul_int_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     * instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mul_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -481,12 +544,16 @@ static inline int mul_int_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i * instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mul_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -495,12 +562,16 @@ static inline int mul_dbl_reg_reg(Resources *resources, TInstruction *instructio
     * access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mul_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MUL_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -508,8 +579,9 @@ static inline int mul_dbl_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     * instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int mul_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -520,14 +592,20 @@ static inline int mul_dbl_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = instruction->first_op.d * instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** DIV ******************************// 
 
 static inline int div_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -536,12 +614,16 @@ static inline int div_int_reg_reg(Resources *resources, TInstruction *instructio
     / access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int div_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -549,8 +631,9 @@ static inline int div_int_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     / instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int div_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -561,12 +644,16 @@ static inline int div_int_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i / instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int div_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -575,12 +662,16 @@ static inline int div_dbl_reg_reg(Resources *resources, TInstruction *instructio
     / access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int div_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "DIV_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -588,8 +679,9 @@ static inline int div_dbl_reg_const(Resources *resources, TInstruction *instruct
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     / instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int div_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -600,14 +692,18 @@ static inline int div_dbl_const_const(Resources *resources, TInstruction *instru
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = instruction->first_op.d / instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** EQUALS ******************************// 
 
 static inline int eq_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -616,12 +712,16 @@ static inline int eq_int_reg_reg(Resources *resources, TInstruction *instruction
     == access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int eq_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -629,8 +729,9 @@ static inline int eq_int_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     == instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int eq_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -641,12 +742,16 @@ static inline int eq_int_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i == instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int eq_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -655,12 +760,16 @@ static inline int eq_dbl_reg_reg(Resources *resources, TInstruction *instruction
     == access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int eq_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "EQ_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -668,8 +777,9 @@ static inline int eq_dbl_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     == instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int eq_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -680,14 +790,18 @@ static inline int eq_dbl_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.d == instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** GREATER ******************************// 
 
 static inline int g_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -696,12 +810,16 @@ static inline int g_int_reg_reg(Resources *resources, TInstruction *instruction)
     > access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int g_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -709,8 +827,9 @@ static inline int g_int_reg_const(Resources *resources, TInstruction *instructio
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     > instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int g_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -721,12 +840,16 @@ static inline int g_int_const_const(Resources *resources, TInstruction *instruct
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i > instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int g_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -735,12 +858,16 @@ static inline int g_dbl_reg_reg(Resources *resources, TInstruction *instruction)
     > access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int g_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "G_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -748,26 +875,31 @@ static inline int g_dbl_reg_const(Resources *resources, TInstruction *instructio
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     > instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int g_dbl_const_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "G_DBL_CONST_CONST");
+    debug_print("%s\n", "EQ_DBL_CONST_CONST");
     debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.d > instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
-//****************************** LESS ******************************// 
 
+//****************************** LESS ******************************// 
 static inline int l_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -776,12 +908,16 @@ static inline int l_int_reg_reg(Resources *resources, TInstruction *instruction)
     < access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int l_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -789,8 +925,9 @@ static inline int l_int_reg_const(Resources *resources, TInstruction *instructio
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     < instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int l_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -801,12 +938,16 @@ static inline int l_int_const_const(Resources *resources, TInstruction *instruct
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i < instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int l_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -815,12 +956,16 @@ static inline int l_dbl_reg_reg(Resources *resources, TInstruction *instruction)
     < access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int l_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "L_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -828,8 +973,9 @@ static inline int l_dbl_reg_const(Resources *resources, TInstruction *instructio
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     < instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int l_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -840,14 +986,17 @@ static inline int l_dbl_const_const(Resources *resources, TInstruction *instruct
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.d < instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** GREATER OR EQUALS ******************************// 
-
 static inline int ge_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -856,12 +1005,16 @@ static inline int ge_int_reg_reg(Resources *resources, TInstruction *instruction
     >= access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ge_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -869,8 +1022,9 @@ static inline int ge_int_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     >= instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ge_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -881,12 +1035,16 @@ static inline int ge_int_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i >= instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ge_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -895,12 +1053,16 @@ static inline int ge_dbl_reg_reg(Resources *resources, TInstruction *instruction
     >= access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ge_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "GE_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -908,8 +1070,9 @@ static inline int ge_dbl_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     >= instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ge_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -920,14 +1083,17 @@ static inline int ge_dbl_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.d >= instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** LESS OR EQUALS ******************************// 
-
 static inline int le_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -936,12 +1102,16 @@ static inline int le_int_reg_reg(Resources *resources, TInstruction *instruction
     <= access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int le_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -949,8 +1119,9 @@ static inline int le_int_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     <= instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int le_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -961,12 +1132,16 @@ static inline int le_int_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i <= instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int le_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -975,12 +1150,16 @@ static inline int le_dbl_reg_reg(Resources *resources, TInstruction *instruction
     <= access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int le_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LE_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -988,8 +1167,9 @@ static inline int le_dbl_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     <= instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int le_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -1000,14 +1180,17 @@ static inline int le_dbl_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.d <= instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** NOT EQUALS ******************************// 
-
 static inline int ne_int_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_INT_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i);
     
@@ -1016,12 +1199,16 @@ static inline int ne_int_reg_reg(Resources *resources, TInstruction *instruction
     != access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.i;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ne_int_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_INT_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", instruction->second_op.i);
     
@@ -1029,8 +1216,9 @@ static inline int ne_int_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i
     != instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ne_int_const_const(Resources *resources, TInstruction *instruction) {
@@ -1041,12 +1229,16 @@ static inline int ne_int_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.i != instruction->second_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ne_dbl_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_DBL_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined))
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d);
     
@@ -1055,12 +1247,16 @@ static inline int ne_dbl_reg_reg(Resources *resources, TInstruction *instruction
     != access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.d;
     
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ne_dbl_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "NE_DBL_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", instruction->second_op.d);
     
@@ -1068,8 +1264,9 @@ static inline int ne_dbl_reg_const(Resources *resources, TInstruction *instructi
     = access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d
     != instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int ne_dbl_const_const(Resources *resources, TInstruction *instruction) {
@@ -1080,19 +1277,25 @@ static inline int ne_dbl_const_const(Resources *resources, TInstruction *instruc
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = instruction->first_op.d != instruction->second_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 //****************************** CASTING ******************************// 
 static inline int cast_int_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "CAST_INT_REG");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
+
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = (double)access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int cast_int_const(Resources *resources, TInstruction *instruction) {
@@ -1102,19 +1305,24 @@ static inline int cast_int_const(Resources *resources, TInstruction *instruction
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d
     = (double)instruction->first_op.i;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.d);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int cast_dbl_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "CAST_DBL_REG");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d);
     
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = (int)access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 static inline int cast_dbl_const(Resources *resources, TInstruction *instruction) {
@@ -1124,8 +1332,9 @@ static inline int cast_dbl_const(Resources *resources, TInstruction *instruction
     access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
     = (int)instruction->first_op.d;
     
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return 1;
+    return RETURN_OK;
 }
 
 
@@ -1206,6 +1415,8 @@ static inline int pop_empty(Resources *resources, TInstruction *instruction) {
 
 static inline int jmp_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_REG");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined)
+        return UNINIT_ERROR;
 
     debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index - 1lu);
     
@@ -1226,6 +1437,10 @@ static inline int jmp_const(Resources *resources, TInstruction *instruction) {
 
 static inline int jmp_true_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_TRUE_REG_REG");
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined))
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
 
     
@@ -1253,6 +1468,9 @@ static inline int jmp_true_const_const(Resources *resources, TInstruction *instr
 
 static inline int jmp_true_const_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_TRUE_CONST_REG");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
 
     
@@ -1266,6 +1484,9 @@ static inline int jmp_true_const_reg(Resources *resources, TInstruction *instruc
 
 static inline int jmp_true_reg_const(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_TRUE_REG_CONST");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined)
+        return UNINIT_ERROR;
+
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
 
     if (instruction->first_op.i) {

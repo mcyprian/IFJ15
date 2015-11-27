@@ -24,7 +24,6 @@ int main() {
 
    debug_print("%s\n", "GENERATING INSTRUCTIONS");
    
-/*    for (int i = 0; i < COUNT; i++) {
         // int ADD
         new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, MUL_INT_CONST_CONST);
@@ -120,7 +119,6 @@ int main() {
         new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, NE_DBL_CONST_CONST);
         
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
- }*/
         // CAST
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT);
@@ -140,6 +138,8 @@ int main() {
         debug_print("%s: %lu, %s: %d\n", "IP", resources.ip, "INSTRUCTION", instruction->ins);
     
         instruction_ret = execute_instruction[instruction->ins](&resources, instruction);
+        if (instruction_ret == UNINIT_ERROR)
+            printf("UNINITIALIZED VALUE\n");
         resources.ip++;
         
         for (int i = 1; i < 4; i++)

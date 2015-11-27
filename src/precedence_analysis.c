@@ -489,7 +489,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
             && input_token->token_type == OPENING_BRACKET) {
             debug_print("%s\n", "FUNCTION CALL IN EXPR");
             
-            catch_semantic_error(is_func_declared(res, top_token->token_index),
+            catch_undefined_error(is_func_declared(res, top_token->token_index),
                                  SEMANTIC_ERROR,
                                  "Function declaration check failed.", 1
             );
