@@ -131,15 +131,32 @@ int main() {
         
         new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.66, 0, CAST_DBL_CONST);
 
-        // FIND
+        // STRING
         init_buffer(&(resources.string_buff), 1);
         add_str(&(resources.string_buff), "987654321");
         index_t index1 = save_token(&(resources.string_buff));
-        add_str(&(resources.string_buff), "87");
+        add_str(&(resources.string_buff), "765");
         index_t index2 = save_token(&(resources.string_buff));
+	add_str(&(resources.string_buff), "kokot");
+	index_t index4 = save_token(&(resources.string_buff));
+	// SORT
+	//new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, SORT_CONST);
 
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, FIND_CONST_CONST);
-        
+	// CONCAT
+	//new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, CONCAT_CONST_CONST);	
+	add_str(&(resources.string_buff), "abcd");
+        index_t index3 = save_token(&(resources.string_buff));
+        //new_instruction_int_int(&resources.instruction_buffer, 2lu, 1lu, (int)index3, CONCAT_REG_CONST);
+
+	// LENGTH
+	new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index4, (int)index1, LENGTH_CONST);
+
+	// FIND
+        //new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, FIND_CONST_CONST);
+
+	// new_instruction_int_int(&resources.instruction_buffer, 2lu, 1lu, (int)index2, FIND_REG_CONST);
+
+	free_buffer(&resources.string_buff);        
         new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
     
     debug_print("%s\n", "INTERPRETING");
