@@ -179,7 +179,12 @@ int declare_builtin_funcs(Resources *resources)
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
     arg_counter = 1;
-    check_argc(resources);
+    catch_internal_error(
+        check_argc(resources),
+        TYPE_ERROR,
+        "Wrong argument count."
+    );
+    set_built_in(resources, currently_analyzed_function);
 
     add_str(&(resources->string_buff), "find");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -195,7 +200,12 @@ int declare_builtin_funcs(Resources *resources)
     second_arg = save_token(&(resources->string_buff));
     set_arg(resources, second_arg, L_STRING);
     arg_counter = 2;
-    check_argc(resources);
+    catch_internal_error(
+        check_argc(resources),
+        TYPE_ERROR,
+        "Wrong argument count."
+    );
+    set_built_in(resources, currently_analyzed_function);
 
     add_str(&(resources->string_buff), "length");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -209,6 +219,7 @@ int declare_builtin_funcs(Resources *resources)
     set_arg(resources, first_arg, L_STRING);
     arg_counter = 1;
     check_argc(resources);
+    set_built_in(resources, currently_analyzed_function);
 
     add_str(&(resources->string_buff), "concat");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -224,7 +235,12 @@ int declare_builtin_funcs(Resources *resources)
     second_arg = save_token(&(resources->string_buff));
     set_arg(resources, second_arg, L_STRING);
     arg_counter = 2;
-    check_argc(resources);
+    catch_internal_error(
+        check_argc(resources),
+        TYPE_ERROR,
+        "Wrong argument count."
+    );
+    set_built_in(resources, currently_analyzed_function);
 
 
     add_str(&(resources->string_buff), "substr");
@@ -244,7 +260,12 @@ int declare_builtin_funcs(Resources *resources)
     third_arg = save_token(&(resources->string_buff));
     set_arg(resources, third_arg, L_INT);
     arg_counter = 3;
-    check_argc(resources);
+    catch_internal_error(
+        check_argc(resources),
+        TYPE_ERROR,
+        "Wrong argument count."
+    );
+    set_built_in(resources, currently_analyzed_function);
 
     debug_print("%s\n", "DECLARE_FUNC_RETURN_OK");
     return RETURN_OK;
