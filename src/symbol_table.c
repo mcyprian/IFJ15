@@ -777,3 +777,121 @@ int load_frame(Resources *resources, index_t index_to_root_node, index_t id, ind
     else
         return NOT_FOUND;
 }
+
+int set_built_in(Resources *resources, index_t func_name)
+{
+    debug_print("%s\n","SET_BUILT_IN");
+    args_assert(resources != NULL && func_name != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), func_name);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, 1, &found_node_index, FUNC);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        found_node->built_in = true;
+        debug_print("%s\n","SET_BUILT_IN_RETURN_OK");
+        return RETURN_OK;
+    }
+    else{
+        debug_print("%s\n","SET_BUILT_IN_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}
+
+int set_start(Resources *resources, index_t func_name)
+{
+    debug_print("%s\n","SET_START");
+    args_assert(resources != NULL && func_name != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), func_name);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, 1, &found_node_index, FUNC);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        found_node->start = true;
+        debug_print("%s\n","SET_START_RETURN_OK");
+        return RETURN_OK;
+    }
+    else {
+        debug_print("%s\n","SET_START_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}
+
+int is_built_in(Resources *resources, index_t func_name)
+{
+    debug_print("%s\n","IS_BUILT_IN");
+    args_assert(resources != NULL && func_name != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), func_name);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, 1, &found_node_index, FUNC);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        if (found_node->built_in) {
+            debug_print("%s\n","IS_BUILT_IN_RETURN_true");
+            return true;
+        }
+        else {
+            debug_print("%s\n","IS_BUILT_IN_RETURN_false");
+            return false;
+        }
+    }
+    else {
+        debug_print("%s\n","IS_BUILT_IN_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}
+
+int is_start(Resources *resources, index_t func_name)
+{
+    debug_print("%s\n","IS_START");
+    args_assert(resources != NULL && func_name != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), func_name);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, 1, &found_node_index, FUNC);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        if (found_node->built_in) {
+            debug_print("%s\n","IS_START_RETURN_true");
+            return true;
+        }
+        else {
+            debug_print("%s\n","IS_START_RETURN_false");
+            return false;
+        }
+    }
+    else {
+        debug_print("%s\n","IS_START_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
+}

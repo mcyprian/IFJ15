@@ -55,6 +55,8 @@ typedef struct tree {
 	bool is_declared_now;
 	index_t frame_index;
 	index_t var_declar_count;
+	int built_in;
+	int start;
 }TTree;
 
 
@@ -230,6 +232,14 @@ int save_frame(Resources *resources, index_t index_to_root_node, index_t id, ind
 
 
 int load_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t *load_index, int type);
+
+int set_built_in(Resources *resoures, index_t func_name);
+
+int set_start(Resources *resoures, index_t func_name);
+
+int is_built_in(Resources *resoures, index_t func_name);
+
+int is_start(Resources *resoures, index_t func_name);
 
 #endif
 
