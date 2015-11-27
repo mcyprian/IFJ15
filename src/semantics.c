@@ -85,7 +85,7 @@ int leave_general_scope(Resources *resources) {
 
 int is_func_declared(Resources *resources, index_t name_of_func)
 {
-    debug_print("%s\n", "IS_FUNC_DECLARED_WITHRV");
+    debug_print("%s\n", "IS_FUNC_DECLARED");
     TTree *tmp;
     int is_declared = SEMANTIC_ERROR;
     currently_analyzed_function = name_of_func;
