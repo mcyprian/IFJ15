@@ -15,7 +15,7 @@ int main() {
     resources.ip = 1;
     resources.bp = 0;
 
-    if ((iRet = init_structure_buffer(&(resources.runtime_stack), 16, sizeof(TValue))) != RETURN_OK)
+    if ((iRet = init_structure_buffer(&(resources.runtime_stack), 16, sizeof(TStack_variable))) != RETURN_OK)
         goto DEFAULT;
 
 
@@ -24,7 +24,7 @@ int main() {
 
    debug_print("%s\n", "GENERATING INSTRUCTIONS");
    
-    for (int i = 0; i < COUNT; i++) {
+/*    for (int i = 0; i < COUNT; i++) {
         // int ADD
         new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, MUL_INT_CONST_CONST);
@@ -120,13 +120,15 @@ int main() {
         new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, NE_DBL_CONST_CONST);
         
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
-    }
+ }*/
         // CAST
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, CAST_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, POP_EMPTY);
+        new_instruction_int_int(&resources.instruction_buffer, 1lu, 4lu, 0, JMP_TRUE_CONST_REG);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 9, 0, PUSH_INT);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT);
         
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 2lu, 0, CAST_DBL_REG);
-        
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.66, 0, CAST_DBL_CONST);
         
         new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
     
@@ -135,11 +137,15 @@ int main() {
     TInstruction *instruction;
     do {
         dereference_structure(&resources.instruction_buffer, resources.ip, (void**)&instruction);
-        resources.ip++;
         debug_print("%s: %lu, %s: %d\n", "IP", resources.ip, "INSTRUCTION", instruction->ins);
     
         instruction_ret = execute_instruction[instruction->ins](&resources, instruction);
-    
+        resources.ip++;
+        
+        for (int i = 1; i < 4; i++)
+            debug_print("%s: %d %d\n", "STACK_CONTENT", access(resources.runtime_stack.buffer, TStack_variable, i + resources.bp)->value.i, i);
+        
+        debug_print("%s: %d\n", "STACK_TOP", access(resources.runtime_stack.buffer, TStack_variable, (resources.runtime_stack.next_free - 1) + resources.bp)->value.i);
         debug_print("%s: %d\n", "REGISTER1", access(resources.runtime_stack.buffer, TStack_variable, 1lu)->value.i);
         debug_print("%s: %d\n", "REGISTER2", access(resources.runtime_stack.buffer, TStack_variable, 2lu)->value.i);
 

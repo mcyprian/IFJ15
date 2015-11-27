@@ -15,7 +15,7 @@
 #include <resources.h>
 #include <debug.h>
 
-#define NUM_OF_INSTRUCTIONS 69   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 80   // TODO set final number
 
 enum instructions
 {
@@ -87,8 +87,18 @@ enum instructions
     CAST_INT_CONST,        // 65
     CAST_DBL_REG,          // 66
     CAST_DBL_CONST,        // 67 
-
-    HALT                   // 68
+    PUSH_EMPTY,            // 68
+    PUSH_INT,              // 69
+    PUSH_DBL,              // 70
+    PUSH_INDEX,            // 71
+    POP_EMPTY,             // 72
+    JMP_REG,               // 73
+    JMP_CONST,             // 74
+    JMP_TRUE_REG_REG,      // 75
+    JMP_TRUE_CONST_CONST,  // 76
+    JMP_TRUE_CONST_REG,    // 77
+    JMP_TRUE_REG_CONST,    // 78
+    HALT                   // 79
 };
 
 
@@ -1118,6 +1128,155 @@ static inline int cast_dbl_const(Resources *resources, TInstruction *instruction
     return 1;
 }
 
+
+//****************************** STACK ****************************//
+static inline int push_empty(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "PUSH EMPTY");
+    TStack_variable *new_top;
+    index_t index;
+
+    int iRet = RETURN_OK;
+    if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
+    if ((iRet = dereference_structure(&resources->runtime_stack, index, 
+                                      (void **)&new_top)) 
+        != RETURN_OK) return iRet; 
+    resources->runtime_stack.flags[resources->runtime_stack.next_free++] = 1;
+    new_top->value.index = instruction->first_op.index;
+    return RETURN_OK;
+}
+
+static inline int push_int(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "PUSH INT");
+    debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
+    TStack_variable *new_top;
+    index_t index;
+
+    int iRet = RETURN_OK;
+    if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
+    if ((iRet = dereference_structure(&resources->runtime_stack, index, 
+                                      (void **)&new_top)) 
+        != RETURN_OK) return iRet; 
+    new_top->value.i = instruction->first_op.i;
+    return RETURN_OK;
+}
+
+static inline int push_dbl(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "PUSH DBL");
+    debug_print("%s: %lf\n", "OP1 CONTENT", instruction->first_op.d);
+    TStack_variable *new_top;
+    index_t index;
+
+    int iRet = RETURN_OK;
+    if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
+    if ((iRet = dereference_structure(&resources->runtime_stack, index, 
+                                      (void **)&new_top)) 
+        != RETURN_OK) return iRet; 
+    new_top->value.d = instruction->first_op.d;
+    return RETURN_OK;
+}
+
+static inline int push_index(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "PUSH INDEX");
+    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+    TStack_variable *new_top;
+    index_t index;
+
+    int iRet = RETURN_OK;
+    if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
+    if ((iRet = dereference_structure(&resources->runtime_stack, index, 
+                                      (void **)&new_top)) 
+        != RETURN_OK) return iRet; 
+    new_top->value.index = instruction->first_op.index;
+    return RETURN_OK;
+}
+
+static inline int pop_empty(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "POP");
+    instruction->dest.index = 0;
+    if (resources->runtime_stack.next_free > 1) {
+        resources->runtime_stack.flags[--resources->runtime_stack.next_free] = 0;
+        return RETURN_OK;
+    }
+    else return -1;
+}
+
+//****************************** JUMP ******************************// 
+//
+// jmp_true_reg_reg    ->     dest from reg   first_operand in reg
+
+static inline int jmp_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "JMP_REG");
+
+    debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index - 1lu);
+    
+    resources->ip = access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index - 1lu;
+
+    return RETURN_OK;
+}
+
+static inline int jmp_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "JMP_CONST");
+
+    debug_print("%s %lu\n", "NEW IP ADRESS", instruction->dest.index - 1lu);
+    
+    resources->ip = instruction->dest.index - 1lu;
+
+    return RETURN_OK;
+}
+
+static inline int jmp_true_reg_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "JMP_TRUE_REG_REG");
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
+
+    
+    if (access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i) {
+        resources->ip = access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index - 1lu;
+        
+        debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index - 1lu);
+    }
+
+    return RETURN_OK;
+}
+
+static inline int jmp_true_const_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "JMP_TRUE_CONST_CONST");
+    debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
+
+    if (instruction->first_op.i) {
+        resources->ip = instruction->dest.index - 1lu;
+        
+        debug_print("%s %lu\n", "NEW IP ADRESS", instruction->dest.index - 1lu);
+    }
+
+    return RETURN_OK;
+}
+
+static inline int jmp_true_const_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "JMP_TRUE_CONST_REG");
+    debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i);
+
+    
+    if (access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.i) {
+        resources->ip = instruction->dest.index +  - 1lu;
+        debug_print("%s %lu\n", "NEW IP ADRESS", instruction->dest.index - 1lu);
+    }
+
+    return RETURN_OK;
+}
+
+static inline int jmp_true_reg_const(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "JMP_TRUE_REG_CONST");
+    debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
+
+    if (instruction->first_op.i) {
+        resources->ip = access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index - 1lu;
+        debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index - 1lu);
+    }
+
+    return RETURN_OK;
+}
+
+
 //****************************** HALT ******************************// 
 
 static inline int halt(Resources *resources, TInstruction *instruction) {
@@ -1125,8 +1284,6 @@ static inline int halt(Resources *resources, TInstruction *instruction) {
     fprintf(stderr, "%s: %lu %d \n", "INTERPRETER TERMINATING", instruction->dest.index + resources->bp, *(int*)resources->runtime_stack.buffer);
     return -1;
 }
-
-//****************************** STACK ****************************//
 
 
 #endif // !INSTRUCTIONS_H

@@ -71,6 +71,17 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         cast_int_const,
         cast_dbl_reg,
         cast_dbl_const,
+        push_empty,
+        push_int,
+        push_dbl,
+        push_index,
+        pop_empty,
+        jmp_reg,
+        jmp_const,
+        jmp_true_reg_reg,
+        jmp_true_const_const,
+        jmp_true_const_reg,
+        jmp_true_reg_const,
         halt
     };
 
