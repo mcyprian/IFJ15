@@ -2,6 +2,7 @@
 #include <dynamic_structure_buffer.h>
 #include <error_macros.h>
 #include <debug.h>
+#include <instruction_generator.h>
 
 #define COUNT 5000
 
@@ -12,7 +13,7 @@ int main() {
     int iRet = RETURN_OK;
     int instruction_ret = 0;
     Resources resources;
-    resources.ip = 12;
+    resources.ip = 5;
     resources.bp = 0;
 
     if ((iRet = init_structure_buffer(&(resources.runtime_stack), 16, sizeof(TStack_variable))) != RETURN_OK)
@@ -24,18 +25,21 @@ int main() {
 
    debug_print("%s\n", "GENERATING INSTRUCTIONS");
    
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
+        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 1lu, 5, ADD_INT_REG_CONST);
+        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 1lu, 2, MUL_INT_REG_CONST);
         // int ADD
-        new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
+/*        new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 3, ADD_INT_REG_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 1lu, 2lu, 9, ADD_INT_REG_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
         // double ADD
-/*        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, ADD_DBL_CONST_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, ADD_DBL_CONST_CONST);
         new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.0, 2.0, MUL_DBL_CONST_CONST);
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 3.0, ADD_DBL_REG_CONST);
         new_instruction_reg_dbl(&resources.instruction_buffer, 1lu, 2lu, 9.0, ADD_DBL_REG_CONST);
 */      
-        function_return(resources);
+        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, FCE_RETURN);
  /*    
         // int SUB
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 33, SUB_INT_CONST_CONST);
@@ -123,12 +127,11 @@ int main() {
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
         // CAST
 */
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, POP_EMPTY);
-        function_call(resources, 1lu);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 9, 0, PUSH_INT);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 2, 0, PUSH_INT);
+        new_instruction_reg_reg(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT);
         
         
         new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
@@ -139,16 +142,26 @@ int main() {
     do {
         dereference_structure(&resources.instruction_buffer, resources.ip, (void**)&instruction);
         debug_print("%s: %lu, %s: %d\n", "IP", resources.ip, "INSTRUCTION", instruction->ins);
-    
         instruction_ret = execute_instruction[instruction->ins](&resources, instruction);
         if (instruction_ret == UNINIT_ERROR)
             printf("UNINITIALIZED VALUE\n");
+
         resources.ip++;
- /*       
-        for (int i = 1; i < 4; i++)
-            debug_print("%s: %d %d\n", "STACK_CONTENT", access(resources.runtime_stack.buffer, TStack_variable, i + resources.bp)->value.i, i);
-*/        
-        debug_print("%s: %d\n", "STACK_TOP", access(resources.runtime_stack.buffer, TStack_variable, (resources.runtime_stack.next_free - 1) + resources.bp)->value.i);
+        
+        // debug_print("%s: %d\n", "STACK_TOP", access(resources.runtime_stack.buffer, TStack_variable, (resources.runtime_stack.next_free - 1) + resources.bp)->value.i);
+        for (index_t i = 1; i < 10; i++) {
+            if (i == resources.runtime_stack.next_free - 1 && i == resources.bp) 
+                debug_print("%s: %d %s\n", "CONTENT", access(resources.runtime_stack.buffer, TStack_variable, i )->value.i, "<-- STACK TOP  <-- BP");
+            else if (i == resources.runtime_stack.next_free -1)
+                debug_print("%s: %d %s\n", "CONTENT", access(resources.runtime_stack.buffer, TStack_variable, i )->value.i, "<-- STACK TOP");
+            else if (i == resources.bp)
+                debug_print("%s: %d %s\n", "CONTENT", access(resources.runtime_stack.buffer, TStack_variable, i )->value.i, "<-- BP");
+            else
+                debug_print("%s: %d\n", "CONTENT", access(resources.runtime_stack.buffer, TStack_variable, i)->value.i);
+        }
+        
+        
+        debug_print("%s: %lu\n", "STACK_NUM", resources.runtime_stack.next_free -1);
   //      debug_print("%s: %d\n", "REGISTER1", access(resources.runtime_stack.buffer, TStack_variable, 1lu)->value.i);
   //      debug_print("%s: %d\n", "REGISTER2", access(resources.runtime_stack.buffer, TStack_variable, 2lu)->value.i);
 

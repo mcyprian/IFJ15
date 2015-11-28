@@ -15,7 +15,7 @@
 #include <resources.h>
 #include <debug.h>
 
-#define NUM_OF_INSTRUCTIONS 81   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 82   // TODO set final number
 
 enum instructions
 {
@@ -98,8 +98,9 @@ enum instructions
     JMP_TRUE_CONST_CONST,  // 76
     JMP_TRUE_CONST_REG,    // 77
     JMP_TRUE_REG_CONST,    // 78
-    SET_POINTER,           // 79
-    HALT                   // 80
+    FCE_CALL,              // 79
+    FCE_RETURN,            // 80
+    HALT                   // 81
 };
 
 
@@ -1348,10 +1349,10 @@ static inline int push_empty(Resources *resources, TInstruction *instruction) {
     int iRet = RETURN_OK;
     if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
     if ((iRet = dereference_structure(&resources->runtime_stack, index, 
-                                      (void **)&new_top)) 
-        != RETURN_OK) return iRet; 
+                                      (void **)&new_top)) != RETURN_OK) return iRet; 
     resources->runtime_stack.flags[resources->runtime_stack.next_free++] = 1;
     new_top->value.index = instruction->first_op.index;
+    new_top->defined = 1;
     return RETURN_OK;
 }
 
@@ -1364,9 +1365,9 @@ static inline int push_int(Resources *resources, TInstruction *instruction) {
     int iRet = RETURN_OK;
     if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
     if ((iRet = dereference_structure(&resources->runtime_stack, index, 
-                                      (void **)&new_top)) 
-        != RETURN_OK) return iRet; 
+                                      (void **)&new_top)) != RETURN_OK) return iRet; 
     new_top->value.i = instruction->first_op.i;
+    new_top->defined = 1;
     return RETURN_OK;
 }
 
@@ -1379,9 +1380,9 @@ static inline int push_dbl(Resources *resources, TInstruction *instruction) {
     int iRet = RETURN_OK;
     if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
     if ((iRet = dereference_structure(&resources->runtime_stack, index, 
-                                      (void **)&new_top)) 
-        != RETURN_OK) return iRet; 
+                                      (void **)&new_top)) != RETURN_OK) return iRet; 
     new_top->value.d = instruction->first_op.d;
+    new_top->defined = 1;
     return RETURN_OK;
 }
 
@@ -1394,9 +1395,9 @@ static inline int push_index(Resources *resources, TInstruction *instruction) {
     int iRet = RETURN_OK;
     if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
     if ((iRet = dereference_structure(&resources->runtime_stack, index, 
-                                      (void **)&new_top)) 
-        != RETURN_OK) return iRet; 
+                                      (void **)&new_top)) != RETURN_OK) return iRet; 
     new_top->value.index = instruction->first_op.index;
+    new_top->defined = 1;
     return RETURN_OK;
 }
 
@@ -1404,6 +1405,7 @@ static inline int pop_empty(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "POP");
     instruction->dest.index = 0;
     if (resources->runtime_stack.next_free > 1) {
+        access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined = 0;
         resources->runtime_stack.flags[--resources->runtime_stack.next_free] = 0;
         return RETURN_OK;
     }
@@ -1498,46 +1500,58 @@ static inline int jmp_true_reg_const(Resources *resources, TInstruction *instruc
     return RETURN_OK;
 }
 
-enum {IP, BP, RV};
-// setting resources->ip, resources->bp or resources->return_value to value stored in first_op
-static inline int set_pointer(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "SET POINTER");
+//****************************** FUNCTIONS ******************************// 
+// Expecting adress of function in instruction->dest.index
+static inline int function_call(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "FUNCTION CALL");
 
-    switch (instruction->dest.i) {
-        case IP:
-            debug_print("%s: %ld\n", "NEW VALUE IN IP", instruction->first_op.index);
-            resources->ip = instruction->first_op.index;
-            break;
-        case BP:
-            resources->bp = instruction->first_op.index;
-            debug_print("%s: %ld\n", "NEW VALUE IN BP", instruction->first_op.index);
-            break;
-        case RV:
-            resources->return_value = instruction->first_op.index;
-            debug_print("%s: %ld\n", "NEW VALUE IN RV", instruction->first_op.index);
-            break;
-    }
+    TStack_variable *tmp;                           //    Stack
+    push_stack(&resources->runtime_stack, &tmp);    //    ?
+    debug_print("%s %lu\n", "RETURNING IP", resources->ip);
+    tmp->value.index = resources->ip;               //    ip  ?
+    tmp->defined = 1;
+    push_stack(&resources->runtime_stack, &tmp);    //    bp  ip  ?
+
+    debug_print("%s %lu\n", "RETURNING BP", resources->bp);
+    tmp->value.index = resources->bp;
+    tmp->defined = 1;
+
+    debug_print("%s %lu\n", "IP AFTER CALL", instruction->dest.index - 1lu);
+    
+    resources->ip = instruction->dest.index - 1lu;       // sets ip to adress of function
+
+    debug_print("%s: %ld\n", "NEW VALUE IN BP", instruction->first_op.index);
+    resources->bp = resources->runtime_stack.next_free - 1;      // sets bp to stack top
+
     return RETURN_OK;
 }
 
-#define function_call(resources, function_adress)                                                                           \
-    do {                                                                                                                    \
-        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, resources.ip, 0lu, PUSH_INDEX);                         \
-        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, resources.bp, 0lu, PUSH_INDEX);                         \
-        new_instruction_reg_reg(&resources.instruction_buffer, function_adress, 0lu, 0lu, JMP_CONST);                       \
-        new_instruction_reg_reg(&resources.instruction_buffer, BP, resources.runtime_stack.next_free -1, 0lu, SET_POINTER); \
-    } while(0)
+static inline int function_return(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "FUNCTION RETURN");
+                                                                             //     Stack
+    instruction->dest.index = 0;   // remove warning                                rv  bp  ip
+    resources->return_value = access(resources->runtime_stack.buffer, 
+                                     TStack_variable, 
+                                     resources->runtime_stack.next_free -1)
+    ->value.i;
+    
+    pop_stack(&resources->runtime_stack);                                    //      bp  ip
+    resources->bp = access(resources->runtime_stack.buffer,
+                           TStack_variable,
+                           resources->runtime_stack.next_free -1)
+    ->value.index;
+    debug_print("%s %lu\n", "RETURNING BP", resources->bp);
 
-#define function_return(resources)                                                                                             \
-    do {                                                                                                                       \
-        new_instruction_reg_reg(&resources.instruction_buffer, RV, resources.runtime_stack.next_free -1, 0lu, SET_POINTER);    \
-        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, POP_EMPTY);                                      \
-        new_instruction_reg_reg(&resources.instruction_buffer, BP, resources.runtime_stack.next_free -1, 0lu, SET_POINTER);    \
-        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, POP_EMPTY);                                      \
-        new_instruction_reg_reg(&resources.instruction_buffer, IP, resources.runtime_stack.next_free -1, 0lu, SET_POINTER);    \
-        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, POP_EMPTY);                                      \
-        new_instruction_reg_reg(&resources.instruction_buffer, resources.ip, 0lu, 0lu, JMP_CONST);                             \
-    } while(0)
+    pop_stack(&resources->runtime_stack);                                    //      ip
+    resources->ip = access(resources->runtime_stack.buffer,
+                           TStack_variable,
+                           resources->runtime_stack.next_free -1)
+    ->value.index;
+    debug_print("%s %lu\n", "RETURNING IP", resources->ip);
+    debug_print("%s %lu\n", "IP AFTER RETURN ADRESS", resources->ip);
+    return RETURN_OK;   
+}
+
 
 //****************************** HALT ******************************// 
 
