@@ -32,3 +32,4 @@ void SiftDown(char *a, int left, int right);
 
 void HeapSort(char *a);
 
+int str_length(char *string);

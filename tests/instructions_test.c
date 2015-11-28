@@ -129,34 +129,44 @@ int main() {
         
         new_instruction_int_int(&resources.instruction_buffer, 1lu, 2lu, 0, CAST_DBL_REG);
         
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.66, 0, CAST_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 5lu, 3.66, 0, CAST_DBL_CONST);
 
         // STRING
         init_buffer(&(resources.string_buff), 1);
         add_str(&(resources.string_buff), "987654321");
         index_t index1 = save_token(&(resources.string_buff));
-        add_str(&(resources.string_buff), "765");
+        add_str(&(resources.string_buff), "7654321");
         index_t index2 = save_token(&(resources.string_buff));
-	add_str(&(resources.string_buff), "kokot");
-	index_t index4 = save_token(&(resources.string_buff));
+	// add_str(&(resources.string_buff), "kokot");
+	// index_t index4 = save_token(&(resources.string_buff));
 	// SORT
-	//new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, SORT_CONST);
+	// new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, SORT_CONST);
 
+	// SUBSTR
+	new_instruction_reg_reg(&resources.instruction_buffer, 1lu, index2, 0lu, MOV_INDEX_INT_CONST);
+        new_instruction_reg_reg(&resources.instruction_buffer, 2lu, 2lu, 0lu, MOV_INDEX_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 3lu, 2, 0, ADD_INT_CONST_CONST);
+
+        new_instruction_reg_reg(&resources.instruction_buffer, 2lu, 1lu, 3lu, SUBSTR_REG_REG);
+
+	//index_t return_index = access(resources.runtime_stack.buffer, TStack_variable, resources.runtime_stack.next_free - 1)->value.index;
+	//printf("VOLNY RIADOK\n");
+	//printf("\n%s\n", load_token(&(resources.string_buff), return_index));
 	// CONCAT
-	//new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, CONCAT_CONST_CONST);	
-	add_str(&(resources.string_buff), "abcd");
-        index_t index3 = save_token(&(resources.string_buff));
-        //new_instruction_int_int(&resources.instruction_buffer, 2lu, 1lu, (int)index3, CONCAT_REG_CONST);
+	// new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index2, (int)index4, CONCAT_CONST_CONST);	
+	// add_str(&(resources.string_buff), "abcd");
+        // index_t index3 = save_token(&(resources.string_buff));
+        // new_instruction_int_int(&resources.instruction_buffer, 2lu, 1lu, (int)index3, CONCAT_REG_CONST);
 
 	// LENGTH
-	new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index4, (int)index1, LENGTH_CONST);
+	//new_instruction_int_int(&resources.instruction_buffer, 2lu, (int)index2, (int)index1, LENGTH_CONST);
 
 	// FIND
         //new_instruction_int_int(&resources.instruction_buffer, 1lu, (int)index1, (int)index2, FIND_CONST_CONST);
 
 	// new_instruction_int_int(&resources.instruction_buffer, 2lu, 1lu, (int)index2, FIND_REG_CONST);
 
-	free_buffer(&resources.string_buff);        
+	// free_buffer(&resources.string_buff);        
         new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
     
     debug_print("%s\n", "INTERPRETING");
@@ -168,7 +178,12 @@ int main() {
         debug_print("%s: %lu, %s: %d\n", "IP", resources.ip, "INSTRUCTION", instruction->ins);
     
         instruction_ret = execute_instruction[instruction->ins](&resources, instruction);
-    
+	if (instruction->ins == SUBSTR_REG_REG)
+	{
+		index_t return_index = access(resources.runtime_stack.buffer, TStack_variable, resources.runtime_stack.next_free -1)->value.index;
+		printf ("\n%s\n", load_token(&(resources.string_buff), return_index));
+	}    	
+
         debug_print("%s: %d\n", "REGISTER1", access(resources.runtime_stack.buffer, TStack_variable, 1lu)->value.i);
         debug_print("%s: %d\n", "REGISTER2", access(resources.runtime_stack.buffer, TStack_variable, 2lu)->value.i);
 
@@ -177,7 +192,7 @@ int main() {
     debug_print("%s\n", "INTERPRETING FINISHED");
 
     free_structure_buffer(&(resources.instruction_buffer));
-
+	free_buffer(&(resources.string_buff));
 
 REG_BUFF:
     free_structure_buffer(&(resources.runtime_stack));

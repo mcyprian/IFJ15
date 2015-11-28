@@ -82,6 +82,7 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
 	find_reg_const,
 	find_const_const,
 	sort_reg,
-	sort_const
+	sort_const,
+	mov_index_int_reg
     };
 

@@ -8,6 +8,7 @@
  */
 
 #include <built_functions.h>
+#include <ial.h>
 
 int length(TDynamic_buffer *b, index_t index)
 {
@@ -15,16 +16,17 @@ int length(TDynamic_buffer *b, index_t index)
 }
 
 index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
-{	
+{
 	save_token(b);	// whatever is in b, puts '\0' after that
 	char *check_string = load_token(b, index);
-	int lenght = (int)strlen(check_string);
+	//printf("%s\n", check_string);
+	int lenght = str_length(check_string);
 	if (i >= (unsigned)lenght)
 		return 0;
 
 	char *string = load_token(b, index + i);
 	
-	if (n < (int)strlen(string))
+	if (n < str_length(string))
 		string[n] = '\0';
 
 	if (add_str(b, string) == INTERNAL_ERROR)

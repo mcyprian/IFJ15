@@ -17,7 +17,7 @@
 #include <ial.h>
 #include <built_functions.h>
 
-#define NUM_OF_INSTRUCTIONS 80   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 81   // TODO set final number
 
 enum instructions
 {
@@ -101,6 +101,7 @@ enum instructions
     FIND_CONST_CONST,      // 77
     SORT_REG,              // 78
     SORT_CONST,            // 79
+    MOV_INDEX_INT_CONST
 };
 
 
@@ -245,6 +246,19 @@ static inline int new_instruction_dbl_dbl(TDynamic_structure_buffer *buff, index
     return RETURN_OK;
 }
 
+static inline int new_instruction_index_int_int(TDynamic_structure_buffer *buff, int dest, index_t first, index_t second, int ins) {
+    TInstruction *item;
+    index_t index = ZERO_INDEX;
+    int err = new_item(buff, index, item);
+    catch_internal_error(err, INTERNAL_ERROR, "Failed to get new_item");
+
+    item->dest.i = dest;
+    item->ins = ins;
+    item->first_op.index = first;
+    item->second_op.index = second;
+    return RETURN_OK;
+}
+
 //****************************** MOV ******************************// 
 static inline int mov_int_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MOV_INT_REG");
@@ -254,6 +268,22 @@ static inline int mov_int_reg(Resources *resources, TInstruction *instruction) {
     
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
     return 1;
+}
+
+static inline int mov_index_int_reg(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "MOV_INDEX_INT_REG");
+
+    //if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+        //return UNINIT_ERROR;
+
+    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
+    = instruction->first_op.index;
+   
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
+    return RETURN_OK;
 }
 
 static inline int mov_int_const(Resources *resources, TInstruction *instruction) {
@@ -1176,6 +1206,9 @@ static inline int concat_const_const(Resources *resources, TInstruction *instruc
 
 static inline int substr_reg_reg(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUBSTR_REG_REG");
+debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP3 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
 
     TStack_variable *var;
     push_stack(&(resources->runtime_stack), &var);
