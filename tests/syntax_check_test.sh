@@ -12,4 +12,6 @@ set -e
 ../bin/interpreter ./test_data/syntax_check_data/test8
 ! ../bin/interpreter ./test_data/syntax_check_data/test9
 ../bin/interpreter ./test_data/syntax_check_data/test10
+! ../bin/interpreter ./test_data/syntax_check_data/test11
+../bin/interpreter ./test_data/syntax_check_data/test12
 ../bin/interpreter ./test_data/syntax_check_data/fcb.cc

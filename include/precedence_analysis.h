@@ -66,28 +66,33 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack);
  */
 int get_types(TDynamic_structure_buffer *b, TStack *stack,  int *values);
 
-int short_reduction(TDynamic_structure_buffer *b, TStack *stack, int original_type, char status);
+/** Checks values of types of items before first SHIFT token
+ * @param b pointer to dynamic_structure_buffer
+ * @param stack pointer to stack
+ * @param values array to write results and number of tokens to index 0
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
 
-int long_reduction(Resources *res, TToken **reduced_tokens, TStack *stack, int original_type);
+int short_reduction(Resources *res, TStack *stackx);
+
+int long_reduction(Resources *res, TStack *stack, int rule);
 
 /** Reduce top of the stack to nonterminal RVALUE
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
  * @param original_type original token type of token being reduced
- * @param status current status of non terminal
  * @return RETURN_OK on success, INTERNAL_ERROR on error
  */
-int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type, char status);
+int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type);
 
 /** Overwrite token type on top of the stack
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
  * @param new_type new token type of stack top
  * @param original_type original token type of stack top
- * @param status current status of non terminal
  * @return RETURN_OK on success, INTERNAL_ERROR or SYNTAX_ERROR on error
  */
-int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type, char status);
+int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type);
 
 /** Search for right rule to reduction of stack top
  * @param res pointer to respurces

@@ -135,10 +135,9 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
-    fprintf(stderr, "\nStack:\n    %s %d %d %d<-- stack top\n", 
-            symbols[type_filter(tmp->token_type)], tmp->status, tmp->original_type, 
-            tmp->status);
-    
+    fprintf(stderr, "\nStack:\n    %s %d <-- stack top\n", 
+            symbols[type_filter(tmp->token_type)], tmp->original_type);
+
     while (tmp->token_type != END_OF_EXPR) {
         if ((next = tmp->next) == ZERO_INDEX)
             return SYNTAX_ERROR;
@@ -149,7 +148,7 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
             "Failed to dereference structure buffer"
         );
 
-        fprintf(stderr, "    %s %d %d %d\n", symbols[tmp->token_type], tmp->status, tmp->original_type, tmp->status);
+        fprintf(stderr, "    %s %d\n", symbols[tmp->token_type], tmp->original_type);
     }
     return RETURN_OK;
 }
@@ -195,78 +194,146 @@ int get_types(TDynamic_structure_buffer *b, TStack *stack, int *values) {
     return RETURN_OK;
 }
 
-int short_reduction(TDynamic_structure_buffer *b, TStack *stack, int original_type, char status) {
-    args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
+int short_reduction(Resources *res, TStack *stack) {
+    args_assert(res != NULL && stack != NULL, INTERNAL_ERROR);
 
+    TToken *token_to_reduce;
+    int err;
     debug_print("%s\n", "ONE TOKEN REDUCED");
 
+    catch_internal_error(
+        dereference_structure(&res->struct_buff, stack->top, (void **)&token_to_reduce),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+    int type = token_to_reduce->token_type;
+
+    if (type == IDENTIFIER) {
+         debug_print("%s\n", "TOKEN ID CHECKING TYPE");
+
+         err = is_var_declared(res, token_to_reduce->token_index);
+         catch_internal_error(err, INTERNAL_ERROR, "Failed to check if var was declared");
+         catch_undefined_error(err, SEMANTIC_ERROR, "Failed to check if var was declared", 1);
+         
+         
+         type = get_var_type(res, token_to_reduce->token_index);
+         catch_internal_error(type, INTERNAL_ERROR, "Failed to get variable type");
+         catch_undefined_error(type, SEMANTIC_ERROR, "Failed to get variable type", 1);
+
+         // TODO get offset of identifier
+         if (type == L_INT) 
+             ;// push int
+         else if (type == L_DOUBLE)
+             ;// push double
+         else {}
+            // push index (string)
+
+    } else {      // LITERAL
+        if (type == L_INT) {
+            int value;
+            if ((value = to_int(load_token(&res->string_buff, token_to_reduce->token_index))) < 0)
+                return SEMANTIC_ERROR;
+                // push int
+        } else 
+        if (type == L_DOUBLE) {
+            double value;
+            if ((value = to_double(load_token(&res->string_buff, token_to_reduce->token_index))) < 0.0)
+                return SEMANTIC_ERROR;
+                // push double
+        } else
+        if (type == L_STRING) {
+               // push index_t
+        }
+    }
+
+    debug_print("%s: %d\n", "ORIGINAL_TYPE:", type);
+
     index_t top_index = stack->top;
-    pop(b, stack);
-    pop(b, stack);
-    push(b, stack, top_index);
-    return overwrite_top(b, stack, RVALUE, original_type, status);
+    pop(&res->struct_buff, stack);
+    pop(&res->struct_buff, stack);          // Remove SHIFT from stack
+    push(&res->struct_buff, stack, top_index);
+    return overwrite_top(&res->struct_buff, stack, RVALUE, type);
 }
 
 
-int long_reduction(Resources *res, TToken **reduced_tokens, TStack *stack, int original_type) {
+int long_reduction(Resources *res, TStack *stack, int rule) {
+    args_assert(res != NULL && stack != NULL, INTERNAL_ERROR);
+                
+    TToken *reduced_tokens[MAX_RULE_LENGTH];
+    int original_type;
+    int err;
+    debug_print("%s\n", "LONG REDUCTION");
+    
+    catch_internal_error(
+        dereference_structure(&res->struct_buff, stack->top, (void **)&reduced_tokens[2]),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
-    debug_print("%s: %d\n", "ORIGINAL_TYPE:", original_type);
-    if (original_type == L_INT) {
-        int first_val;
-        int second_val;
+    catch_internal_error(
+        dereference_structure(&res->struct_buff, reduced_tokens[2]->next, (void **)&reduced_tokens[1]),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    catch_internal_error(
+        dereference_structure(&res->struct_buff, reduced_tokens[1]->next, (void **)&reduced_tokens[0]),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+ 
+    if (rule == 10)       // rule ( RVALUE )
+        original_type = get_original_type(reduced_tokens[1]);
+    else {
+
+        err = check_tokens(res, reduced_tokens[1]->next, stack->top);
         
-        switch (reduced_tokens[0]->status) {
-            case L_INT:      // literal
-               if ((first_val = to_int(load_token(&res->string_buff, reduced_tokens[0]->token_index))) < 0)
-                    return SEMANTIC_ERROR;
+        switch(err) {
+            case INTERNAL_ERROR:
+                  return INTERNAL_ERROR;
+                  break;
+
+            case SEMANTIC_ERROR:
+                debug_print("%s\n", "SEMANTIC_ERROR");
+                return err;
                 break;
-            case IDENTIFIER:
-                // TODO get value if first is id
+            
+            case TYPE_ERROR:
+                debug_print("%s\n", "TYPE_ERROR");
+                return err;
                 break;
+           
+            case TYPE_CAST_FIRST:
+                original_type = get_original_type(reduced_tokens[2]);
+                debug_print("%s\n", "TYPE CAST FIRST");
+                // casting instruction
+                break;
+           
+            case TYPE_CAST_SECOND:
+                original_type = get_original_type(reduced_tokens[0]);
+                debug_print("%s\n", "TYPE CAST SECOND");
+                // casting instruction
+                break;
+           
+            case RETURN_OK:
+                original_type = get_original_type(reduced_tokens[0]);
+                debug_print("%s\n", "TYPES OK");
+            default:
+                original_type = get_original_type(reduced_tokens[0]);
         }
 
-        switch (reduced_tokens[2]->status) {
-            case L_INT: 
-                if ((second_val = to_int(load_token(&res->string_buff, reduced_tokens[2]->token_index))) < 0)
-                    return SEMANTIC_ERROR;
-                break;
-           case IDENTIFIER:
-                // TODO get value if second is id
-                 break;
-        }
-        // TODO generate instruction
-    } else if (original_type == L_DOUBLE) {
-        double first_val;
-        double second_val;
-        
-        switch (reduced_tokens[0]->status) {     // literal
-            case L_INT:
-                if ((first_val = to_double(load_token(&res->string_buff, reduced_tokens[0]->token_index))) < 0.0)
-                    return SEMANTIC_ERROR;
-                break;
-            case IDENTIFIER:
-            // TODO get value if first is id
-            break;
-        }
-        switch (reduced_tokens[2]->status) { 
-            case L_INT: 
-                if((second_val = to_double(load_token(&res->string_buff, reduced_tokens[2]->token_index))) < 0.0)
-                    return SEMANTIC_ERROR;
-                break;
-            case IDENTIFIER:
-            // TODO get value if first is id
-            break;
-        }
-        // TODO generate instruction
-    } 
-
-    int err = reduce(&res->struct_buff, stack, original_type, RVALUE);
+    }
+    // INSTRUCTIONS
+    // top -1 = top -1 + top
+    // pop()
+    
+    err = reduce(&res->struct_buff, stack, original_type);
     catch_internal_error(err, INTERNAL_ERROR, "Failed to reduce");
     catch_syntax_error(err, SYNTAX_ERROR, "Failed to reduce", 1);
     return RETURN_OK;
 }
 
-int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type, char status) {
+int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type) {
     args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
     
     TToken *tmp = NULL;
@@ -290,10 +357,10 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type, char 
         );
       
     }
-    return overwrite_top(b, stack, RVALUE, original_type, status);
+    return overwrite_top(b, stack, RVALUE, original_type);
 }
 
-int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type, char status) {
+int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type) {
     args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
     debug_print("%s: %s\n", "TOP OVERWRITTEN TO", symbols[new_type]); 
     debug_print("%s: %d\n", "ORIGINAL_TYPE", original_type); 
@@ -305,7 +372,6 @@ int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int
     );
     tmp->original_type = original_type;
     tmp->token_type = new_type;   
-    tmp->status = status;   
     return RETURN_OK;
 }
 
@@ -314,9 +380,6 @@ int get_rule(Resources *res, TStack *stack) {
     
     int values [MAX_RULE_LENGTH + 1];
     int i;
-    TToken *reduced_tokens[MAX_RULE_LENGTH];
-    int original_type;
-    char status;
     int err = get_types(&res->struct_buff, stack, values);
     catch_internal_error(err, INTERNAL_ERROR, "Failed to get types of token");
     catch_syntax_error(err, SYNTAX_ERROR, "Failed to get types of token", 1);
@@ -344,36 +407,9 @@ int get_rule(Resources *res, TStack *stack) {
         for (i = 0; i < 2; i++) {
             if (short_rules[i] == values[1]) {
 #if DEBUG
-                debug_print("%s %s %s\n", "APPLIED RULE:", short_rule_symbol[i], "-> RVALUE");
+               debug_print("%s %s %s\n", "APPLIED RULE:", short_rule_symbol[i], "-> RVALUE");
 #endif
-                catch_internal_error(
-                    dereference_structure(&res->struct_buff, stack->top, (void **)&reduced_tokens[0]),
-                    INTERNAL_ERROR,
-                    "Failed to dereference structure buffer."
-                );
-
-                original_type = get_original_type(reduced_tokens[0]);
-
-                if (original_type == IDENTIFIER) {
-                    debug_print("%s\n", "TOKEN ID CHECKING TYPE");
-
-                    err = is_var_declared(res, reduced_tokens[0]->token_index);
-                    catch_internal_error(err, INTERNAL_ERROR, "Failed to check if var was declared");
-                    catch_undefined_error(err, SEMANTIC_ERROR, "Failed to check if var was declared", 1);
-                    original_type = get_var_type(res, reduced_tokens[0]->token_index);
-                    catch_internal_error(original_type, INTERNAL_ERROR, "Failed to get variable type");
-                    catch_undefined_error(original_type, SEMANTIC_ERROR, "Failed to get variable type", 1);
-                    debug_print("%s\n", "SETTING STATUS TO IDENTIFIER");
-                    status = IDENTIFIER;
-                } else  {
-                    debug_print("%s\n", "SETTING STATUS TO IDENTIFIER");
-                    status = L_INT;
-                }
-
-                debug_print("%s: %d\n", "ORIGINAL_TYPE:", original_type);
-                catch_internal_error(short_reduction(&res->struct_buff, stack, original_type, status),
-                                     INTERNAL_ERROR, "Failed to reduce");
-                return RETURN_OK;
+               return short_reduction(res, stack);
 
             }
         }
@@ -384,70 +420,12 @@ int get_rule(Resources *res, TStack *stack) {
 #if DEBUG
                 debug_print("%s %s\n", "APPLIED RULE:", long_rule_symbol[i]);
 #endif
-
-                catch_internal_error(
-                     dereference_structure(&res->struct_buff, stack->top, (void **)&reduced_tokens[2]),
-                     INTERNAL_ERROR,
-                     "Failed to dereference structure buffer."
-                 );
-
-                catch_internal_error(
-                     dereference_structure(&res->struct_buff, reduced_tokens[2]->next, (void **)&reduced_tokens[1]),
-                     INTERNAL_ERROR,
-                     "Failed to dereference structure buffer."
-                 );
-                 catch_internal_error(
-                     dereference_structure(&res->struct_buff, reduced_tokens[1]->next, (void **)&reduced_tokens[0]),
-                     INTERNAL_ERROR,
-                     "Failed to dereference structure buffer."
-                 );
- 
-                 if (i == 10)       // rule ( RVALUE )
-                     original_type = get_original_type(reduced_tokens[1]);
-                 else {
-
-                     err = check_tokens(res, reduced_tokens[1]->next, stack->top);
-                     
-                     switch(err) {
-                         case INTERNAL_ERROR:
-                               return INTERNAL_ERROR;
-                               break;
-
-                         case SEMANTIC_ERROR:
-                             debug_print("%s\n", "SEMANTIC_ERROR");
-                             return err;
-                             break;
-                         
-                         case TYPE_ERROR:
-                             debug_print("%s\n", "TYPE_ERROR");
-                             return err;
-                             break;
-                        
-                         case TYPE_CAST_FIRST:
-                             original_type = get_original_type(reduced_tokens[2]);
-                             debug_print("%s\n", "TYPE CAST FIRST");
-                             break;
-                        
-                         case TYPE_CAST_SECOND:
-                             original_type = get_original_type(reduced_tokens[0]);
-                             debug_print("%s\n", "TYPE CAST SECOND");
-                             break;
-                        
-                         case RETURN_OK:
-                             original_type = get_original_type(reduced_tokens[0]);
-                             debug_print("%s\n", "TYPES OK");
-                         default:
-                             original_type = get_original_type(reduced_tokens[0]);
-                     }
-
-                 }
-                 return long_reduction(res, reduced_tokens, stack, original_type);
+                return long_reduction(res, stack, i);
             }
         }
         return SYNTAX_ERROR;
     } else 
         return SYNTAX_ERROR;
-
 }
 
 
@@ -490,7 +468,9 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     );
 
     do {
-         //print_stack(&res->struct_buff, &stack);
+#if DEBUG
+         print_stack(&res->struct_buff, &stack);
+#endif
          debug_print("%s %d\n", "TOP", top_token->token_type);
          debug_print("%s %d\n", "INPUT", input_token->token_type);
         
@@ -512,7 +492,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                 return iRet;
             } else {
                 // Reduction of function call
-                err = reduce(&res->struct_buff, &stack, return_type, RVALUE);
+                err = reduce(&res->struct_buff, &stack, return_type);
                 catch_internal_error(err, INTERNAL_ERROR, "Failed to reduce");
                 catch_syntax_error(err, SYNTAX_ERROR, "Failed to reduce",1);
                 top_index = stack.top;
@@ -652,9 +632,6 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                 debug_print("%s", "DEFAULT\n");
                 return INTERNAL_ERROR;
         }
-        // print_stack(&res->struct_buff, &stack);
-        // fprintf(stderr, "top %s\n", symbols[top_token->token_type]);
-        // fprintf(stderr, "input %s\n", symbols[input_token->token_type]);
                   
     } while (type_filter(top_token->token_type) != END_OF_EXPR || type_filter(input_token->token_type) != END_OF_EXPR);
     
