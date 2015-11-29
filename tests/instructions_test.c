@@ -13,7 +13,7 @@ int main() {
     int iRet = RETURN_OK;
     int instruction_ret = 0;
     Resources resources;
-    resources.ip = 5;
+    resources.ip = 6;
     resources.bp = 0;
 
     if ((iRet = init_structure_buffer(&(resources.runtime_stack), 16, sizeof(TStack_variable))) != RETURN_OK)
@@ -25,9 +25,15 @@ int main() {
 
    debug_print("%s\n", "GENERATING INSTRUCTIONS");
    
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
-        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 1lu, 5, ADD_INT_REG_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 1lu, 2, MUL_INT_REG_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT_CONST);
+        new_instruction_reg_reg(&resources.instruction_buffer, 
+                                resources.runtime_stack.next_free - 2,
+                                resources.runtime_stack.next_free - 2,
+                                resources.runtime_stack.next_free - 1,
+                                ADD_INT_REG_REG);
+
+        new_instruction_int_int(&resources.instruction_buffer, 0lu, 0, 0, POP_EMPTY);
         // int ADD
 /*        new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
         new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 3, ADD_INT_REG_CONST);
@@ -127,11 +133,11 @@ int main() {
         new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
         // CAST
 */
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 2, 0, PUSH_INT);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 2, 0, PUSH_INT_CONST);
         new_instruction_reg_reg(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT_CONST);
         
         
         new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);

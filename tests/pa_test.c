@@ -100,7 +100,7 @@ START_TEST (test_rules) {
         item->token_type = tokens_one[i];
         push(&res.struct_buff, &stack, index);
     }
-    get_rule(&res, &stack);
+   // get_rule(&res, &stack);
     reduce(&res.struct_buff, &stack, 0);
 
     for (i = 0; i < 4; i++) {
@@ -108,7 +108,7 @@ START_TEST (test_rules) {
         item->token_type = tokens_two[i];
         push(&res.struct_buff, &stack, index);
     }
-    get_rule(&res, &stack);
+    //get_rule(&res, &stack);
     reduce(&res.struct_buff, &stack, 0);
 
     for (i = 0; i < 4; i++) {
@@ -116,7 +116,7 @@ START_TEST (test_rules) {
         item->token_type = tokens_three[i];
         push(&res.struct_buff, &stack, index);
     }
-    get_rule(&res, &stack);
+   // get_rule(&res, &stack);
     reduce(&res.struct_buff, &stack, 0);
  
     free_structure_buffer(&res.struct_buff);
