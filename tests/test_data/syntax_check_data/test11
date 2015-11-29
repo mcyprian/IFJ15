@@ -1,0 +1,7 @@
+int a(int x) {
+	
+}
+
+int main() {
+	a(1,);
+}
