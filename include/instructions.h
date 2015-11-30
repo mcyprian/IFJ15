@@ -230,7 +230,7 @@ static inline int add_int_mem_mem(Resources *resources, TInstruction *instructio
 }
 
 static inline int add_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "ADD_INT_MEM_MEM");
+    debug_print("%s\n", "ADD_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -273,7 +273,7 @@ static inline int sub_int_mem_mem(Resources *resources, TInstruction *instructio
 }
 
 static inline int sub_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "SUB_INT_MEM_MEM");
+    debug_print("%s\n", "SUB_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -285,7 +285,7 @@ static inline int sub_dbl_mem_mem(Resources *resources, TInstruction *instructio
 
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
     = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
-    + access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
+    - access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
@@ -316,7 +316,7 @@ static inline int mul_int_mem_mem(Resources *resources, TInstruction *instructio
 }
 
 static inline int mul_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "MUL_INT_MEM_MEM");
+    debug_print("%s\n", "MUL_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -342,6 +342,8 @@ static inline int div_int_mem_mem(Resources *resources, TInstruction *instructio
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
+    if (access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i == 0) 
+        return DIV_ZERO_ERROR; 
 
     debug_print("%s: %d\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
@@ -359,10 +361,13 @@ static inline int div_int_mem_mem(Resources *resources, TInstruction *instructio
 }
 
 static inline int div_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "DIV_INT_MEM_MEM");
+    debug_print("%s\n", "DIV_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
+
+    if (access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d == 0.000) 
+        return DIV_ZERO_ERROR; 
 
     debug_print("%s: %lf\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
     debug_print("%s: %lf\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d);
@@ -402,7 +407,7 @@ static inline int eq_int_mem_mem(Resources *resources, TInstruction *instruction
 }
 
 static inline int eq_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "EQ_INT_MEM_MEM");
+    debug_print("%s\n", "EQ_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -412,13 +417,13 @@ static inline int eq_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i
     = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
     == access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
-    debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     return RETURN_OK;
 }
 
@@ -445,7 +450,7 @@ static inline int g_int_mem_mem(Resources *resources, TInstruction *instruction)
 }
 
 static inline int g_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "G_INT_MEM_MEM");
+    debug_print("%s\n", "G_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -455,13 +460,13 @@ static inline int g_dbl_mem_mem(Resources *resources, TInstruction *instruction)
     
     instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i
     = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
     > access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
-    debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     return RETURN_OK;
 }
 
@@ -488,7 +493,7 @@ static inline int l_int_mem_mem(Resources *resources, TInstruction *instruction)
 }
 
 static inline int l_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "L_INT_MEM_MEM");
+    debug_print("%s\n", "L_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -498,13 +503,13 @@ static inline int l_dbl_mem_mem(Resources *resources, TInstruction *instruction)
     
     instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i
     = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
     < access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
-    debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     return RETURN_OK;
 }
 
@@ -531,7 +536,7 @@ static inline int ge_int_mem_mem(Resources *resources, TInstruction *instruction
 }
 
 static inline int ge_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "GE_INT_MEM_MEM");
+    debug_print("%s\n", "GE_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -541,13 +546,13 @@ static inline int ge_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i
     = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
     >= access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
-    debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     return RETURN_OK;
 }
 
@@ -574,7 +579,7 @@ static inline int le_int_mem_mem(Resources *resources, TInstruction *instruction
 }
 
 static inline int le_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "LE_INT_MEM_MEM");
+    debug_print("%s\n", "LE_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -584,13 +589,13 @@ static inline int le_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i
     = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
     <= access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
-    debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     return RETURN_OK;
 }
 
@@ -617,7 +622,7 @@ static inline int ne_int_mem_mem(Resources *resources, TInstruction *instruction
 }
 
 static inline int ne_dbl_mem_mem(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "NE_INT_MEM_MEM");
+    debug_print("%s\n", "NE_DBL_MEM_MEM");
     if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)) 
         return UNINIT_ERROR;
@@ -627,13 +632,13 @@ static inline int ne_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i
     = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d
     != access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d;
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
-    debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     return RETURN_OK;
 }
 

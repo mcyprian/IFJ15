@@ -36,6 +36,24 @@ int run_program(Resources * resources){
     
         debug_print("%s: %d\n", "INSTRUCT RET", instruction_ret);
         resources->ip++;
+
+#if DEBUG
+        for (index_t i = 1; i < 10; i++) {
+                if (i == resources->runtime_stack.next_free - 1 && i == resources->bp) 
+                    debug_print("%s: %d %lf %s\n", "CONTENT", access(resources->runtime_stack.buffer, TStack_variable, i )->value.i, 
+                                                              access(resources->runtime_stack.buffer, TStack_variable, i )->value.d, "<-- STACK TOP  <-- BP");
+                else if (i == resources->runtime_stack.next_free -1) 
+                    debug_print("%s: %d %lf %s\n", "CONTENT", access(resources->runtime_stack.buffer, TStack_variable, i )->value.i,
+                                                              access(resources->runtime_stack.buffer, TStack_variable, i )->value.d, "<-- STACK TOP");
+                else if (i == resources->bp)
+                    debug_print("%s: %d %lf %s\n", "CONTENT", access(resources->runtime_stack.buffer, TStack_variable, i )->value.i,
+                                                              access(resources->runtime_stack.buffer, TStack_variable, i )->value.d, "<-- BP");
+                else
+                    debug_print("%s: %d %lf \n", "CONTENT", access(resources->runtime_stack.buffer, TStack_variable, i)->value.i,
+                                                            access(resources->runtime_stack.buffer, TStack_variable, i )->value.d);
+        }
+#endif
+    // TODO catch UNINIT_ERROR, DIV_ZERO_ERROR
     } while (instruction_ret != -1);
 	
 

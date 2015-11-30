@@ -4,5 +4,5 @@ int a(int b) {
 
 int main() {
     int i = 20;
-    return a((1 * 22 + 12) < (2 + (2 / 2)));
+    return a((1 * 22 + 12.0) < (2.0 + (2 / 2)));
 }

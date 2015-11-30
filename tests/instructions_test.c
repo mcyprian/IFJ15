@@ -13,7 +13,7 @@ int main() {
     int iRet = RETURN_OK;
     int instruction_ret = 0;
     Resources resources;
-    resources.ip = 6;
+    resources.ip = 101;
     resources.bp = 0;
 
     if ((iRet = init_structure_buffer(&(resources.runtime_stack), 16, sizeof(TStack_variable))) != RETURN_OK)
@@ -21,126 +21,159 @@ int main() {
 
 
     if ((iRet = init_structure_buffer(&(resources.instruction_buffer), 128, sizeof(TInstruction))) != RETURN_OK)
-        goto REG_BUFF;
+        goto MEM_BUFF;
 
    debug_print("%s\n", "GENERATING INSTRUCTIONS");
    
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT_CONST);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT_CONST);
-        new_instruction_reg_reg(&resources.instruction_buffer, 
-                                resources.runtime_stack.next_free - 2,
-                                resources.runtime_stack.next_free - 2,
-                                resources.runtime_stack.next_free - 1,
-                                ADD_INT_REG_REG);
-
-        new_instruction_int_int(&resources.instruction_buffer, 0lu, 0, 0, POP_EMPTY);
         // int ADD
-/*        new_instruction(&resources.instruction_buffer, index_t_type(1lu), int_type(5), int_type(33), ADD_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 3, ADD_INT_REG_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 2lu, 9, ADD_INT_REG_CONST);
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT);
-        // double ADD
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, ADD_DBL_CONST_CONST);
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.0, 2.0, MUL_DBL_CONST_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 3.0, ADD_DBL_REG_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 1lu, 2lu, 9.0, ADD_DBL_REG_CONST);
-*/      
-        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, FCE_RETURN);
- /*    
-        // int SUB
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 33, SUB_INT_CONST_CONST);
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, MUL_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 3, SUB_INT_REG_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 2lu, 9, SUB_INT_REG_CONST);
-        // double SUB
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, SUB_DBL_CONST_CONST);
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.0, 2.0, MUL_DBL_CONST_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 3.0, SUB_DBL_REG_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 1lu, 2lu, 9.0, SUB_DBL_REG_CONST);
-     
-        // int MUL
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 33, MUL_INT_CONST_CONST);
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, MUL_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 3, MUL_INT_REG_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 2lu, 9, MUL_INT_REG_CONST);
-        // double MUL
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, MUL_DBL_CONST_CONST);
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.0, 2.0, MUL_DBL_CONST_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 3.0, MUL_DBL_REG_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 1lu, 2lu, 9.0, MUL_DBL_REG_CONST);
-    
-        // int DIV
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 33, DIV_INT_CONST_CONST);
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 5, 2, DIV_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 3, DIV_INT_REG_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 1lu, 2lu, 9, DIV_INT_REG_CONST);
-        // double DIV
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.3, 33.2, DIV_DBL_CONST_CONST);
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 5.0, 2.0, DIV_DBL_CONST_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 3.0, DIV_DBL_REG_CONST);
-        new_instruction_reg_dbl(&resources.instruction_buffer, 1lu, 2lu, 9.0, DIV_DBL_REG_CONST);
-     
-        // MOV 
-        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, MOV_INT_CONST);
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.0, 0, MOV_DBL_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, ADD_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
 
-        // EQUALS
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, EQ_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, EQ_INT_CONST_CONST);
-        
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.14, EQ_DBL_CONST_CONST);
-        
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, EQ_DBL_CONST_CONST);
- 
-        // GREATER
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, G_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, G_INT_CONST_CONST);
-        
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, G_DBL_CONST_CONST);
-        
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, G_DBL_CONST_CONST);
-        
-        // LESS
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, L_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, L_INT_CONST_CONST);
-        
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, L_DBL_CONST_CONST);
-        
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, L_DBL_CONST_CONST);
-        
-        // GREATER OR EUALS
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, GE_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, GE_INT_CONST_CONST);
-        
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, GE_DBL_CONST_CONST);
-        
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, GE_DBL_CONST_CONST);
-       
-        // LESS OR EUALS
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, LE_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, LE_INT_CONST_CONST);
-        
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, LE_DBL_CONST_CONST);
-        
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, LE_DBL_CONST_CONST);
-        
-        // NOT EUALS
-        new_instruction_int_int(&resources.instruction_buffer, 1lu, 0, 0, NE_INT_CONST_CONST);
-        new_instruction_reg_int(&resources.instruction_buffer, 2lu, 1lu, 0, NE_INT_CONST_CONST);
-        
-        new_instruction_dbl_dbl(&resources.instruction_buffer, 1lu, 3.14, 3.15, NE_DBL_CONST_CONST);
-        
-        new_instruction_reg_dbl(&resources.instruction_buffer, 2lu, 1lu, 0.0, NE_DBL_CONST_CONST);
-        // CAST
-*/
+        // double ADD
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 5.28, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, ADD_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int SUB
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, SUB_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double SUB
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 5.28, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, SUB_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+    
+        // int MUL
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, MUL_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double MUL
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 5.28, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, MUL_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int DIV
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, DIV_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double DIV
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 5.28, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, DIV_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int EQ
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, EQ_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double EQ
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.15, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, EQ_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int G
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, G_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double G
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.15, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, G_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int L
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, L_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double L
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.15, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, L_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int GE
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, GE_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double GE
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.15, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, GE_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int LE
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, LE_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double LE
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.15, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, LE_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // int NE
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_int_int(&resources.instruction_buffer, 2lu, 0, 0, PUSH_INT_CONST);
+        new_instruction_empty(&resources.instruction_buffer, NE_INT_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        // double NE
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.14, 0, PUSH_DBL_CONST);
+        new_instruction_dbl_dbl(&resources.instruction_buffer, 2lu, 3.15, 0, PUSH_DBL_CONST);
+        new_instruction_empty(&resources.instruction_buffer, NE_DBL_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
+
+        new_instruction_mem_mem(&resources.instruction_buffer, 0lu, 0lu, 0lu, FCE_RETURN);
+
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 2, 0, PUSH_INT_CONST);
-        new_instruction_reg_reg(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
+        new_instruction_mem_mem(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT_CONST);
         
         
-        new_instruction_reg_reg(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
+        new_instruction_mem_mem(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
     
     debug_print("%s\n", "INTERPRETING");
 
@@ -168,8 +201,6 @@ int main() {
         
         
         debug_print("%s: %lu\n", "STACK_NUM", resources.runtime_stack.next_free -1);
-  //      debug_print("%s: %d\n", "REGISTER1", access(resources.runtime_stack.buffer, TStack_variable, 1lu)->value.i);
-  //      debug_print("%s: %d\n", "REGISTER2", access(resources.runtime_stack.buffer, TStack_variable, 2lu)->value.i);
 
     } while (instruction_ret != -1);
 
@@ -178,7 +209,7 @@ int main() {
     free_structure_buffer(&(resources.instruction_buffer));
 
 
-REG_BUFF:
+MEM_BUFF:
     free_structure_buffer(&(resources.runtime_stack));
 
 DEFAULT:
