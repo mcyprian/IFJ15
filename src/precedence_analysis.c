@@ -228,11 +228,11 @@ int short_reduction(Resources *res, TStack *stack) {
                                "Failed to get var offset", 1
          );
          if (type == L_INT) 
-             new_instruction_reg_reg(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INT_REG);
+             new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INT_MEM);
          else if (type == L_DOUBLE)
-             new_instruction_reg_reg(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_DBL_REG);
+             new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_DBL_MEM);
          else 
-             new_instruction_reg_reg(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INDEX_REG);
+             new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INDEX_MEM);
 
     } else {      // LITERAL
         if (type == L_INT) {
@@ -248,7 +248,7 @@ int short_reduction(Resources *res, TStack *stack) {
                 new_instruction_dbl_dbl(&res->instruction_buffer, 0lu, value, 0.0, PUSH_DBL_CONST);
         } else
         if (type == L_STRING) {
-            new_instruction_reg_reg(&res->instruction_buffer, 0lu, token_to_reduce->token_index, 0lu, PUSH_INDEX_CONST);
+            new_instruction_mem_mem(&res->instruction_buffer, 0lu, token_to_reduce->token_index, 0lu, PUSH_INDEX_CONST);
         }
     }
 
@@ -311,41 +311,19 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
             case TYPE_CAST_FIRST:
                 original_type = get_original_type(reduced_tokens[2]);
                 debug_print("%s\n", "TYPE CAST FIRST");
-                if (original_type == L_INT) {
-                    new_instruction_reg_reg(&res->instruction_buffer, 
-                                            res->runtime_stack.next_free -2, 
-                                            res->runtime_stack.next_free -2,
-                                            0lu,
-                                            CAST_INT_REG
-                    );
-                } else if (original_type == L_DOUBLE) {
-                    new_instruction_reg_reg(&res->instruction_buffer, 
-                                            res->runtime_stack.next_free -2, 
-                                            res->runtime_stack.next_free -2,
-                                            0lu,
-                                            CAST_DBL_REG
-                    );
-                }
+                if (original_type == L_INT)
+                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, BELOW_TOP, 0lu, CAST_INT_MEM);
+                else if (original_type == L_DOUBLE)
+                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, BELOW_TOP, 0lu, CAST_DBL_MEM);
                 break;
            
             case TYPE_CAST_SECOND:
                 original_type = get_original_type(reduced_tokens[0]);
                 debug_print("%s\n", "TYPE CAST SECOND");
-                if (original_type == L_INT) {
-                    new_instruction_reg_reg(&res->instruction_buffer, 
-                                            res->runtime_stack.next_free -1, 
-                                            res->runtime_stack.next_free -1,
-                                            0lu,
-                                            CAST_INT_REG
-                    );
-                } else if (original_type == L_DOUBLE) {
-                    new_instruction_reg_reg(&res->instruction_buffer, 
-                                            res->runtime_stack.next_free -1, 
-                                            res->runtime_stack.next_free -1,
-                                            0lu,
-                                            CAST_DBL_REG
-                    );
-                }
+                if (original_type == L_INT)
+                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, STACK_TOP, 0lu, CAST_INT_MEM);
+                else if (original_type == L_DOUBLE)
+                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, STACK_TOP, 0lu, CAST_DBL_MEM);
                 break;
            
             case RETURN_OK:
@@ -355,15 +333,9 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
                 original_type = get_original_type(reduced_tokens[0]);
         }
 
+        new_instruction_empty(&res->instruction_buffer, token_to_ins(reduced_tokens[1]->token_type, original_type));
+        new_instruction_empty(&res->instruction_buffer, POP_EMPTY);
     }
-    new_instruction_reg_reg(&res->instruction_buffer, 
-                                res->runtime_stack.next_free - 2,
-                                res->runtime_stack.next_free - 2,
-                                res->runtime_stack.next_free - 1,
-                                token_to_ins(reduced_tokens[1]->token_type, original_type)
-    );
-
-    new_instruction_reg_reg(&res->instruction_buffer, 0lu, 0lu, 0lu, POP_EMPTY);
 
     err = reduce(&res->struct_buff, stack, original_type);
     catch_internal_error(err, INTERNAL_ERROR, "Failed to reduce");

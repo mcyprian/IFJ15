@@ -1,0 +1,8 @@
+int a(int b) {
+    return b;
+}
+
+int main() {
+    int i = 20;
+    return a((1 * 22 + 12) < (2 + (2 / 2)));
+}

@@ -65,9 +65,9 @@ int main(int argc, char ** argv){
 		goto INS_BUFF;
 	}
 
-	new_instruction_reg_reg(&(resources.instruction_buffer), 0, 0, 0, HALT);
 
 	if ((iRet = check_syntax(GLOBAL, &resources)) != 0)goto FREE;
+	new_instruction_empty(&(resources.instruction_buffer), HALT);
 	if ((iRet = run_program(&resources)) != 0)goto FREE;
 
 FREE:
