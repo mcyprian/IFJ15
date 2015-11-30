@@ -15,6 +15,18 @@
 #include <datatypes.h>
 #include <stack.h>
 
+union value{ 
+	int i;
+	double d;
+	index_t index;
+};
+
+struct stack_variable{
+	int type;
+	int defined;
+	TValue value;
+};
+
 struct res{
 	FILE * source;
 	TStack stack;
@@ -26,19 +38,7 @@ struct res{
 	index_t start_main;
 	index_t ip;
 	index_t bp;
-	index_t return_value;
-};
-
-union value{ 
-	int i;
-	double d;
-	index_t index;
-};
-
-struct stack_variable{
-	int type;
-	int defined;
-	TValue value;
+	struct stack_variable return_value;
 };
 
 struct instruction{
