@@ -312,18 +312,18 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
                 original_type = get_original_type(reduced_tokens[2]);
                 debug_print("%s\n", "TYPE CAST FIRST");
                 if (original_type == L_INT)
-                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, BELOW_TOP, 0lu, CAST_DBL_MEM);
+                    new_instruction_int_int(&res->instruction_buffer, 0lu, BELOW_TOP, 0, CAST_DBL_MEM);
                 else if (original_type == L_DOUBLE)
-                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, BELOW_TOP, 0lu, CAST_INT_MEM);
+                    new_instruction_int_int(&res->instruction_buffer, 0lu, BELOW_TOP, 0, CAST_INT_MEM);
                 break;
            
             case TYPE_CAST_SECOND:
                 original_type = get_original_type(reduced_tokens[0]);
                 debug_print("%s\n", "TYPE CAST SECOND");
                 if (original_type == L_INT)
-                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, STACK_TOP, 0lu, CAST_DBL_MEM);
+                    new_instruction_int_int(&res->instruction_buffer, 0lu, STACK_TOP, 0, CAST_DBL_MEM);
                 else if (original_type == L_DOUBLE)
-                    new_instruction_mem_mem(&res->instruction_buffer, 0lu, STACK_TOP, 0lu, CAST_INT_MEM);
+                    new_instruction_int_int(&res->instruction_buffer, 0lu, STACK_TOP, 0, CAST_INT_MEM);
                 break;
            
             case RETURN_OK:
