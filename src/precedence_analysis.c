@@ -469,6 +469,9 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
+
+    if (input_token->token_type == ERRORT)
+        return LEXICAL_ERROR;
     
         
     catch_internal_error(
@@ -517,6 +520,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     INTERNAL_ERROR,
                     "Failed to dereference structure buffer."
                 );
+
+                if (input_token->token_type == ERRORT)
+                    return LEXICAL_ERROR;
+
                 catch_internal_error(
                     dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
                     INTERNAL_ERROR,
@@ -541,6 +548,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     INTERNAL_ERROR,
                     "Failed to dereference structure buffer."
                 );
+                
+                if (input_token->token_type == ERRORT)
+                    return LEXICAL_ERROR;
+
                 catch_internal_error(
                     dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
                     INTERNAL_ERROR,
@@ -583,6 +594,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     INTERNAL_ERROR,
                     "Failed to dereference structure buffer."
                 );
+
+                if (input_token->token_type == ERRORT)
+                    return LEXICAL_ERROR;
+
                 catch_internal_error(
                     dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
                     INTERNAL_ERROR,
