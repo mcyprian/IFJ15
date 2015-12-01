@@ -1,0 +1,7 @@
+
+//test should return 5
+int main()
+{
+auto i; //because of this, uninitialized auto variable
+return i;
+}
