@@ -23,10 +23,14 @@
 
 #define get_if_null(resources, index, token)										\
 	do {														\
-	       if (token == NULL){											\
+	    if (token == NULL){											\
 			index = get_token(resources->source, &(resources->string_buff), &(resources->struct_buff));	\
 			dereference_structure(&(resources->struct_buff), index, (void **)&token);			\
 			debug_print("type=%d\n", token->token_type);							\
+		}																			\
+		if (token->token_type == ERRORT){											\
+	        iRet = LEXICAL_ERROR;													\
+ 	        goto EXIT;																\
 		}													\
 	}while(0)													\
 								   
@@ -44,11 +48,6 @@ int check_syntax(int term, Resources * resources){
 
 	get_if_null(resources, token_index, token);
 	
-	if (token->token_type == ERRORT){
-		iRet = LEXICAL_ERROR;
-		goto EXIT;
-	}
-
 	switch(term){
 //**************** GLOBAL **********************//
 
