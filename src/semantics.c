@@ -189,11 +189,12 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "find");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_INT),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+        catch_internal_error(
+            declare_function(resources, string_index, &i, L_INT),
+            INTERNAL_ERROR,
+            "Failed to declare function."
+        );
     add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -211,11 +212,12 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "length");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_INT),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+        catch_internal_error(
+            declare_function(resources, string_index, &i, L_INT),
+            INTERNAL_ERROR,
+            "Failed to declare function."
+        );
     add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -230,11 +232,12 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "concat");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_STRING),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+        catch_internal_error(
+            declare_function(resources, string_index, &i, L_STRING),
+            INTERNAL_ERROR,
+            "Failed to declare function."
+        );
     add_str(&(resources->string_buff), "s1");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -252,11 +255,12 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "substr");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_STRING),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+        catch_internal_error(
+            declare_function(resources, string_index, &i, L_STRING),
+            INTERNAL_ERROR,
+            "Failed to declare function."
+        );
     add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -295,7 +299,6 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
                 "Failed to dereference structure buffer."
             );
             tmp->var_declar_count = tmp->var_declar_count + 1;
-            printf("var_declar_count: %lu\n", tmp->var_declar_count);
             // generuj funkciu PUSH
             debug_print("%s\n", "DECLARE_VAR_RETURN_0");
             return RETURN_OK;
@@ -491,7 +494,6 @@ int define_func(Resources *resources)
         load_arg(resources, general_scope_tree, currently_analyzed_function, i, &name, &data_type);
         declare_variable(resources, name, &r, data_type);
         tmp->var_declar_count = tmp->var_declar_count + 1;
-        printf("var_declar_count: %lu\n", tmp->var_declar_count);
         // generuj funkciu PUSH
     }
 
