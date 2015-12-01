@@ -20,6 +20,7 @@
 #include <datatypes.h>
 #include <resources.h>
 
+#include <instructions.h>
 
 #define get_if_null(resources, index, token)										\
 	do {														\
@@ -158,6 +159,7 @@ int check_syntax(int term, Resources * resources){
 				last_id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 				if ((iRet = declare_var(resources, id, type)) != 0)goto EXIT;
+				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), PUSH_EMPTY)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_VAR, resources)) != 0)goto EXIT;
 			}
 			else if	(token->token_type == AUTO){
@@ -168,6 +170,7 @@ int check_syntax(int term, Resources * resources){
 				last_id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 				if ((iRet = declare_var(resources, id, type)) != 0)goto EXIT;
+				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), PUSH_EMPTY)) != 0)goto EXIT;
 				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR; 
@@ -184,6 +187,7 @@ int check_syntax(int term, Resources * resources){
 //**************** STATEMENT **********************//
 		case STATEMENT:
 			last_id = token->token_index;
+			debug_print("statment_last_id---------%s\n", access(resources->string_buff.buffer, char, last_id));
 			if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_STATEMENT, resources)) != 0)goto EXIT;
 			break;
@@ -195,6 +199,9 @@ int check_syntax(int term, Resources * resources){
 			}
 			else if (token->token_type == OPENING_BRACKET){
 				if ((iRet = is_func_declared(resources, last_id)) != 0)goto EXIT;
+	            debug_print("func_call---------%s\n", access(resources->string_buff.buffer, char, last_id));
+	            if ((iRet = load_func_index(resources, last_id, &last_id)) != 0)goto EXIT;
+	            if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), last_id, 0lu, 0lu, FCE_CALL)) != 0)goto EXIT;
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -205,9 +212,18 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			if ((iRet = check_var_type(resources, last_id, token->original_type)) == TYPE_ERROR)goto EXIT;
-			else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
-			else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
-			iRet = 0;
+			else if (iRet == TYPE_CAST){
+				debug_print("%s\n", "CAST");
+				if (token->original_type == L_DOUBLE){
+					debug_print("%s\n", "TO INT");
+					if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
+				}
+				else {
+					debug_print("%s\n", "TO DOUBLE");
+					if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;
+				}
+			}
+			else if (iRet != 0)goto EXIT;
 			break;
 
 //**************** FUNC_CALL **********************//
@@ -225,11 +241,19 @@ int check_syntax(int term, Resources * resources){
 			}
 			else {
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				id = token->original_type;
-				if ((iRet = check_arg_type(resources, id)) == TYPE_ERROR)goto EXIT;
-				else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
-				else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
-				iRet = 0;
+				if ((iRet = check_arg_type(resources, token->original_type)) == TYPE_ERROR)goto EXIT;
+				else if (iRet == TYPE_CAST){
+	                 debug_print("%s\n", "CAST");
+	                 if (token->original_type == L_DOUBLE){
+	                     debug_print("%s\n", "TO INT");
+    	                 if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
+                	}
+                	else {
+                    	debug_print("%s\n", "TO DOUBLE");
+                   		if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;
+                	}
+            	}
+            	else if (iRet != 0)goto EXIT;
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -243,10 +267,19 @@ int check_syntax(int term, Resources * resources){
 			else {
 				if ((iRet = check_syntax(COMMA, resources)) != 0)goto EXIT;
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				id = token->original_type;
-				if ((iRet = check_arg_type(resources, id)) == TYPE_ERROR)goto EXIT;
-				else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
-		        else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
+				if ((iRet = check_arg_type(resources, token->original_type)) == TYPE_ERROR)goto EXIT;
+				else if (iRet == TYPE_CAST){
+	                debug_print("%s\n", "CAST");
+	                if (token->original_type == L_DOUBLE){
+                    	debug_print("%s\n", "TO INT");
+                    	if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
+                 	}
+                 	else {
+                    	debug_print("%s\n", "TO DOUBLE");
+                     	if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;
+                 	}
+             	}
+             	else if (iRet != 0)goto EXIT;
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
