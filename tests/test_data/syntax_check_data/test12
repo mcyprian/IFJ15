@@ -1,8 +1,0 @@
-int a(int b) {
-    return b;
-}
-
-int main() {
-    int i = 20;
-    return a((i * 22 + 12) < (2 + (i / 2)));
-}

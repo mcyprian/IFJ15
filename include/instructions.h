@@ -11,10 +11,14 @@
 #define INSTRUCTIONS_H
 
 #include <dynamic_structure_buffer.h>
+#include <dynamic_buffer.h>
 #include <datatypes.h>
 #include <resources.h>
 #include <token.h>
 #include <debug.h>
+#include <string.h>
+#include <stdio.h>
+#include <ctype.h>
 
 #define NUM_OF_INSTRUCTIONS 43   // TODO set final number
 
@@ -824,6 +828,58 @@ static inline int pop_empty(Resources *resources, TInstruction *instruction) {
         return RETURN_OK;
     }
     else return -1;
+}
+
+//****************************** CIN *******************************// 
+static inline int cin_i(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "CIN_INT");
+    
+    int i;
+    TStack_variable *tmp;
+    push_stack(&resources->runtime_stack, &tmp);
+    tmp->defined = 1;
+
+    scanf("%d", &i);
+    tmp->value.i = i;
+    instruction->dest.i = i;
+
+    debug_print("%s\n", "CIN_INT_RETURN");
+    return RETURN_OK;
+}
+
+static inline int cin_d(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "CIN_DOUBLE");
+    
+    double d;
+    TStack_variable *tmp;
+    push_stack(&resources->runtime_stack, &tmp);
+    tmp->defined = 1;
+    
+    scanf("%lf", &d);
+    tmp->value.d = d;
+    instruction->dest.d = d;
+
+    debug_print("%s\n", "CIN_DOUBLE_RETURN");
+    return RETURN_OK;
+}
+
+static inline int cin_s(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "CIN_STRING");
+    
+    char c;
+    index_t string;
+    TStack_variable *tmp;
+    push_stack(&resources->runtime_stack, &tmp);
+    tmp->defined = 1;
+    
+    while(isspace((c = getc(stdin))));
+    while(!isspace((c = getc(stdin)))) add_char(&(resources->string_buff), c);
+    string = save_token(&(resources->string_buff));
+    tmp->value.index = string;
+    instruction->dest.index = string;
+
+    debug_print("%s\n", "CIN_STRING_RETURN");
+    return RETURN_OK;
 }
 
 //****************************** JUMP ******************************// 
