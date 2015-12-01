@@ -9,11 +9,23 @@
 
 #include <ial.h>
 
-int find(TDynamic_buffer *b, index_t string, TDynamic_buffer *c, index_t substring)
+int str_length(char *string)
+{
+	int i = 0;
+	while (*string)
+	{
+		string++;
+		i++;
+	}
+
+	return i;
+}
+
+int find(TDynamic_buffer *b, index_t string, index_t substring)
 {
 	/* creating fail */
 
-	char *search = load_token(c, substring);
+	char *search = load_token(b, substring);
 	char *s = load_token(b, string);
 	int search_lenght = (int)strlen(search);
 
@@ -21,7 +33,7 @@ int find(TDynamic_buffer *b, index_t string, TDynamic_buffer *c, index_t substri
 	if (search_lenght == 0)
 		return 0;
 
-	int *fail = malloc((search_lenght) * sizeof(int));
+	int *fail = malloc((search_lenght+2) * sizeof(int));
 	if (!fail)	// need to use sth from error module
 	 	return -2;	// return INTERNAL_ERROR
 
@@ -37,7 +49,7 @@ int find(TDynamic_buffer *b, index_t string, TDynamic_buffer *c, index_t substri
 
 	/* find */
 	int tInd = 1, pInd = 1;
-	int s_lenght = (int)strlen(s);
+	int s_lenght = str_length(s);
 
 	while (tInd <= s_lenght && pInd <= search_lenght)
 	{
