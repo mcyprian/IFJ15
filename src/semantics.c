@@ -166,7 +166,7 @@ int declare_builtin_funcs(Resources *resources)
     index_t i = resources->stack.top;
     index_t string_index, first_arg, second_arg, third_arg;
 
-    
+    // SORT    
 
     add_str(&(resources->string_buff), "sort");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -175,16 +175,17 @@ int declare_builtin_funcs(Resources *resources)
         INTERNAL_ERROR,
         "Failed to declare function."
     );
-    add_str(&(resources->string_buff), "string");
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
-    arg_counter = 1;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+
+    // FIND
 
     add_str(&(resources->string_buff), "find");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -193,19 +194,20 @@ int declare_builtin_funcs(Resources *resources)
         INTERNAL_ERROR,
         "Failed to declare function."
     );
-    add_str(&(resources->string_buff), "string");
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
-    add_str(&(resources->string_buff), "substring");
+    add_str(&(resources->string_buff), "search");
     second_arg = save_token(&(resources->string_buff));
     set_arg(resources, second_arg, L_STRING);
-    arg_counter = 2;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+
+    // LENGTH
 
     add_str(&(resources->string_buff), "length");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -214,12 +216,17 @@ int declare_builtin_funcs(Resources *resources)
         INTERNAL_ERROR,
         "Failed to declare function."
     );
-    add_str(&(resources->string_buff), "index");
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
-    arg_counter = 1;
-    check_argc(resources);
+    catch_internal_error(
+        check_argc(resources),
+        TYPE_ERROR,
+        "Wrong argument count."
+    );
     set_built_in(resources, currently_analyzed_function);
+
+    // CONCAT
 
     add_str(&(resources->string_buff), "concat");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -228,13 +235,12 @@ int declare_builtin_funcs(Resources *resources)
         INTERNAL_ERROR,
         "Failed to declare function."
     );
-    add_str(&(resources->string_buff), "index1");
+    add_str(&(resources->string_buff), "s1");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
-    add_str(&(resources->string_buff), "index2");
+    add_str(&(resources->string_buff), "s2");
     second_arg = save_token(&(resources->string_buff));
     set_arg(resources, second_arg, L_STRING);
-    arg_counter = 2;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
@@ -242,6 +248,7 @@ int declare_builtin_funcs(Resources *resources)
     );
     set_built_in(resources, currently_analyzed_function);
 
+    // SUBSTR
 
     add_str(&(resources->string_buff), "substr");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
@@ -250,7 +257,7 @@ int declare_builtin_funcs(Resources *resources)
         INTERNAL_ERROR,
         "Failed to declare function."
     );
-    add_str(&(resources->string_buff), "index");
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
     add_str(&(resources->string_buff), "i");
@@ -259,7 +266,6 @@ int declare_builtin_funcs(Resources *resources)
     add_str(&(resources->string_buff), "n");
     third_arg = save_token(&(resources->string_buff));
     set_arg(resources, third_arg, L_INT);
-    arg_counter = 3;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
