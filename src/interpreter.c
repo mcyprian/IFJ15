@@ -19,6 +19,7 @@ int run_program(Resources * resources){
 	debug_print("%s\n", "INIT_INTERPRET");
 	args_assert(resources != NULL, INTERNAL_ERROR);
 	int iRet = RETURN_OK;
+    register int instruction_ret;
 
 	if (resources->start_main == ZERO_INDEX){
 		iRet = RUNTIME_ERROR;
@@ -27,7 +28,6 @@ int run_program(Resources * resources){
 
 	resources->ip = resources->start_main;
 	TInstruction * instruction;
-	register int instruction_ret;
 	do {
         dereference_structure(&(resources->instruction_buffer), resources->ip, (void**)&instruction);
         debug_print("%s: %lu, %s: %d\n", "IP", resources->ip, "INSTRUCTION", instruction->ins);
@@ -54,7 +54,9 @@ int run_program(Resources * resources){
         }
 #endif
     // TODO catch UNINIT_ERROR, DIV_ZERO_ERROR
-    } while (instruction_ret != -1);
+    } while (instruction_ret == RETURN_OK);
+
+    iRet = (instruction_ret == HALT ? RETURN_OK : instruction_ret);
 	
 
 DEFAULT:

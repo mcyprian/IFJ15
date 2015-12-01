@@ -38,11 +38,8 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         push_index_mem,
         pop_empty,
         jmp_mem,
-        jmp_const,
-        jmp_true_mem_mem,
-        jmp_true_const_const,
-        jmp_true_const_mem,
-        jmp_true_mem_const,
+        jmp_true_mem,
+        jmp_false_mem,
         function_call,
         function_return,
         halt

@@ -202,7 +202,7 @@ int main() {
         
         debug_print("%s: %lu\n", "STACK_NUM", resources.runtime_stack.next_free -1);
 
-    } while (instruction_ret != -1);
+    } while (instruction_ret != HALT);
 
     debug_print("%s\n", "INTERPRETING FINISHED");
 
