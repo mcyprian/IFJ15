@@ -3,6 +3,8 @@
 #include <error_macros.h>
 #include <debug.h>
 #include <instruction_generator.h>
+#include <ial.h>
+#include <built_functions.h>
 
 #define COUNT 5000
 
