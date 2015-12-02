@@ -34,7 +34,51 @@
  	        goto EXIT;																\
 		}													\
 	}while(0)													\
-								   
+
+
+#define check_arg_type_and_cast()										\
+	do {															\
+		if ((iRet = check_arg_type(resources, token->original_type)) == TYPE_ERROR)goto EXIT;   \
+		else if (iRet == TYPE_CAST){															\
+        	debug_print("%s\n", "CAST");														\
+           	if (token->original_type == L_DOUBLE){												\
+            	debug_print("%s\n", "TO INT");													\
+                if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;   	\
+            }																																\
+            else {																															\
+               	debug_print("%s\n", "TO DOUBLE");																							\
+              	if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;		\
+            }																																\
+        }																																	\
+        else if (iRet != 0)goto EXIT;																										\
+	}while(0)						   																										\
+
+
+#define check_types_and_cast()										\
+	do {																\
+		type = get_var_type(resources, last_id);							\
+		debug_print("%s: %d\n", "Type is", type);														\
+		if (!(type >= L_INT && type <= L_STRING) && !(type == AUTO)){								\
+			debug_print("%s\n", "error type");															\
+			iRet = type;																				\
+			goto EXIT;																					\
+		}																								\
+		if ((iRet = check_var_type(resources, type, token->original_type)) == TYPE_CAST){  \
+		  	debug_print("%s\n", "CAST");														\
+           	if (token->original_type == L_DOUBLE){												\
+            	debug_print("%s\n", "TO INT");													\
+                if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;   	\
+            }																																\
+            else {																															\
+               	debug_print("%s\n", "TO DOUBLE");																							\
+              	if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;		\
+            }																																\
+            iRet = 0;																														\
+        }																																	\
+        if ((iRet = load_var_index(resources, last_id, &id)) != 0)goto EXIT;																\
+        if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), id, 0, 0, MOV_TOP_MEM )) != 0)goto EXIT;						\
+        if ((iRet = new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY)) != 0)goto EXIT;										\
+	}while(0)						   																										\
 
 int check_syntax(int term, Resources * resources){
 	debug_print("%s, term=%d\n", "INIT", term);
@@ -43,6 +87,8 @@ int check_syntax(int term, Resources * resources){
 	static TToken * token = NULL;
 	static index_t token_index = ZERO_INDEX;
 	static index_t last_id = ZERO_INDEX;
+	index_t jump_addr = 0;
+	index_t * jump_paddr = NULL;
 	
 	int type = 0;
 	index_t id = 0;
@@ -203,6 +249,7 @@ int check_syntax(int term, Resources * resources){
 	            if ((iRet = load_func_index(resources, last_id, &last_id)) != 0)goto EXIT;
 	            if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), last_id, 0lu, 0lu, FCE_CALL)) != 0)goto EXIT;
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
+				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
 			break;
@@ -211,19 +258,7 @@ int check_syntax(int term, Resources * resources){
 		case ASSIGNMENT:
 			if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-			if ((iRet = check_var_type(resources, last_id, token->original_type)) == TYPE_ERROR)goto EXIT;
-			else if (iRet == TYPE_CAST){
-				debug_print("%s\n", "CAST");
-				if (token->original_type == L_DOUBLE){
-					debug_print("%s\n", "TO INT");
-					if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
-				}
-				else {
-					debug_print("%s\n", "TO DOUBLE");
-					if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;
-				}
-			}
-			else if (iRet != 0)goto EXIT;
+			check_types_and_cast();
 			break;
 
 //**************** FUNC_CALL **********************//
@@ -241,19 +276,7 @@ int check_syntax(int term, Resources * resources){
 			}
 			else {
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				if ((iRet = check_arg_type(resources, token->original_type)) == TYPE_ERROR)goto EXIT;
-				else if (iRet == TYPE_CAST){
-	                 debug_print("%s\n", "CAST");
-	                 if (token->original_type == L_DOUBLE){
-	                     debug_print("%s\n", "TO INT");
-    	                 if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
-                	}
-                	else {
-                    	debug_print("%s\n", "TO DOUBLE");
-                   		if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;
-                	}
-            	}
-            	else if (iRet != 0)goto EXIT;
+				check_arg_type_and_cast();
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -267,19 +290,7 @@ int check_syntax(int term, Resources * resources){
 			else {
 				if ((iRet = check_syntax(COMMA, resources)) != 0)goto EXIT;
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				if ((iRet = check_arg_type(resources, token->original_type)) == TYPE_ERROR)goto EXIT;
-				else if (iRet == TYPE_CAST){
-	                debug_print("%s\n", "CAST");
-	                if (token->original_type == L_DOUBLE){
-                    	debug_print("%s\n", "TO INT");
-                    	if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
-                 	}
-                 	else {
-                    	debug_print("%s\n", "TO DOUBLE");
-                     	if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;
-                 	}
-             	}
-             	else if (iRet != 0)goto EXIT;
+				check_arg_type_and_cast();
 				if ((iRet = check_syntax(ARGS_N, resources)) != 0)goto EXIT;
 			}
 			break;
@@ -365,14 +376,23 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 				
 				if (token->original_type == L_DOUBLE){
-					debug_print("%s\n", "CAST TO INT");
-				}			
-				else if(token->original_type == L_STRING){
-					debug_print("%s\n", "ERROR CAST");
-				}
-	
+					debug_print("%s\n", "CAST_TO_INT_IF");
+                	if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
+              	}
+             	else if (token->original_type == L_STRING){
+                	debug_print("%s\n", "ERROR_CAST_IF");
+                  	iRet = TYPE_ERROR;
+                  	goto EXIT;
+              	}
+
+				//jump if 0
+				if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_FALSE_MEM )) != 0)goto EXIT;
+				jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+
 				if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_IF, resources)) != 0)goto EXIT;
+				//jump place
+				*jump_paddr = resources->instruction_buffer.next_free - 1;
 				if ((iRet = check_syntax(ELSE, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -449,10 +469,10 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			
 			if (token->original_type == L_DOUBLE){
-				debug_print("%s\n", "CAST TO INT");
+				debug_print("%s\n", "CAST_TO_INT_FORS");
 			}
 			else if(token->original_type == L_STRING){
-				debug_print("%s\n", "ERROR CAST");
+				debug_print("%s\n", "ERROR_CAST_FORS");
 			}
 
 			break;
@@ -463,48 +483,52 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(O_ASSIGN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-
-			if ((iRet = check_var_type(resources, last_id, token->original_type)) == TYPE_ERROR)goto EXIT;
-            else if (iRet == L_INT)debug_print("%s\n", "CAST TO INT");
-            else if (iRet == L_DOUBLE)debug_print("%s\n", "CAST TO DOUBLE");
-            iRet = 0;
-
+			check_types_and_cast();
 			break;
 
 //**************** WHILE **********************//
 		case WHILE:
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
-			
+			//jump_place			
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-			if (token->original_type == L_DOUBLE){
-				debug_print("%s\n", "CAST TO INT");
-			}
-			else if(token->original_type == L_STRING){
-			debug_print("%s\n", "ERROR CAST");
-			}
 			
+			if (token->original_type == L_DOUBLE){
+                 debug_print("%s\n", "CAST_TO_INT_WHILE");
+                 if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
+             }
+             else if (token->original_type == L_STRING){
+                 debug_print("%s\n", "ERROR_CAST_WHILE");
+                 iRet = TYPE_ERROR;
+                 goto EXIT;
+             }
+			//jump if 0  to end
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
+			//jump to start place
+			//jump end
 			break;
 
 //**************** DO **********************//
 		case DO:
 			if ((iRet = check_syntax(K_DO, resources)) != 0)goto EXIT;
-			if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
-			if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
-			if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
+			jump_addr = resources->instruction_buffer.next_free - 1;
+			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;			
 			
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+			
 			if (token->original_type == L_DOUBLE){
-					debug_print("%s\n", "CAST TO INT");
+				debug_print("%s\n", "CAST_TO_INT_DO");
+                if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;
+            }
+			else if (token->original_type == L_STRING){
+				debug_print("%s\n", "ERROR_CAST_DO");
+				iRet = TYPE_ERROR;
+				goto EXIT;
 			}
-			else if(token->original_type == L_STRING){
-				debug_print("%s\n", "ERROR CAST");
-			}
-
+			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), jump_addr, STACK_TOP, 0, JMP_TRUE_MEM )) != 0)goto EXIT;
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
