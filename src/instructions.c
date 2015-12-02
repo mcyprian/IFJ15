@@ -23,6 +23,7 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         div_dbl_mem_mem,
         ne_int_mem_mem,
         ne_dbl_mem_mem,
+        mov_top_mem,
         mov_int_mem,
         mov_int_const,
         mov_dbl_mem,

@@ -170,6 +170,7 @@ int main() {
 
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 2, 0, PUSH_INT_CONST);
+        new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 0lu, 0lu, MOV_TOP_MEM);
         new_instruction_mem_mem(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT_CONST);

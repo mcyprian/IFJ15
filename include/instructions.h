@@ -22,7 +22,7 @@
 #include <ial.h>
 #include <built_functions.h>
 
-#define NUM_OF_INSTRUCTIONS 60   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 61   // TODO set final number
 
 
 // Converts token enum to number of instrucrion
@@ -51,46 +51,47 @@ enum instructions
     DIV_DBL_MEM_MEM,       // 17
     NE_INT_MEM_MEM,        // 18
     NE_DBL_MEM_MEM,        // 19
-    MOV_INT_MEM,           // 20 
-    MOV_INT_CONST,         // 21 
-    MOV_DBL_MEM,           // 22 
-    MOV_DBL_CONST,         // 23 
-    CAST_INT_MEM,          // 24 
-    CAST_DBL_MEM,          // 25 
-    PUSH_EMPTY,            // 26 
-    PUSH_INT_CONST,        // 27 
-    PUSH_DBL_CONST,        // 28   
-    PUSH_INDEX_CONST,      // 29   
-    PUSH_INT_MEM,          // 30   
-    PUSH_DBL_MEM,          // 31   
-    PUSH_INDEX_MEM,        // 32   
-    POP_EMPTY,             // 33   
-    JMP_MEM,               // 34   
-    JMP_TRUE_MEM,          // 35   
-    JMP_FALSE_MEM,         // 36   
-    FCE_CALL,              // 37
-    FCE_RETURN,            // 38
-    CIN_INT,               // 39
-    CIN_DOUBLE,            // 40
-    CIN_STRING,            // 41
-    CONCAT_MEM_MEM,        // 42
-    CONCAT_MEM_CONST,      // 43   
-    CONCAT_CONST_CONST,    // 44
-    SUBSTR_MEM_MEM,        // 45
-    LENGTH_MEM,            // 46
-    LENGTH_CONST,          // 47
-    FIND_MEM_MEM,          // 48
-    FIND_MEM_CONST,        // 49
-    FIND_CONST_CONST,      // 50
-    SORT_MEM,              // 51
-    SORT_CONST,            // 52
-    COUT_MEM_INT,          // 53
-    COUT_MEM_DBL,          // 54
-    COUT_MEM_STRING,       // 55
-    COUT_CONST_INT,        // 56
-    COUT_CONST_DBL,        // 57
-    COUT_CONST_STRING,     // 58
-    HALT                   // 59
+    MOV_TOP_MEM,           // 20
+    MOV_INT_MEM,           // 21 
+    MOV_INT_CONST,         // 22 
+    MOV_DBL_MEM,           // 23 
+    MOV_DBL_CONST,         // 24 
+    CAST_INT_MEM,          // 25 
+    CAST_DBL_MEM,          // 26 
+    PUSH_EMPTY,            // 27 
+    PUSH_INT_CONST,        // 28 
+    PUSH_DBL_CONST,        // 29   
+    PUSH_INDEX_CONST,      // 30   
+    PUSH_INT_MEM,          // 31   
+    PUSH_DBL_MEM,          // 32   
+    PUSH_INDEX_MEM,        // 33   
+    POP_EMPTY,             // 34   
+    JMP_MEM,               // 35   
+    JMP_TRUE_MEM,          // 36   
+    JMP_FALSE_MEM,         // 37   
+    FCE_CALL,              // 38
+    FCE_RETURN,            // 39
+    CIN_INT,               // 40
+    CIN_DOUBLE,            // 41
+    CIN_STRING,            // 42
+    CONCAT_MEM_MEM,        // 43
+    CONCAT_MEM_CONST,      // 44   
+    CONCAT_CONST_CONST,    // 45
+    SUBSTR_MEM_MEM,        // 46
+    LENGTH_MEM,            // 47
+    LENGTH_CONST,          // 48
+    FIND_MEM_MEM,          // 49
+    FIND_MEM_CONST,        // 50
+    FIND_CONST_CONST,      // 51
+    SORT_MEM,              // 52
+    SORT_CONST,            // 53
+    COUT_MEM_INT,          // 54
+    COUT_MEM_DBL,          // 55
+    COUT_MEM_STRING,       // 56
+    COUT_CONST_INT,        // 57
+    COUT_CONST_DBL,        // 58
+    COUT_CONST_STRING,     // 59
+    HALT                   // 60
 };
 
 static inline int new_instruction_empty(TDynamic_structure_buffer *buff, int ins) {
@@ -175,6 +176,21 @@ static inline int new_instruction_dbl_dbl(TDynamic_structure_buffer *buff, index
 }
 
 //****************************** MOV ******************************// 
+static inline int mov_top_mem(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "MOV_TOP_MEM");
+
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
+        return UNINIT_ERROR;
+
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value
+    = access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value;
+   
+    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
+    return RETURN_OK;
+}
+
+
 static inline int mov_int_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "MOV_INT_MEM");
 
@@ -877,7 +893,7 @@ static inline int cin_d(Resources *resources, TInstruction *instruction) {
     push_stack(&resources->runtime_stack, &tmp);
     tmp->defined = 1;
     
-    scanf("%f", &d);
+    scanf("%lf", &d);
     tmp->value.d = d;
     instruction->dest.d = d;
 
@@ -944,7 +960,8 @@ static inline int cout_mem_string(Resources *resources, TInstruction *instructio
 static inline int cout_const_int(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "COUT_CONST_INT");
     debug_print("%s: %d\n", "OP1 CONTENT", instruction->first_op.i);
-
+    resources->return_value = resources->return_value;
+   
     printf("%d", instruction->first_op.i);
     
     return RETURN_OK;
@@ -953,6 +970,7 @@ static inline int cout_const_int(Resources *resources, TInstruction *instruction
 static inline int cout_const_dbl(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "COUT_CONST_DBL");
     debug_print("%s: %g\n", "OP1 CONTENT", instruction->first_op.d);
+    resources->return_value = resources->return_value;
     
     printf("%f", instruction->first_op.d);
     
