@@ -105,10 +105,10 @@ int get_first_token(TDynamic_structure_buffer *b, TStack *stack, index_t *first)
     return RETURN_OK;
 }
 
-const char* symbols[47];   
 
 #if DEBUG
 int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
+    const char* symbols[47];   
     symbols[0] = "=="; 
     symbols[1] = ">"; 
     symbols[2] = "<"; 
@@ -384,7 +384,6 @@ int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type) {
 
 int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type) {
     args_assert(b != NULL && stack != NULL, INTERNAL_ERROR);
-    debug_print("%s: %s\n", "TOP OVERWRITTEN TO", symbols[new_type]); 
     debug_print("%s: %d\n", "ORIGINAL_TYPE", original_type); 
     TToken *tmp = NULL;
     catch_internal_error(
@@ -461,8 +460,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     index_t top_index = ZERO_INDEX;
     index_t input_index = ZERO_INDEX;
     TStack stack;
-    int iRet;
-    int err;
+    int iRet = RETURN_OK;
     int return_type;
 
     init_stack(&stack);
@@ -482,8 +480,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
         "Failed to dereference structure buffer."
     );
 
-    if (input_token->token_type == ERRORT)
-        return LEXICAL_ERROR;
+    if (input_token->token_type == ERRORT) {
+        iRet = LEXICAL_ERROR;
+        goto EXIT;
+    }
     
         
     catch_internal_error(
@@ -503,23 +503,27 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
             && input_token->token_type == OPENING_BRACKET) {
             debug_print("%s\n", "FUNCTION CALL IN EXPR");
             
-            catch_undefined_error(is_func_declared(res, top_token->token_index),
-                                 SEMANTIC_ERROR,
-                                 "Function declaration check failed.", 1
+            index_t last_id = top_token->token_index;
+            catch_undefined_error(is_func_declared(res, last_id),
+                                 SEMANTIC_ERROR, "Function declaration check failed.", 1
             );
+
+            if ((iRet = load_func_index(res, last_id, &last_id)) != 0)
+                goto EXIT;
+            if ((iRet = new_instruction_mem_mem(&(res->instruction_buffer), last_id, 0lu, 0lu, FCE_CALL)) != 0)
+                goto EXIT;
             return_type = get_return_type(res, top_token->token_index);
             catch_internal_error(return_type, SYNTAX_ERROR, "Failed to get function return type.");
 
             dereference_structure(&res->struct_buff, input_index, (void **)last_token);
             iRet = check_syntax(FUNC_CALL, res);
             if (iRet != RETURN_OK) {
-                debug_print("%s: %d\n", "RETURN", iRet);
-                return iRet;
+                goto EXIT;
             } else {
                 // Reduction of function call
-                err = reduce(&res->struct_buff, &stack, return_type);
-                catch_internal_error(err, INTERNAL_ERROR, "Failed to reduce");
-                catch_syntax_error(err, SYNTAX_ERROR, "Failed to reduce",1);
+                if((iRet = reduce(&res->struct_buff, &stack, return_type)) != RETURN_OK)
+                    goto EXIT;
+
                 top_index = stack.top;
                 catch_syntax_error(
                     get_first_token(&res->struct_buff, &stack, &top_index),
@@ -533,8 +537,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     "Failed to dereference structure buffer."
                 );
 
-                if (input_token->token_type == ERRORT)
-                    return LEXICAL_ERROR;
+                if (input_token->token_type == ERRORT) {
+                    iRet = LEXICAL_ERROR;
+                    goto EXIT;
+                }
 
                 catch_internal_error(
                     dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
@@ -561,8 +567,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     "Failed to dereference structure buffer."
                 );
                 
-                if (input_token->token_type == ERRORT)
-                    return LEXICAL_ERROR;
+                if (input_token->token_type == ERRORT) {
+                    iRet = LEXICAL_ERROR;
+                    goto EXIT;
+                }
 
                 catch_internal_error(
                     dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
@@ -607,8 +615,10 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     "Failed to dereference structure buffer."
                 );
 
-                if (input_token->token_type == ERRORT)
-                    return LEXICAL_ERROR;
+                if (input_token->token_type == ERRORT) {
+                    iRet = LEXICAL_ERROR;
+                    goto EXIT;
+                }
 
                 catch_internal_error(
                     dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
@@ -619,11 +629,8 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
             
             case R:
                 debug_print("%s\n", "CASE R");
-                err = get_rule(res, &stack);
-                catch_internal_error(err, INTERNAL_ERROR, "Failed to get rule");
-                catch_syntax_error(err, SYNTAX_ERROR, "Failed to get rule", 1);
-                catch_compatibility_error(err, TYPE_ERROR, "Failed to get rule", 1);
-                catch_undefined_error(err, SEMANTIC_ERROR, "Failed to get rule", 1);
+                if ((iRet = get_rule(res, &stack)) != RETURN_OK)
+                    goto EXIT;
                 
                 top_index = stack.top;
                 
@@ -656,7 +663,8 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     );
                     if (top_token->original_type == 0) {      // Empty expression, there was nothing reduced on top
                         debug_print("%s: %d\n", "EMPTY EXPRESSION RETURN", SYNTAX_ERROR);
-                        return SYNTAX_ERROR;
+                        iRet = SYNTAX_ERROR;
+                        goto EXIT;
                     }
 
                     debug_print("%s: %d\n", "TYPE OF EXPRESSION", top_token->original_type);
@@ -665,15 +673,17 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                     (*last_token)->original_type = top_token->original_type;
                 
                     debug_print("%s: %d\n", "RETURN", RETURN_OK);
-                    return RETURN_OK;
+                    goto EXIT;;
 
                 }
 
-                return SYNTAX_ERROR;
+                iRet = SYNTAX_ERROR;
+                goto EXIT;
             
             default:
                 debug_print("%s", "DEFAULT\n");
-                return INTERNAL_ERROR;
+                iRet = INTERNAL_ERROR;
+                goto EXIT;
         }
                   
     } while (type_filter(top_token->token_type) != END_OF_EXPR || type_filter(input_token->token_type) != END_OF_EXPR);
@@ -693,7 +703,8 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
     // send type of expression back to syntax_analysis
     (*last_token)->original_type = top_token->original_type;
 
-    debug_print("%s: %d\n", "RETURN", RETURN_OK);
-    return RETURN_OK;
+EXIT:
+    debug_print("%s: %d\n", "RETURN", iRet);
+    return iRet;
 }
 
