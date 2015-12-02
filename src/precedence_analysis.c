@@ -642,7 +642,13 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                          INTERNAL_ERROR,
                          "Failed to dereference structure buffer."
                     );
+                    if (top_token->original_type == 0) {      // Empty expression, there was nothing reduced on top
+                        debug_print("%s: %d\n", "EMPTY EXPRESSION RETURN", SYNTAX_ERROR);
+                        return SYNTAX_ERROR;
+                    }
+
                     debug_print("%s: %d\n", "TYPE OF EXPRESSION", top_token->original_type);
+
                     // send type of expression back to syntax_analysis
                     (*last_token)->original_type = top_token->original_type;
                 
