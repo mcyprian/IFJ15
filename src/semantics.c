@@ -455,6 +455,10 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
             debug_print("%s%d\n", "CHECK_VAR_TYPE_RETURN_",i);
             return i;
         }
+        else if (i == SEMANTIC_ERROR){
+        	debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
+        	return TYPE_ERROR;
+        }
         catch_internal_error(
             dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
             INTERNAL_ERROR,
