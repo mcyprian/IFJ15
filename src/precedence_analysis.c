@@ -228,27 +228,33 @@ int short_reduction(Resources *res, TStack *stack) {
                                "Failed to get var offset", 1
          );
          if (type == L_INT) 
-             new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INT_MEM);
+             catch_internal_error(new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INT_MEM),
+                                  INTERNAL_ERROR, "Failed to generate new instruction");
          else if (type == L_DOUBLE)
-             new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_DBL_MEM);
+             catch_internal_error(new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_DBL_MEM),
+                                  INTERNAL_ERROR, "Failed to generate new instruction");
          else 
-             new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INDEX_MEM);
+             catch_internal_error(new_instruction_mem_mem(&res->instruction_buffer, 0lu, offset, 0lu, PUSH_INDEX_MEM),
+                                  INTERNAL_ERROR, "Failed to generate new instruction");
 
     } else {      // LITERAL
         if (type == L_INT) {
             int value;
             if ((value = to_int(load_token(&res->string_buff, token_to_reduce->token_index))) < 0)
                 return SEMANTIC_ERROR;
-                new_instruction_int_int(&res->instruction_buffer, 0lu, value, 0, PUSH_INT_CONST);
+                catch_internal_error(new_instruction_int_int(&res->instruction_buffer, 0lu, value, 0, PUSH_INT_CONST),
+                                     INTERNAL_ERROR, "Failed to generate new ");
         } else 
         if (type == L_DOUBLE) {
             double value;
             if ((value = to_double(load_token(&res->string_buff, token_to_reduce->token_index))) < 0.0)
                 return SEMANTIC_ERROR;
-                new_instruction_dbl_dbl(&res->instruction_buffer, 0lu, value, 0.0, PUSH_DBL_CONST);
+                catch_internal_error(new_instruction_dbl_dbl(&res->instruction_buffer, 0lu, value, 0.0, PUSH_DBL_CONST),
+                                     INTERNAL_ERROR, "Failed to generate new instruction");
         } else
         if (type == L_STRING) {
-            new_instruction_mem_mem(&res->instruction_buffer, 0lu, token_to_reduce->token_index, 0lu, PUSH_INDEX_CONST);
+            catch_internal_error(new_instruction_mem_mem(&res->instruction_buffer, 0lu, token_to_reduce->token_index, 0lu, PUSH_INDEX_CONST),
+                                 INTERNAL_ERROR, "Failed to generate new instruction");
         }
     }
 
@@ -312,18 +318,22 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
                 original_type = get_original_type(reduced_tokens[2]);
                 debug_print("%s\n", "TYPE CAST FIRST");
                 if (original_type == L_INT)
-                    new_instruction_int_int(&res->instruction_buffer, 0lu, BELOW_TOP, 0, CAST_DBL_MEM);
+                    catch_internal_error(new_instruction_int_int(&res->instruction_buffer, 0lu, BELOW_TOP, 0, CAST_DBL_MEM),
+                                         INTERNAL_ERROR, "Failed to generate new instruction");
                 else if (original_type == L_DOUBLE)
-                    new_instruction_int_int(&res->instruction_buffer, 0lu, BELOW_TOP, 0, CAST_INT_MEM);
+                    catch_internal_error(new_instruction_int_int(&res->instruction_buffer, 0lu, BELOW_TOP, 0, CAST_INT_MEM),
+                                         INTERNAL_ERROR, "Failed to generate new instruction");
                 break;
            
             case TYPE_CAST_SECOND:
                 original_type = get_original_type(reduced_tokens[0]);
                 debug_print("%s\n", "TYPE CAST SECOND");
                 if (original_type == L_INT)
-                    new_instruction_int_int(&res->instruction_buffer, 0lu, STACK_TOP, 0, CAST_DBL_MEM);
+                    catch_internal_error(new_instruction_int_int(&res->instruction_buffer, 0lu, STACK_TOP, 0, CAST_DBL_MEM),
+                                         INTERNAL_ERROR, "Failed to generate new instruction");
                 else if (original_type == L_DOUBLE)
-                    new_instruction_int_int(&res->instruction_buffer, 0lu, STACK_TOP, 0, CAST_INT_MEM);
+                    catch_internal_error(new_instruction_int_int(&res->instruction_buffer, 0lu, STACK_TOP, 0, CAST_INT_MEM),
+                                         INTERNAL_ERROR, "Failed to generate new instruction");
                 break;
            
             case RETURN_OK:
@@ -333,8 +343,10 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
                 original_type = get_original_type(reduced_tokens[0]);
         }
 
-        new_instruction_empty(&res->instruction_buffer, token_to_ins(reduced_tokens[1]->token_type, original_type));
-        new_instruction_empty(&res->instruction_buffer, POP_EMPTY);
+        catch_internal_error(new_instruction_empty(&res->instruction_buffer, token_to_ins(reduced_tokens[1]->token_type, original_type)),
+                             INTERNAL_ERROR, "Failed to generate instruction");
+        catch_internal_error(new_instruction_empty(&res->instruction_buffer, POP_EMPTY),
+                             INTERNAL_ERROR, "Failed to generate instruction");
     }
 
     err = reduce(&res->struct_buff, stack, original_type);
