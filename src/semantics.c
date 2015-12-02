@@ -51,7 +51,10 @@ int leave_scope(Resources *resources)
     );
 
     for (int i = tmp->var_declar_count; i > 0; i--) {
-        // generuj instrukciu POP
+        catch_internal_error(new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY),
+            INTERNAL_ERROR,
+            "Failed to generate pop instruction"
+            );
     }
     pop(&(resources->struct_buff_trees), &(resources->stack));
     debug_print("%s\n", "LEAVE_SCOPE_RETURN_0");
@@ -299,7 +302,6 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
                 "Failed to dereference structure buffer."
             );
             tmp->var_declar_count = tmp->var_declar_count + 1;
-            // generuj funkciu PUSH
             debug_print("%s\n", "DECLARE_VAR_RETURN_0");
             return RETURN_OK;
         case FOUND:

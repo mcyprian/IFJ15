@@ -877,7 +877,7 @@ static inline int cin_d(Resources *resources, TInstruction *instruction) {
     push_stack(&resources->runtime_stack, &tmp);
     tmp->defined = 1;
     
-    scanf("%lf", &d);
+    scanf("%f", &d);
     tmp->value.d = d;
     instruction->dest.d = d;
 

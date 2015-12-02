@@ -13,6 +13,7 @@
 #include <dynamic_structure_buffer.h>
 #include <stack.h>
 #include <symbol_table.h>
+#include <instructions.h>
 
 #define sem_type_filter(type)      \
     ( (type) == 14 || (type) == 21 ? 14 : ((type) == 15 || (type) == 20 ? 15 :((type) == 16 || (type) == 22 ? 16 :((type) == 32 ? 32 : 0 ))))
