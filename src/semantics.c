@@ -481,9 +481,9 @@ int define_func(Resources *resources)
     char *str = load_token(&(resources->string_buff), currently_analyzed_function);
     catch_internal_error(str, NULL, "Failed to load token string.");
     if (strcmp(str,"main") == 0){
-        resources->start_main = resources->instruction_buffer.next_free - 1;
+        resources->start_main = resources->instruction_buffer.next_free;
     }
-    save_func_index (resources, currently_analyzed_function, (resources->instruction_buffer.next_free - 1));
+    save_func_index (resources, currently_analyzed_function, resources->instruction_buffer.next_free);
 
     int argc;
     int data_type;
