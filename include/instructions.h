@@ -22,7 +22,7 @@
 #include <ial.h>
 #include <built_functions.h>
 
-#define NUM_OF_INSTRUCTIONS 61   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 63   // TODO set final number
 
 
 // Converts token enum to number of instrucrion
@@ -85,13 +85,15 @@ enum instructions
     FIND_CONST_CONST,      // 51
     SORT_MEM,              // 52
     SORT_CONST,            // 53
-    COUT_MEM_INT,          // 54
-    COUT_MEM_DBL,          // 55
-    COUT_MEM_STRING,       // 56
-    COUT_CONST_INT,        // 57
-    COUT_CONST_DBL,        // 58
-    COUT_CONST_STRING,     // 59
-    HALT                   // 60
+    COUT_MEM_TYPE,         // 54
+    COUT_MEM_INT,          // 55
+    COUT_MEM_DBL,          // 56
+    COUT_MEM_STRING,       // 57
+    COUT_CONST_INT,        // 58
+    COUT_CONST_DBL,        // 59
+    COUT_CONST_STRING,     // 60
+    SET_TYPE,              // 61
+    HALT                   // 62
 };
 
 static inline int new_instruction_empty(TDynamic_structure_buffer *buff, int ins) {
@@ -921,6 +923,33 @@ static inline int cin_s(Resources *resources, TInstruction *instruction) {
 }
 
 //****************************** COUT ******************************// 
+static inline int cout_mem_type(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "COUT_MEM_TYPE");
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
+        return UNINIT_ERROR;
+
+    instruction->first_op.i = 0;
+    switch(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->type) {
+        case L_INT:
+            debug_print("%s: %d\n", "TYPE INT OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
+            printf("%d", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
+            break;
+        case L_DOUBLE:
+            debug_print("%s: %g\n", "TYPE DBL OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d);
+            printf("%lf", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d);
+            break;
+        case L_STRING:
+            debug_print("%s: %ld\n", "TYPE STRING OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
+            printf("%s", load_token(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index));
+            break;
+    }
+    
+    pop_stack(&resources->runtime_stack);
+
+    return RETURN_OK;
+}
+
+
 static inline int cout_mem_int(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "COUT_MEM_INT");
     if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
@@ -969,7 +998,7 @@ static inline int cout_const_int(Resources *resources, TInstruction *instruction
 
 static inline int cout_const_dbl(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "COUT_CONST_DBL");
-    debug_print("%s: %g\n", "OP1 CONTENT", instruction->first_op.d);
+    debug_print("%s %g\n", "OP1 CONTENT", instruction->first_op.d);
     resources->return_value = resources->return_value;
     
     printf("%f", instruction->first_op.d);
@@ -1167,9 +1196,6 @@ static inline int sort_const(Resources *resources, TInstruction *instruction) {
 }
 
 //****************************** JUMP ******************************// 
-//
-// jmp_true_mem_mem    ->     dest from mem   first_operand in mem
-
 static inline int jmp_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_MEM");
     if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->defined)
@@ -1270,6 +1296,15 @@ static inline int function_return(Resources *resources, TInstruction *instructio
     return RETURN_OK;   
 }
 
+static inline int set_type(Resources *resources, TInstruction *instruction) {
+    debug_print("%s: %d\n", "SETTING TOP TYPE TO", instruction->first_op.i);
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
+        return UNINIT_ERROR;
+
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->type = instruction->first_op.i;
+    return RETURN_OK;
+}
+    
 
 //****************************** HALT ******************************// 
 

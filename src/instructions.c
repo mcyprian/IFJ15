@@ -57,12 +57,14 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         find_const_const,
         sort_mem,
         sort_const,
+        cout_mem_type,
         cout_mem_int,
         cout_mem_dbl,
         cout_mem_string,
         cout_const_int,
         cout_const_dbl,
         cout_const_string,
+        set_type,
         halt
     };
 

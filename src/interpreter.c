@@ -71,13 +71,15 @@ int run_program(Resources * resources){
     instrucion_symbols[51] = "FIND_CONST_CONST"; 
     instrucion_symbols[52] = "SORT_MEM";  
     instrucion_symbols[53] = "SORT_CONST"; 
-    instrucion_symbols[54] = "COUT_MEM_INT"; 
-    instrucion_symbols[55] = "COUT_MEM_DBL";
-    instrucion_symbols[56] = "COUT_MEM_STRING";
-    instrucion_symbols[57] = "COUT_CONST_INT";
-    instrucion_symbols[58] = "COUT_CONST_DBL";
-    instrucion_symbols[59] = "COUT_CONST_STRING";
-    instrucion_symbols[60] = "HALT";
+    instrucion_symbols[54] = "COUT_MEM_TYPE"; 
+    instrucion_symbols[55] = "COUT_MEM_INT"; 
+    instrucion_symbols[56] = "COUT_MEM_DBL";
+    instrucion_symbols[57] = "COUT_MEM_STRING";
+    instrucion_symbols[58] = "COUT_CONST_INT";
+    instrucion_symbols[59] = "COUT_CONST_DBL";
+    instrucion_symbols[60] = "COUT_CONST_STRING";
+    instrucion_symbols[61] = "SET_TYPE";
+    instrucion_symbols[62] = "HALT";
 
 	debug_print("%s\n", "CREATING VISUALIZATION OF INSTRUCTION BUFFER");
     FILE *fp;
