@@ -41,16 +41,16 @@ enum instructions
     GE_DBL_MEM_MEM,        // 7
     LE_INT_MEM_MEM,        // 8
     LE_DBL_MEM_MEM,        // 9
-    ADD_INT_MEM_MEM,       // 10
-    ADD_DBL_MEM_MEM,       // 11
-    SUB_INT_MEM_MEM,       // 12
-    SUB_DBL_MEM_MEM,       // 13
-    MUL_INT_MEM_MEM,       // 14
-    MUL_DBL_MEM_MEM,       // 15
-    DIV_INT_MEM_MEM,       // 16
-    DIV_DBL_MEM_MEM,       // 17
-    NE_INT_MEM_MEM,        // 18
-    NE_DBL_MEM_MEM,        // 19
+    NE_INT_MEM_MEM,        // 10
+    NE_DBL_MEM_MEM,        // 11
+    ADD_INT_MEM_MEM,       // 12
+    ADD_DBL_MEM_MEM,       // 13
+    SUB_INT_MEM_MEM,       // 14
+    SUB_DBL_MEM_MEM,       // 15
+    MUL_INT_MEM_MEM,       // 16
+    MUL_DBL_MEM_MEM,       // 17
+    DIV_INT_MEM_MEM,       // 18
+    DIV_DBL_MEM_MEM,       // 19
     MOV_TOP_MEM,           // 20
     MOV_INT_MEM,           // 21 
     MOV_INT_CONST,         // 22 

@@ -23,17 +23,17 @@
 #include <instructions.h>
 
 const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS] = 
-{//        ==   >   <   >=  <=  +   -   *   /   !=  )   (   $   id  li
- /* == */ { R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  R,  S,  R,  S,  S },
- /* >  */ { R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  R,  S,  R,  S,  S },  
- /* <  */ { R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  R,  S,  R,  S,  S }, 
- /* >= */ { R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  R,  S,  R,  S,  S }, 
- /* <= */ { R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  R,  S,  R,  S,  S }, 
- /* +  */ { R,  R,  R,  R,  R,  R,  R,  S,  S,  R,  R,  S,  R,  S,  S }, 
- /* -  */ { R,  R,  R,  R,  R,  R,  R,  S,  S,  R,  R,  S,  R,  S,  S }, 
+{//        ==   >   <   >=  <=  !=  +   -   *   /   )   (   $   id  li
+ /* == */ { R,  R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  S,  R,  S,  S },
+ /* >  */ { R,  R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  S,  R,  S,  S },  
+ /* <  */ { R,  R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  S,  R,  S,  S }, 
+ /* >= */ { R,  R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  S,  R,  S,  S }, 
+ /* <= */ { R,  R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  S,  R,  S,  S }, 
+ /* != */ { R,  R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  S,  R,  S,  S }, 
+ /* +  */ { R,  R,  R,  R,  R,  R,  R,  R,  S,  S,  R,  S,  R,  S,  S }, 
+ /* -  */ { R,  R,  R,  R,  R,  R,  R,  R,  S,  S,  R,  S,  R,  S,  S }, 
  /* *  */ { R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  S,  R,  S,  S }, 
  /* /  */ { R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  S,  R,  S,  S }, 
- /* != */ { R,  R,  R,  R,  R,  S,  S,  S,  S,  R,  R,  S,  R,  S,  S }, 
  /* )  */ { R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  R,  E,  R,  E,  E }, 
  /* (  */ { S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  H,  S,  E,  S,  S }, 
  /* $  */ { S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  E,  S,  E,  S,  S },
@@ -50,11 +50,11 @@ const int long_rules[11][3] =
     {RVALUE, O_L, RVALUE},
     {RVALUE, O_GE, RVALUE},
     {RVALUE, O_LE, RVALUE},
+    {RVALUE, O_NE, RVALUE},
     {RVALUE, O_PLUS, RVALUE},
     {RVALUE, O_MINUS, RVALUE},
     {RVALUE, O_MUL, RVALUE},
     {RVALUE, O_DIV, RVALUE},
-    {RVALUE, O_NE, RVALUE},
     {OPENING_BRACKET, RVALUE, CLOSING_BRACKET}
 };
 
@@ -114,11 +114,11 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack) {
     symbols[2] = "<"; 
     symbols[3] = ">="; 
     symbols[4] = "<="; 
-    symbols[5] = "+"; 
-    symbols[6] = "-"; 
-    symbols[7] = "*"; 
-    symbols[8] = "/"; 
-    symbols[9] = "!="; 
+    symbols[5] = "!="; 
+    symbols[6] = "+"; 
+    symbols[7] = "-"; 
+    symbols[8] = "*"; 
+    symbols[9] = "/"; 
     symbols[10] = ")"; 
     symbols[11] = "("; 
     symbols[12] = "$"; 
@@ -341,12 +341,16 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
                 debug_print("%s\n", "TYPES OK");
             default:
                 original_type = get_original_type(reduced_tokens[0]);
+
         }
 
         catch_internal_error(new_instruction_empty(&res->instruction_buffer, token_to_ins(reduced_tokens[1]->token_type, original_type)),
                              INTERNAL_ERROR, "Failed to generate instruction");
         catch_internal_error(new_instruction_empty(&res->instruction_buffer, POP_EMPTY),
                              INTERNAL_ERROR, "Failed to generate instruction");
+
+        if (rule >= 0 && rule <= 5) // Relational operation type of result is L_INT
+                original_type = L_INT;
     }
 
     err = reduce(&res->struct_buff, stack, original_type);
@@ -416,11 +420,11 @@ int get_rule(Resources *res, TStack *stack) {
     long_rule_symbol[2] = "RVALUE < RVALUE -> RVALUE";
     long_rule_symbol[3] = "RVALUE >= RVALUE -> RVALUE";
     long_rule_symbol[4] = "RVALUE <= RVALUE -> RVALUE";
-    long_rule_symbol[5] = "RVALUE + RVALUE -> RVALUE";
-    long_rule_symbol[6] = "RVALUE - RVALUE -> RVALUE";
-    long_rule_symbol[7] = "RVALUE * RVALUE -> RVALUE";
-    long_rule_symbol[8] = "RVALUE / RVALUE -> RVALUE";
-    long_rule_symbol[9] = "RVALUE != RVALUE -> RVALUE";
+    long_rule_symbol[5] = "RVALUE != RVALUE -> RVALUE";
+    long_rule_symbol[6] = "RVALUE + RVALUE -> RVALUE";
+    long_rule_symbol[7] = "RVALUE - RVALUE -> RVALUE";
+    long_rule_symbol[8] = "RVALUE * RVALUE -> RVALUE";
+    long_rule_symbol[9] = "RVALUE / RVALUE -> RVALUE";
     long_rule_symbol[10] = "( RVALUE ) -> RVALUE";
 #endif
 
