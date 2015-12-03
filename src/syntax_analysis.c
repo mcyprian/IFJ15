@@ -80,8 +80,9 @@
         if ((iRet = new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY)) != 0)goto EXIT;										\
 	}while(0)						   																										\
 
-#define cin_gen_instr(type)																								\
+#define cin_gen_instr()																								\
 	do {																												\
+	type = get_var_type(resources, last_id);                            												\
 	switch (type){																										\
 		case L_INT:																										\
 			debug_print("%s\n", "get int");																			\
@@ -650,9 +651,9 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
 				
 				get_if_null(resources, token_index, token);
-				id = token->token_index;
+				last_id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
-				cin_gen_instr(token->original_type);
+				cin_gen_instr();
 
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
@@ -665,9 +666,9 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
 				
 				get_if_null(resources, token_index, token);
-				id = token->token_index;
+				last_id = token->token_index;
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
-				cin_gen_instr(token->original_type);
+				cin_gen_instr();
 
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
