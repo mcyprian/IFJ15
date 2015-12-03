@@ -15,7 +15,7 @@ int main() {
     int iRet = RETURN_OK;
     int instruction_ret = 0;
     Resources resources;
-    resources.ip = 1;
+    resources.ip = 101;
     resources.bp = 0;
 
     if ((iRet = init_structure_buffer(&(resources.runtime_stack), 16, sizeof(TStack_variable))) != RETURN_OK)
@@ -36,7 +36,7 @@ int main() {
     printf("first %s second %s\n", load_token(&resources.string_buff, first_string), load_token(&resources.string_buff, second_string));
 
     debug_print("%s\n", "GENERATING INSTRUCTIONS");
-  /* 
+   
         // int ADD
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 3, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
@@ -177,7 +177,6 @@ int main() {
         new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
 
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, 0lu, 0lu, FCE_RETURN);
-*/
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 2, 0, PUSH_INT_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 0lu, 0lu, MOV_TOP_MEM);
@@ -191,10 +190,9 @@ int main() {
         new_instruction_empty(&resources.instruction_buffer, GE_STR_MEM_MEM);
         new_instruction_empty(&resources.instruction_buffer, LE_STR_MEM_MEM);
         new_instruction_empty(&resources.instruction_buffer, NE_STR_MEM_MEM);
-  /*      new_instruction_mem_mem(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
+        new_instruction_mem_mem(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT_CONST);
-    */    
         
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
     

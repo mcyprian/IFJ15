@@ -1352,6 +1352,10 @@ static inline int function_return(Resources *resources, TInstruction *instructio
     debug_print("%s %lu\n", "RETURNING IP", resources->ip);
     debug_print("%s %lu\n", "IP AFTER RETURN ADRESS", resources->ip);
     pop_stack(&resources->runtime_stack);                                    //      ?
+
+    TStack_variable *tmp;                        
+    push_stack(&resources->runtime_stack, &tmp);
+    *tmp = resources->return_value;
     return RETURN_OK;   
 }
 
