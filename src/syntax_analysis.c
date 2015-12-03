@@ -80,6 +80,27 @@
         if ((iRet = new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY)) != 0)goto EXIT;										\
 	}while(0)						   																										\
 
+#define cin_gen_instr(type)																								\
+	do {																												\
+	switch (type){																										\
+		case L_INT:																										\
+			debug_print("%s\n", "get int");																			\
+			if ((iRet = new_instruction_empty(&(resources->instruction_buffer), CIN_INT )) != 0)goto EXIT;	\
+			break;																										\
+		case L_DOUBLE:																									\
+			debug_print("%s\n", "get double");																		\
+			if ((iRet = new_instruction_empty(&(resources->instruction_buffer), CIN_DOUBLE )) != 0)goto EXIT;	\
+			break;																										\
+		case L_STRING:																									\
+			debug_print("%s\n", "get string");																		\
+			if ((iRet = new_instruction_empty(&(resources->instruction_buffer), CIN_STRING )) != 0)goto EXIT;	\
+			break;																										\
+		}																												\
+	if ((iRet = load_var_index(resources, last_id, &id)) != 0)goto EXIT;																\
+    if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), id, 0, 0, MOV_TOP_MEM )) != 0)goto EXIT;						\
+    if ((iRet = new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY)) != 0)goto EXIT;										\
+	}while(0)																											\
+
 int check_syntax(int term, Resources * resources){
 	debug_print("%s, term=%d\n", "INIT", term);
 	int iRet = RETURN_OK;
@@ -217,7 +238,14 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
 				if ((iRet = declare_var(resources, id, type)) != 0)goto EXIT;
 				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), PUSH_EMPTY)) != 0)goto EXIT;
-				if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
+				get_if_null(resources, token_index, token);
+				if (token->token_type == O_ASSIGN){
+					if ((iRet = check_syntax(ASSIGNMENT, resources)) != 0)goto EXIT;
+				}
+				else {
+					iRet = GET_TYPE_ERROR;
+					goto EXIT;
+				}
 			}
 			else goto SYN_ERR; 
 			break;		
@@ -490,7 +518,9 @@ int check_syntax(int term, Resources * resources){
 		case WHILE:
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
-			//jump_place			
+			
+			jump_addr = resources->instruction_buffer.next_free - 1;		
+			
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			
 			if (token->original_type == L_DOUBLE){
@@ -503,10 +533,15 @@ int check_syntax(int term, Resources * resources){
                  goto EXIT;
              }
 			//jump if 0  to end
+			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_FALSE_MEM )) != 0)goto EXIT;
+			jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 			//jump to start place
+			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), jump_addr, 0, 0, JMP_MEM )) != 0)goto EXIT;
 			//jump end
+			*jump_paddr = resources->instruction_buffer.next_free - 1;
 			break;
 
 //**************** DO **********************//
@@ -537,6 +572,7 @@ int check_syntax(int term, Resources * resources){
 		case RETURN:
 			if ((iRet = check_syntax(K_RETURN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
+
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
 
@@ -583,16 +619,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(O_LEFT_ARROW, resources)) != 0)goto EXIT;
 				
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				if (token->original_type == L_INT){
-					debug_print("%s\n", "print int");
-				}
-				else if (token->original_type == L_DOUBLE){
-					debug_print("%s\n", "print double");
-				}
-				else if (token->original_type == L_STRING){
-					debug_print("%s\n", "print string");
-				}				
-
+				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), COUT_MEM_TYPE )) != 0)goto EXIT;
 				if ((iRet = check_syntax(COUT_PARAMS_N, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -604,15 +631,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(O_LEFT_ARROW, resources)) != 0)goto EXIT;
 				
 				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				if (token->original_type == L_INT){
-					debug_print("%s\n", "print int");
-				}
-				else if (token->original_type == L_DOUBLE){
-					debug_print("%s\n", "print double");
-				}
-				else if (token->original_type == L_STRING){
-					debug_print("%s\n", "print string");
-				}
+				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), COUT_MEM_TYPE )) != 0)goto EXIT;
 
 				if ((iRet = check_syntax(COUT_PARAMS_N, resources)) != 0)goto EXIT;
 			}
@@ -630,16 +649,10 @@ int check_syntax(int term, Resources * resources){
 			if (token->token_type == O_RIGHT_ARROW){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
 				
-				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				if (token->original_type == L_INT){
-						debug_print("%s\n", "get int");
-				}
-				else if (token->original_type == L_DOUBLE){
-						debug_print("%s\n", "get double");
-				}
-				else if (token->original_type == L_STRING){
-				debug_print("%s\n", "get string");
-				}
+				get_if_null(resources, token_index, token);
+				id = token->token_index;
+				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
+				cin_gen_instr(token->original_type);
 
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
@@ -651,16 +664,10 @@ int check_syntax(int term, Resources * resources){
 			if (token->token_type == O_RIGHT_ARROW){
 				if ((iRet = check_syntax(O_RIGHT_ARROW, resources)) != 0)goto EXIT;
 				
-				if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-				if (token->original_type == L_INT){
-						debug_print("%s\n", "get int");
-				}
-				else if (token->original_type == L_DOUBLE){
-						debug_print("%s\n", "get double");
-				}
-				else if (token->original_type == L_STRING){	
-						debug_print("%s\n", "get string");		
-				}
+				get_if_null(resources, token_index, token);
+				id = token->token_index;
+				if ((iRet = check_syntax(IDENTIFIER, resources)) != 0)goto EXIT;
+				cin_gen_instr(token->original_type);
 
 				if ((iRet = check_syntax(CIN_PARAMS_N, resources)) != 0)goto EXIT;
 			}
