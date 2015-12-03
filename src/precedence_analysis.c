@@ -667,13 +667,7 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
                         goto EXIT;
                     }
 
-                    debug_print("%s: %d\n", "TYPE OF EXPRESSION", top_token->original_type);
-
-                    // send type of expression back to syntax_analysis
-                    (*last_token)->original_type = top_token->original_type;
-                
-                    debug_print("%s: %d\n", "RETURN", RETURN_OK);
-                    goto EXIT;;
+                    goto FINISH;
 
                 }
 
@@ -699,9 +693,16 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
          INTERNAL_ERROR,
          "Failed to dereference structure buffer."
     );
+
+FINISH:
     debug_print("%s: %d\n", "TYPE OF EXPRESSION", top_token->original_type);
     // send type of expression back to syntax_analysis
     (*last_token)->original_type = top_token->original_type;
+    
+    // set type of stack top on runtime stack
+    catch_internal_error(new_instruction_int_int(&res->instruction_buffer, 0lu, top_token->original_type, 0, SET_TYPE),
+                         INTERNAL_ERROR, "Failed to generate new instruction");
+    
 
 EXIT:
     debug_print("%s: %d\n", "RETURN", iRet);
