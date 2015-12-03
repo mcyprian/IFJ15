@@ -1,0 +1,10 @@
+int main() {
+	int a;
+	string b;
+	int c;
+
+	cin >> a >> b >> c;
+
+	if( a == 5 && b == "asd" && c == 3 )
+		return 0;
+}
