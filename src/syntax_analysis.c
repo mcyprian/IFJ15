@@ -573,7 +573,10 @@ int check_syntax(int term, Resources * resources){
 		case RETURN:
 			if ((iRet = check_syntax(K_RETURN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-
+			// presunut top do return value asi
+			// vypopovat vsetko:q
+			//
+			if ((iRet = new_instruction_empty(&(resources->instruction_buffer), FCE_RETURN)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
 

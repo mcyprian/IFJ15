@@ -83,15 +83,15 @@ int run_program(Resources * resources){
 
 	debug_print("%s\n", "CREATING VISUALIZATION OF INSTRUCTION BUFFER");
     FILE *fp;
-    int tmp_ip = 1;
     int ins_num;
     if ((fp = fopen("instruction_buffer_content", "w")) == NULL) {
         debug_print("%s\n", "Failed to open instruction buffer debug file");
     } else {
         fprintf(fp, "INDEX    INSTRUCTION\n");
-        while((ins_num = access(resources->instruction_buffer.buffer, TInstruction, tmp_ip)->ins) != HALT)
-            fprintf(fp, " %d      %s\n", tmp_ip++, instrucion_symbols[ins_num]);
-        
+        for(index_t tmp_ip = 1 ; tmp_ip < resources->instruction_buffer.next_free ; tmp_ip++){
+			ins_num = access(resources->instruction_buffer.buffer, TInstruction, tmp_ip)->ins;
+            fprintf(fp, " %lu      %s\n", tmp_ip, instrucion_symbols[ins_num]);
+        }
         fclose(fp);
     }
 #endif
@@ -106,7 +106,11 @@ int run_program(Resources * resources){
 		goto DEFAULT;
 	}
 
-	resources->ip = resources->start_main;
+	resources->ip = 1;
+	access(resources->instruction_buffer.buffer, TInstruction, 1)->dest.index = resources->start_main;
+
+	debug_print("%s :%lu\n", "START POINT", resources->start_main);
+
 	TInstruction * instruction;
 	do {
         dereference_structure(&(resources->instruction_buffer), resources->ip, (void**)&instruction);

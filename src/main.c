@@ -30,7 +30,7 @@ int main(int argc, char ** argv){
 	int iRet = RETURN_OK;
 
 	Resources resources;
-	resources.start_main = 1;
+	resources.start_main = ZERO_INDEX;
 	resources.bp = 1;
 	
 	if(argc != 2){
@@ -65,9 +65,10 @@ int main(int argc, char ** argv){
 		goto INS_BUFF;
 	}
 
-
+	if ((iRet = new_instruction_mem_mem(&(resources.instruction_buffer), 0, 0, 0, FCE_CALL)) != 0)goto FREE;
+	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
 	if ((iRet = check_syntax(GLOBAL, &resources)) != 0)goto FREE;
-	new_instruction_empty(&(resources.instruction_buffer), HALT);
+	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
 	if ((iRet = run_program(&resources)) != 0)goto FREE;
 
 FREE:
