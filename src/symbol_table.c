@@ -52,6 +52,7 @@ int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->args = NULL;
             new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
             new_node->definition = false;
+	    new_node->var_cnt = 0;
         }
         else
             create_variable_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, data_type);
@@ -67,6 +68,7 @@ int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->args = NULL;
             new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
             new_node->definition = false;
+	    new_node->var_cnt = 0;
         }
         else
             create_variable_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, data_type);
@@ -85,6 +87,7 @@ int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned
         new_node->args = NULL;
         new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
         new_node->definition = false;
+	new_node->var_cnt = 0;
     }
     return RETURN_OK;
 }
@@ -114,6 +117,7 @@ int declare_variable(Resources *resources, index_t index_to_string, index_t *ind
         new_node->args = NULL;
         new_node->index_to_dynamic_buff = index_to_string;
         new_node->definition = false;
+	new_node->var_cnt = 0;
     }
     else
         create_variable_node(*index_to_root_node, new_node_index, key, &(resources->struct_buff_trees), index_to_string, data_type);
@@ -142,6 +146,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->value.i = 0;
             new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
             new_node->definition = false;
+	    new_node->var_cnt = 0;
         }
         else
             create_function_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -158,6 +163,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->value.i = 0;
             new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
             new_node->definition = false;
+	    new_node->var_cnt = 0;
         }
         else
             create_function_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -177,6 +183,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
         new_node->value.i = 0;
         new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
         new_node->definition = false;
+	new_node->var_cnt = 0;
     }
     return RETURN_OK;
 }
@@ -207,6 +214,7 @@ int declare_function(Resources *resources, index_t index_to_string, index_t *ind
         new_node->value.i = 0;
         new_node->index_to_dynamic_buff = index_to_string;
         new_node->definition = false;
+	new_node->var_cnt = 0;
     }
     else
         create_function_node(*index_to_root_node, new_node_index, key, &(resources->struct_buff_trees), index_to_string, ret_val);

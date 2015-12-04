@@ -19,20 +19,31 @@ static int arg_counter;
 int enter_scope(Resources *resources)
 {
     debug_print("%s\n", "ENTER_SCOPE");
-    TTree *tmp;
+    TTree *tmp, *tmp_next;
     index_t i = 0;
 
     add_char(&(resources->string_buff), '$');
     index_t test = save_token(&(resources->string_buff));
     declare_variable(resources, test, &i, NO_DATA_TYPE);
+
     catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp),
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
 
+    //indexes above 8 are indexes of functions' definitions
+    if (i > 8){
+
+        catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp_next),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+        tmp->var_cnt = tmp_next->var_cnt;
+    }
+
     tmp->index_to_struct_buffer = i;
-    tmp->var_declar_count = 0;
     push(&(resources->struct_buff_trees), &(resources->stack), i);
   
     debug_print("%s\n", "ENTER_SCOPE_RETURN_0");
@@ -42,20 +53,27 @@ int enter_scope(Resources *resources)
 int leave_scope(Resources *resources)
 {
     debug_print("%s\n", "LEAVE_SCOPE");
-    TTree *tmp;
+    TTree *tmp, *tmp_next;
     index_t r = resources->stack.top;
+
     catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), r, (void **)&tmp),
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp_next),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
-    for (int i = tmp->var_declar_count; i > 0; i--) {
+    for (int i = 0; i < (tmp->var_cnt - tmp_next->var_cnt); i++) {
         catch_internal_error(new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY),
             INTERNAL_ERROR,
             "Failed to generate pop instruction"
             );
     }
+
     pop(&(resources->struct_buff_trees), &(resources->stack));
     debug_print("%s\n", "LEAVE_SCOPE_RETURN_0");
     return RETURN_OK;
@@ -289,6 +307,7 @@ int declare_builtin_funcs(Resources *resources)
 int declare_var(Resources *resources, index_t index_to_string_buff, int data_type)
 {
     debug_print("%s\n", "DECLARE_VAR");
+debug_print("%s%s\n", "DECLARE_VAR var name: ", load_token(&(resources->string_buff), index_to_string_buff));
     TTree *tmp;
     index_t i = resources->stack.top;
     int is_declared = declaration_test(resources, index_to_string_buff, i, VAR);
@@ -301,7 +320,8 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
                 INTERNAL_ERROR,
                 "Failed to dereference structure buffer."
             );
-            tmp->var_declar_count = tmp->var_declar_count + 1;
+            tmp->var_cnt++;
+            save_var_index(resources, index_to_string_buff, tmp->var_cnt);
             debug_print("%s\n", "DECLARE_VAR_RETURN_0");
             return RETURN_OK;
         case FOUND:
@@ -436,6 +456,8 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
 int check_var_type(Resources *resources, index_t var_name, int expected_type)
 {
     debug_print("%s\n", "CHECK_VAR_TYPE");
+debug_print("%s%d\n", "CHECK_VAR_TYPE expected: ", expected_type);
+debug_print("%s%s\n", "CHECK_VAR_TYPE var name: ", load_token(&(resources->string_buff), var_name));
     args_assert(expected_type == 14 || expected_type == 21 || expected_type == 15 || expected_type == 20 || expected_type == 16 || expected_type == 22 || expected_type == 32, INTERNAL_ERROR);
     TTree *tmp;
     int i;
@@ -456,8 +478,8 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
             return i;
         }
         else if (i == SEMANTIC_ERROR){
-        	debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
-        	return TYPE_ERROR;
+            debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
+            return TYPE_ERROR;
         }
         catch_internal_error(
             dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
@@ -506,7 +528,9 @@ int define_func(Resources *resources)
     for(int i = argc; i > 0; i--) {
         load_arg(resources, general_scope_tree, currently_analyzed_function, i, &name, &data_type);
         declare_variable(resources, name, &r, data_type);
-        tmp->var_declar_count = tmp->var_declar_count + 1;
+        tmp->var_cnt++;
+        save_var_index(resources, name, tmp->var_cnt);
+
         // generuj funkciu PUSH
     }
 
@@ -542,7 +566,7 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
             );
         }
         if (frst_token_type == NOT_FOUND)
-	{
+    {
             debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
         }
@@ -572,7 +596,7 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
             );
         }
         if (scnd_token_type == NOT_FOUND)
-	{
+    {
             debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
         }
@@ -686,7 +710,7 @@ int get_return_type(Resources *resources, index_t func_name) {
 int get_var_type(Resources *resources, index_t var_name)
 {
     debug_print("%s\n", "GET_VAR_TYPE");
-
+debug_print("%s%s\n", "GET_VAR_TYPE var name: ", load_token(&(resources->string_buff), var_name));
     TTree *tmp;
     int is_declared = SEMANTIC_ERROR;
     int type;
@@ -716,7 +740,7 @@ int get_var_type(Resources *resources, index_t var_name)
     }
     else {
         debug_print("%s\n","GET_VAR_TYPE_RETURN_SEMANTIC_ERROR");
-	return SEMANTIC_ERROR;
+    return SEMANTIC_ERROR;
     }
 }
 

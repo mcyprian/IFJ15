@@ -57,6 +57,7 @@ typedef struct tree {
 	index_t var_declar_count;
 	int built_in;
 	int start;
+	int var_cnt;
 }TTree;
 
 
