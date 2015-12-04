@@ -843,3 +843,20 @@ int load_var_index(Resources *resources, index_t var_name, index_t *load_index)
         return SEMANTIC_ERROR;
     }
 }
+
+int declared_var_cnt(Resources *resources, int *cnt)
+{
+    debug_print("%s\n", "DECLARED_VAR_CNT");
+    TTree *tmp;
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+    *cnt = tmp->var_cnt;
+
+    debug_print("%s\n", "DECLARED_VAR_CNT_RETURN_0");
+    return RETURN_OK;
+}

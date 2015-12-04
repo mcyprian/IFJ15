@@ -168,3 +168,5 @@ int save_var_index(Resources *resources, index_t var_name, index_t index_to_stor
 int load_func_index(Resources *resources, index_t func_name, index_t *load_index);
 
 int load_var_index(Resources *resources, index_t var_name, index_t *load_index);
+
+int declared_var_cnt(Resources *resources, int *cnt);
