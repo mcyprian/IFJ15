@@ -24,7 +24,7 @@ int enter_scope(Resources *resources)
     int x = 0;
 
     catch_internal_error(
-        dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp),
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
