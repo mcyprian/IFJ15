@@ -205,6 +205,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
+				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), NO_RETURN)) != 0)goto EXIT;
 				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
