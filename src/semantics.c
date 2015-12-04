@@ -19,19 +19,22 @@ static int arg_counter;
 int enter_scope(Resources *resources)
 {
     debug_print("%s\n", "ENTER_SCOPE");
-    TTree *tmp, *tmp_next;
+    TTree *tmp;
     index_t i = 0; 
     int x = 0;
+    int next_cnt;
 
     catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
+debug_print("%s%d\n", "ENTER_SCOPE is_definition_scope is: ", tmp->is_definition_scope);
     if (tmp->is_definition_scope == 1){
         tmp->is_definition_scope = 0;
         x = 1;
     }
+    next_cnt = tmp->var_cnt;
 
     add_char(&(resources->string_buff), '$');
     index_t test = save_token(&(resources->string_buff));
@@ -45,15 +48,12 @@ int enter_scope(Resources *resources)
 
     //indexes above 8 are indexes of functions' definitions
 debug_print("%s%lu\n", "ENTER_SCOPE actual i is: ", i);
-debug_print("%s%d\n", "ENTER_SCOPE is_definition_scope is: ", tmp->is_definition_scope);
-    if (i > 8 && x == 1){
-
-        catch_internal_error(
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp_next),
-        INTERNAL_ERROR,
-        "Failed to dereference structure buffer."
-    );
-        tmp->var_cnt = tmp_next->var_cnt;
+debug_print("%s%d\n", "ENTER_SCOPE actual x is: ", x);
+    if (i > 8 && x != 1){
+debug_print("%s\n", "ENTER_SCOPE i'm in cindition if (i > 8 && x != 1) ");
+        
+debug_print("%s%d\n", "ENTER_SCOPE tmp_next->var_cnt is: ", next_cnt);
+        tmp->var_cnt = next_cnt;
     }
 
     tmp->index_to_struct_buffer = i;
