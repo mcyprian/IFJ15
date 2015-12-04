@@ -16,7 +16,7 @@ extern int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TIn
 
 int run_program(Resources * resources){
 #if DEBUG
-    const char* instrucion_symbols[63];
+    const char* instrucion_symbols[64];
     instrucion_symbols[0] = "EQ_INT_MEM_MEM";
     instrucion_symbols[1] = "EQ_DBL_MEM_MEM";
     instrucion_symbols[2] = "G_INT_MEM_MEM";

@@ -883,9 +883,8 @@ static inline int push_empty(Resources *resources, TInstruction *instruction) {
     if ((iRet = get_free_element_index(&resources->runtime_stack, &index)) != RETURN_OK) return iRet;
     if ((iRet = dereference_structure(&resources->runtime_stack, index, 
                                       (void **)&new_top)) != RETURN_OK) return iRet; 
-    resources->runtime_stack.flags[resources->runtime_stack.next_free++] = 1;
     new_top->value.index = instruction->first_op.index;
-    new_top->defined = 1;
+    new_top->defined = 0;
     return RETURN_OK;
 }
 
@@ -1258,24 +1257,21 @@ static inline int sort_const(Resources *resources, TInstruction *instruction) {
 //****************************** JUMP ******************************// 
 static inline int jmp_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_MEM");
-    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->defined)
-        return UNINIT_ERROR;
 
     debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu);
     
-    resources->ip = access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu;
+    resources->ip = instruction->dest.index - 1lu;
 
     return RETURN_OK;
 }
 
 static inline int jmp_true_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_TRUE_MEM");
-    if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined
-        && access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->defined))
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined))
         return UNINIT_ERROR;
 
-    if (access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)) {
-        resources->ip = access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu;
+    if (access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i) {
+        resources->ip = instruction->dest.index - 1lu;
         
         debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu);
     }
@@ -1287,12 +1283,11 @@ static inline int jmp_true_mem(Resources *resources, TInstruction *instruction) 
 
 static inline int jmp_false_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_FALSE_MEM");
-    if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined
-        && access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->defined))
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined))
         return UNINIT_ERROR;
 
-    if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1))) {
-        resources->ip = access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu;
+    if (!(access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i)) {
+        resources->ip = instruction->dest.index - 1lu;
         
         debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu);
     }

@@ -418,8 +418,14 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_IF, resources)) != 0)goto EXIT;
 				//jump place
+				//
+				if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), 0, 0, 0, JMP_MEM )) != 0)goto EXIT;
+                for_addrp = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+				
 				*jump_paddr = resources->instruction_buffer.next_free;
 				if ((iRet = check_syntax(ELSE, resources)) != 0)goto EXIT;
+				
+				*for_addrp = resources->instruction_buffer.next_free;
 			}
 			else goto SYN_ERR;
 			break;
@@ -473,11 +479,11 @@ int check_syntax(int term, Resources * resources){
 			
 			if ((iRet = check_syntax(FOR_SECOND, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
-			
+		
 			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_FALSE_MEM )) != 0)goto EXIT;
             jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
 
-			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_TRUE_MEM )) != 0)goto EXIT;
+			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), 0, 0, 0, JMP_MEM )) != 0)goto EXIT;
 			for_addrp = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
 
 			for_addr = resources->instruction_buffer.next_free;
@@ -592,9 +598,8 @@ int check_syntax(int term, Resources * resources){
 		case RETURN:
 			if ((iRet = check_syntax(K_RETURN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
-			// presunut top do return value asi
-			// vypopovat vsetko:q
-			//
+			
+
 			if ((iRet = new_instruction_empty(&(resources->instruction_buffer), FCE_RETURN)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
