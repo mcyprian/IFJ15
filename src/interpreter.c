@@ -78,8 +78,9 @@ int run_program(Resources * resources){
     instrucion_symbols[58] = "SORT_MEM";  
     instrucion_symbols[59] = "SORT_CONST"; 
     instrucion_symbols[60] = "COUT_MEM_TYPE"; 
-    instrucion_symbols[61] = "SET TYPE";
-    instrucion_symbols[62] = "HALT";
+    instrucion_symbols[61] = "NO_RETURN";
+    instrucion_symbols[62] = "SET TYPE";
+    instrucion_symbols[63] = "HALT";
 
 	debug_print("%s\n", "CREATING VISUALIZATION OF INSTRUCTION BUFFER");
     FILE *fp;

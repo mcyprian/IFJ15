@@ -22,7 +22,7 @@
 #include <ial.h>
 #include <built_functions.h>
 
-#define NUM_OF_INSTRUCTIONS 63   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 64   // TODO set final number
 
 
 // Converts token enum to number of instrucrion
@@ -92,8 +92,9 @@ enum instructions
     SORT_MEM,              // 58
     SORT_CONST,            // 59
     COUT_MEM_TYPE,         // 60
-    SET_TYPE,              // 61
-    HALT                   // 62
+    NO_RETURN,             // 61
+    SET_TYPE,              // 62
+    HALT                   // 63
 };
 
 static inline int new_instruction_empty(TDynamic_structure_buffer *buff, int ins) {
@@ -992,7 +993,7 @@ static inline int pop_empty(Resources *resources, TInstruction *instruction) {
         resources->runtime_stack.flags[--resources->runtime_stack.next_free] = 0;
         return RETURN_OK;
     }
-    else return -1;
+    return RETURN_OK;
 }
 
 //****************************** CIN *******************************// 
@@ -1330,33 +1331,46 @@ static inline int function_call(Resources *resources, TInstruction *instruction)
 
 static inline int function_return(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "FUNCTION RETURN");
-                                                                             //     Stack
-    instruction->dest.index = 0;   // remove warning                                rv  bp  ip
+                                                                                //   Stack
+                                                                                //   rv  loc1 loc2 ... locN  bp  ip
     resources->return_value = *access(resources->runtime_stack.buffer, 
                                      TStack_variable, 
                                      resources->runtime_stack.next_free -1);
     
     
-    pop_stack(&resources->runtime_stack);                                    //      bp  ip
+    pop_stack(&resources->runtime_stack);                                       //  loc1 loc2 ... locN  bp  ip
+
+    for (int i = 0; i < instruction->first_op.i; i++) {
+        access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined = 0;
+        if (resources->runtime_stack.next_free > 1)
+            resources->runtime_stack.flags[--resources->runtime_stack.next_free] = 0;
+    }                                                                           //   bp   ip
+
     resources->bp = access(resources->runtime_stack.buffer,
                            TStack_variable,
                            resources->runtime_stack.next_free -1)
     ->value.index;
     debug_print("%s %lu\n", "RETURNING BP", resources->bp);
 
-    pop_stack(&resources->runtime_stack);                                    //      ip
+    pop_stack(&resources->runtime_stack);                                       //   ip
     resources->ip = access(resources->runtime_stack.buffer,
                            TStack_variable,
                            resources->runtime_stack.next_free -1)
     ->value.index;
     debug_print("%s %lu\n", "RETURNING IP", resources->ip);
     debug_print("%s %lu\n", "IP AFTER RETURN ADRESS", resources->ip);
-    pop_stack(&resources->runtime_stack);                                    //      ?
+    pop_stack(&resources->runtime_stack);                                       //   ?
 
     TStack_variable *tmp;                        
     push_stack(&resources->runtime_stack, &tmp);
     *tmp = resources->return_value;
     return RETURN_OK;   
+}
+
+static inline int no_return(Resources *resources, TInstruction *instruction) {
+    instruction->first_op.i = 0;
+    resources->return_value = resources->return_value;
+    return SYNTAX_ERROR;
 }
 
 static inline int set_type(Resources *resources, TInstruction *instruction) {

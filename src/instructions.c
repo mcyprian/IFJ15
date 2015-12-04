@@ -64,6 +64,7 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         sort_mem,
         sort_const,
         cout_mem_type,
+        no_return,
         set_type,
         halt
     };
