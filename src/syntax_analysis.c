@@ -104,6 +104,9 @@ int check_syntax(int term, Resources * resources){
 	static index_t last_id = ZERO_INDEX;
 	index_t jump_addr = 0;
 	index_t * jump_paddr = NULL;
+
+	index_t for_addr = 0;
+	index_t * for_addrp = NULL;
 	
 	int type = 0;
 	index_t id = 0;
@@ -415,7 +418,7 @@ int check_syntax(int term, Resources * resources){
 				if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 				if ((iRet = check_syntax(TAIL_IF, resources)) != 0)goto EXIT;
 				//jump place
-				*jump_paddr = resources->instruction_buffer.next_free - 1;
+				*jump_paddr = resources->instruction_buffer.next_free;
 				if ((iRet = check_syntax(ELSE, resources)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;
@@ -465,11 +468,33 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(FOR_FIRST, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
+			
+			jump_addr = resources->instruction_buffer.next_free;
+			
 			if ((iRet = check_syntax(FOR_SECOND, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
+			
+			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_FALSE_MEM )) != 0)goto EXIT;
+            jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+
+			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_TRUE_MEM )) != 0)goto EXIT;
+			for_addrp = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+
+			for_addr = resources->instruction_buffer.next_free;
+
 			if ((iRet = check_syntax(FOR_THIRD, resources)) != 0)goto EXIT;
+
+			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), jump_addr, 0, 0, JMP_MEM )) != 0)goto EXIT;
+
+			*for_addrp = resources->instruction_buffer.next_free;
+
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
+
+			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), for_addr, 0, 0, JMP_MEM )) != 0)goto EXIT;
+
+			*jump_paddr = resources->instruction_buffer.next_free;
+
 			if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			break;
 
@@ -514,7 +539,7 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;
 			
-			jump_addr = resources->instruction_buffer.next_free - 1;		
+			jump_addr = resources->instruction_buffer.next_free;		
 			
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			
@@ -536,13 +561,13 @@ int check_syntax(int term, Resources * resources){
 			//jump to start place
 			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), jump_addr, 0, 0, JMP_MEM )) != 0)goto EXIT;
 			//jump end
-			*jump_paddr = resources->instruction_buffer.next_free - 1;
+			*jump_paddr = resources->instruction_buffer.next_free;
 			break;
 
 //**************** DO **********************//
 		case DO:
 			if ((iRet = check_syntax(K_DO, resources)) != 0)goto EXIT;
-			jump_addr = resources->instruction_buffer.next_free - 1;
+			jump_addr = resources->instruction_buffer.next_free;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(K_WHILE, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(OPENING_BRACKET, resources)) != 0)goto EXIT;			
