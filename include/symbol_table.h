@@ -58,6 +58,7 @@ typedef struct tree {
 	int built_in;
 	int start;
 	int var_cnt;
+	int is_definition_scope;
 }TTree;
 
 
