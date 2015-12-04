@@ -20,7 +20,18 @@ int enter_scope(Resources *resources)
 {
     debug_print("%s\n", "ENTER_SCOPE");
     TTree *tmp, *tmp_next;
-    index_t i = 0;
+    index_t i = 0; 
+    int x = 0;
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    if (tmp->is_definition_scope == 1){
+        tmp->is_definition_scope = 0;
+        x = 1;
+    }
 
     add_char(&(resources->string_buff), '$');
     index_t test = save_token(&(resources->string_buff));
@@ -33,8 +44,9 @@ int enter_scope(Resources *resources)
     );
 
     //indexes above 8 are indexes of functions' definitions
-
-    if (i > 8 && tmp->is_definition_scope != 1){
+debug_print("%s%lu\n", "ENTER_SCOPE actual i is: ", i);
+debug_print("%s%d\n", "ENTER_SCOPE is_definition_scope is: ", tmp->is_definition_scope);
+    if (i > 8 && x == 1){
 
         catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp_next),
@@ -519,6 +531,14 @@ int define_func(Resources *resources)
     set_definition_flag(resources, resources->stack.top, currently_analyzed_function);
     load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
 debug_print("%s%d\n", "DEFINE_FUNC num of args: ", argc);
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    tmp->is_definition_scope = 1;
+
     enter_scope(resources);
     index_t r = resources->stack.top;
 
@@ -527,7 +547,6 @@ debug_print("%s%d\n", "DEFINE_FUNC num of args: ", argc);
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
-    tmp->is_definition_scope = 1;
 
     for(int i = argc; i > 0; i--) {
         load_arg(resources, general_scope_tree, currently_analyzed_function, i, &name, &data_type);
