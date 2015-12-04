@@ -56,14 +56,7 @@
 
 #define check_types_and_cast()										\
 	do {																\
-		type = get_var_type(resources, last_id);							\
-		debug_print("%s: %d\n", "Type is", type);														\
-		if (!(type >= L_INT && type <= L_STRING) && !(type == AUTO)){								\
-			debug_print("%s\n", "error type");															\
-			iRet = type;																				\
-			goto EXIT;																					\
-		}																								\
-		if ((iRet = check_var_type(resources, type, token->original_type)) == TYPE_CAST){  \
+		if ((iRet = check_var_type(resources, last_id, token->original_type)) == TYPE_CAST){  \
 		  	debug_print("%s\n", "CAST");														\
            	if (token->original_type == L_DOUBLE){												\
             	debug_print("%s\n", "TO INT");													\
