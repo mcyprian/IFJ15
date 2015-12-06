@@ -15,14 +15,20 @@ int length(TDynamic_buffer *b, index_t index)
 }
 
 index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
-{	
+{
+    printf("\n");
+    for (unsigned i = 0; i < b->writing_index; i++)
+        putchar(b->buffer[i]);
+    putchar('\n');
 	save_token(b);	// whatever is in b, puts '\0' after that
 	char *check_string = load_token(b, index);
+    printf("loaded original: %s\n", load_token(b, index));
 	int lenght = (int)strlen(check_string);
 	if (i >= (unsigned)lenght)
 		return 0;
 
 	char *string = load_token(b, index + i);
+    printf("string: %s\n", string);
 	
 	if (n < (int)strlen(string))
 		string[n] = '\0';
@@ -31,7 +37,11 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 		return 0;
 
 	index_t return_index = save_token(b);
+    printf("saved: %s\n", load_token(b, return_index));
 
+    for (unsigned i = 0; i < b->writing_index; i++)
+        putchar(b->buffer[i]);
+    putchar('\n');
 	return return_index;
 }
 

@@ -1219,7 +1219,7 @@ static inline int substr_mem_mem(Resources *resources, TInstruction *instruction
     var->type = L_STRING;
 
     var->defined = 1;
-    debug_print("%s\n", "END OF SUBSTR_MEM_MEM");
+    debug_print("%s: %ld\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
     return RETURN_OK;
 }
 
