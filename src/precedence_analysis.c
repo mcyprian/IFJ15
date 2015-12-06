@@ -346,8 +346,6 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
 
         catch_internal_error(new_instruction_empty(&res->instruction_buffer, token_to_ins(reduced_tokens[1]->token_type, original_type)),
                              INTERNAL_ERROR, "Failed to generate instruction");
-        catch_internal_error(new_instruction_empty(&res->instruction_buffer, POP_EMPTY),
-                             INTERNAL_ERROR, "Failed to generate instruction");
 
         if (rule >= 0 && rule <= 5) // Relational operation type of result is L_INT
                 original_type = L_INT;

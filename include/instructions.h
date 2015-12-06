@@ -267,7 +267,10 @@ static inline int add_int_mem_mem(Resources *resources, TInstruction *instructio
     
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
-    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+    debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -289,6 +292,9 @@ static inline int add_dbl_mem_mem(Resources *resources, TInstruction *instructio
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -311,6 +317,9 @@ static inline int sub_int_mem_mem(Resources *resources, TInstruction *instructio
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -332,6 +341,9 @@ static inline int sub_dbl_mem_mem(Resources *resources, TInstruction *instructio
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -354,6 +366,9 @@ static inline int mul_int_mem_mem(Resources *resources, TInstruction *instructio
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -375,6 +390,9 @@ static inline int mul_dbl_mem_mem(Resources *resources, TInstruction *instructio
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -399,6 +417,9 @@ static inline int div_int_mem_mem(Resources *resources, TInstruction *instructio
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -423,6 +444,9 @@ static inline int div_dbl_mem_mem(Resources *resources, TInstruction *instructio
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %lf\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.d);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -445,6 +469,9 @@ static inline int eq_int_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -466,6 +493,9 @@ static inline int eq_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -487,6 +517,9 @@ static inline int eq_str_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -508,6 +541,9 @@ static inline int g_str_mem_mem(Resources *resources, TInstruction *instruction)
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -529,6 +565,9 @@ static inline int l_str_mem_mem(Resources *resources, TInstruction *instruction)
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -550,6 +589,9 @@ static inline int ge_str_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -571,6 +613,9 @@ static inline int le_str_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -592,6 +637,9 @@ static inline int ne_str_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 //****************************** GREATER ******************************// 
@@ -613,6 +661,9 @@ static inline int g_int_mem_mem(Resources *resources, TInstruction *instruction)
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -634,6 +685,9 @@ static inline int g_dbl_mem_mem(Resources *resources, TInstruction *instruction)
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -656,6 +710,9 @@ static inline int l_int_mem_mem(Resources *resources, TInstruction *instruction)
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -677,6 +734,9 @@ static inline int l_dbl_mem_mem(Resources *resources, TInstruction *instruction)
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -699,6 +759,9 @@ static inline int ge_int_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -720,6 +783,9 @@ static inline int ge_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -742,6 +808,9 @@ static inline int le_int_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -763,6 +832,9 @@ static inline int le_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -785,6 +857,9 @@ static inline int ne_int_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 
@@ -806,6 +881,9 @@ static inline int ne_dbl_mem_mem(Resources *resources, TInstruction *instruction
     
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "DEST CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+
+    pop_stack(&resources->runtime_stack);
+
     return RETURN_OK;
 }
 

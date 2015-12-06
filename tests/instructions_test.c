@@ -175,7 +175,7 @@ int main() {
         new_instruction_empty(&resources.instruction_buffer, NE_DBL_MEM_MEM);
         new_instruction_empty(&resources.instruction_buffer, POP_EMPTY);
 */
-        new_instruction_int_int(&resources.instruction_buffer, 0lu, 2, 0lu, FCE_RETURN);
+        new_instruction_int_int(&resources.instruction_buffer, 0lu, 0, 0lu, FCE_RETURN);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 1, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 2, 0, PUSH_INT_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 0lu, 0lu, MOV_TOP_MEM);
@@ -183,12 +183,12 @@ int main() {
         new_instruction_empty(&resources.instruction_buffer,  COUT_MEM_TYPE);
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, first_string, 0lu, PUSH_INDEX_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, second_string, 0lu, PUSH_INDEX_CONST);
-        new_instruction_empty(&resources.instruction_buffer, EQ_STR_MEM_MEM);
-        new_instruction_empty(&resources.instruction_buffer, G_STR_MEM_MEM);
-        new_instruction_empty(&resources.instruction_buffer, L_STR_MEM_MEM);
+//       new_instruction_empty(&resources.instruction_buffer, EQ_STR_MEM_MEM);
+//        new_instruction_empty(&resources.instruction_buffer, G_STR_MEM_MEM);
+//        new_instruction_empty(&resources.instruction_buffer, L_STR_MEM_MEM);
         new_instruction_empty(&resources.instruction_buffer, GE_STR_MEM_MEM);
-        new_instruction_empty(&resources.instruction_buffer, LE_STR_MEM_MEM);
-        new_instruction_empty(&resources.instruction_buffer, NE_STR_MEM_MEM);
+//        new_instruction_empty(&resources.instruction_buffer, LE_STR_MEM_MEM);
+//        new_instruction_empty(&resources.instruction_buffer, NE_STR_MEM_MEM);
         new_instruction_mem_mem(&resources.instruction_buffer, 1lu, 0lu, 0lu, FCE_CALL);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 5, 0, PUSH_INT_CONST);
         new_instruction_int_int(&resources.instruction_buffer, 2lu, 6, 0, PUSH_INT_CONST);
