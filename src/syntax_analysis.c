@@ -600,6 +600,7 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			
 			if ((iRet = declared_var_cnt(resources, &type)) != 0)goto EXIT;
+			debug_print("%s: %d\n", "Number of POPs", type);
 			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, type, 0, FCE_RETURN)) != 0)goto EXIT;
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 			break;
