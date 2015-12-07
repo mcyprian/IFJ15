@@ -17,32 +17,43 @@ int length(TDynamic_buffer *b, index_t index)
 index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 {
     printf("\n");
-    for (unsigned i = 0; i < b->writing_index; i++)
-        putchar(b->buffer[i]);
-    putchar('\n');
+    printf("hladam v stringu na indexe %ld, od pozicie %ld, %d znakov\n", index, i, n);
+    printf("Vypis buffer: ");
+    for (unsigned j = 0; j < b->writing_index; j++)
+        putchar(b->buffer[j]);
+    //putchar('\n');
+    printf("\nkoniec vypisu \n");
 	save_token(b);	// whatever is in b, puts '\0' after that
 	char *check_string = load_token(b, index);
-    printf("loaded original: %s\n", load_token(b, index));
+    printf("Toto je string v ktorom hladam: %s\n", load_token(b, index));
 	int lenght = (int)strlen(check_string);
 	if (i >= (unsigned)lenght)
 		return 0;
 
-	char *string = load_token(b, index + i);
-    printf("string: %s\n", string);
-	
-	if (n < (int)strlen(string))
-		string[n] = '\0';
-
-	if (add_str(b, string) == INTERNAL_ERROR)
+	char *new_string = load_token(b, index + i);
+    printf("toto je string od noveho indexu i (%ld - index + i): %s\n",index+i, new_string);
+	index_t temporary_w_index = b->writing_index;
+	if (add_str(b, new_string) == INTERNAL_ERROR)
 		return 0;
 
-	index_t return_index = save_token(b);
-    printf("saved: %s\n", load_token(b, return_index));
+	int new_string_length = (int)strlen(new_string);
+	char *rewrite_string = load_token(b, temporary_w_index);
+    printf("v tomto retazci chceme prepisovat: %s \n", rewrite_string);
+	if (n < new_string_length)
+		rewrite_string[n] = '\0';
 
+	index_t return_w_index = b->writing_index;
+	if (add_str(b, rewrite_string) == INTERNAL_ERROR)
+		return 0;
+
+	//index_t return_index = save_token(b);
+    printf("toto som ulozil na koniec bufferu, nas novy substr: %s\n", load_token(b, return_w_index));
+    printf("\n\n\nnovy vypis bufferu: ");
     for (unsigned i = 0; i < b->writing_index; i++)
         putchar(b->buffer[i]);
     putchar('\n');
-	return return_index;
+    printf("koniec noveho vypisu\n\n");
+	return return_w_index;
 }
 
 index_t concat(TDynamic_buffer *b, index_t index1, index_t index2)
