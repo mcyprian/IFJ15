@@ -1392,10 +1392,6 @@ static inline int function_call(Resources *resources, TInstruction *instruction)
     tmp->value.index = resources->bp;
     tmp->defined = 1;
 
-    debug_print("%s %lu\n", "IP AFTER CALL", instruction->dest.index - 1lu);
-    
-    resources->ip = instruction->dest.index - 1lu;       // sets ip to adress of function
-
     debug_print("%s: %ld\n", "NEW VALUE IN BP", instruction->first_op.index);
     resources->bp = resources->runtime_stack.next_free - 1;      // sets bp to stack top
 
