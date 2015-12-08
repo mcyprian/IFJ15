@@ -883,3 +883,38 @@ int declared_var_cnt(Resources *resources, int *cnt)
     debug_print("%s\n", "DECLARED_VAR_CNT_RETURN_0");
     return RETURN_OK;
 }
+
+int check_return_value_type(Resources *resources, int type)
+{
+	debug_print("%s\n", "CHECK_RETURN_TYPE");
+	TTree *tmp;
+	int actual_data_type;
+
+	catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+    while (tmp->next != ZERO_INDEX) {
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
+    } // while; tmp is global scope tree
+    actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, currently_analyzed_function, FUNC);
+
+    if (actual_data_type == type){
+    	debug_print("%s\n", "CHECK_RETURN_TYPE_RETURN_OK");
+    	return RETURN_OK;
+    }
+    else if (type == L_STRING || actual_data_type == L_STRING){
+    	debug_print("%s\n", "CHECK_RETURN_TYPE_RETURN_TYPE_ERROR");
+    	return TYPE_ERROR;
+    }
+    else {
+    	debug_print("%s\n", "CHECK_RETURN_TYPE_RETURN_TYPE_CAST");
+    	return TYPE_CAST;
+    }
+}
