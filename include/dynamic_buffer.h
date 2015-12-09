@@ -53,6 +53,7 @@ int add_char(TDynamic_buffer *b, char c);
  */
 int add_str(TDynamic_buffer *b, char* word);
 
+int add_str_index(TDynamic_buffer *b, index_t index);
 /** Reads current content of buffer
  * @oaram b pointer to TDynamic_buffer
  * @return Pointer to string stored in buffer, INTERNAL_ERROR on error

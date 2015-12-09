@@ -60,10 +60,25 @@ int add_str(TDynamic_buffer *b, char* word) {
     unsigned len = strlen(word);
     if (b->writing_index + len + 1 > b->length)
         catch_internal_error(realloc_buffer(b, len), INTERNAL_ERROR, "Failed to realloc buffer.");
+
     strcpy(&b->buffer[b->writing_index], word);
     b->writing_index += len;
     return 0;
 }
+
+int add_str_index(TDynamic_buffer *b, index_t index) {
+    args_assert(b != NULL && index != ZERO_INDEX, INTERNAL_ERROR);
+    char *word = load_token(b, index);
+    unsigned len = strlen(word);
+    if (b->writing_index + len + 1 > b->length)
+        catch_internal_error(realloc_buffer(b, len), INTERNAL_ERROR, "Failed to realloc buffer.");
+
+    //printf("From add_str_index: %s\n", load_token(b, index));
+    strcpy(&b->buffer[b->writing_index], load_token(b, index));
+    b->writing_index += len;
+    return 0;
+}
+
 
 char *read_buffer(TDynamic_buffer *b) {
     args_assert(b != NULL, NULL);

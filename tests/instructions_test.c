@@ -28,11 +28,11 @@ int main() {
         goto STR_BUFF;
 
     index_t first_string = 1;
-    add_str(&resources.string_buff, "abcdefgh");
+    add_str(&resources.string_buff, "abcdef");
     add_char(&resources.string_buff, '\0');
 
     index_t second_string = ++resources.string_buff.writing_index;
-    add_str(&resources.string_buff, "SECOND STRING");
+    add_str(&resources.string_buff, "SECONDS");
     printf("first %s second %s\n", load_token(&resources.string_buff, first_string), load_token(&resources.string_buff, second_string));
 
     debug_print("%s\n", "GENERATING INSTRUCTIONS");
