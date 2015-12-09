@@ -13,7 +13,6 @@
 #define L_STRING_BACKSLASH 123
 #define SEPARATOR c == '+' || c == '-' || c == '*' || c == '/' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}' || isspace(c)
 
-
 int reservedWord(char *identifier)
 {
 	switch(identifier[0])
@@ -108,7 +107,8 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 	// printf("%s\n", load_token(&string_buffer, x));
 
-
+	char hx[2];
+	char x;
 	int c;
 	int previous = 0;
 	int state = START;
@@ -568,8 +568,16 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 						state = L_STRING;
 						break;
 					case 'x':
-						state = L_STRING;
-						break;
+						
+						hx[0] = fgetc(fin);
+						hx[1] = fgetc(fin);
+						x = (char)(int)strtol(hx, NULL, 16);
+
+						if (strcmp(&x, ""))  {
+							catch_token_internal_error(add_char(buffer, x), INTERNAL_ERROR, token, index);
+							state = L_STRING;
+							break;
+						}
 					default:
 						token->token_type = ERRORT;
 						token->token_index = save_token(buffer);
