@@ -35,6 +35,7 @@ struct res{
 	TDynamic_structure_buffer struct_buff_trees;
 	TDynamic_structure_buffer instruction_buffer;
 	TDynamic_structure_buffer runtime_stack;
+	TDynamic_structure_buffer func_table;
 	index_t start_main;
 	index_t ip;
 	index_t bp;

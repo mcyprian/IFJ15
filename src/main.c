@@ -55,14 +55,17 @@ int main(int argc, char ** argv){
 	if ((iRet = init_structure_buffer(&(resources.instruction_buffer), ALLOC_SIZE, sizeof(TInstruction))) != RETURN_OK)
 		goto RUN_STACK;
 
-	if ((iRet = init_stack(&(resources.stack))) != RETURN_OK)
+	if ((iRet = init_structure_buffer(&(resources.func_table), ALLOC_SIZE / 2, sizeof(index_t))) != RETURN_OK)
 		goto INS_BUFF;
+
+	if ((iRet = init_stack(&(resources.stack))) != RETURN_OK)
+		goto FUNC_TABLE;
 
 	resources.source = NULL;
 	if((resources.source = fopen(argv[1], "r")) == NULL){
 		fprintf(stderr, "%s:%d Cannot open a file: %20s\n", __func__, __LINE__,  argv[1]);
 		iRet = INTERNAL_ERROR;
-		goto INS_BUFF;
+		goto FUNC_TABLE;
 	}
 
 	if ((iRet = new_instruction_mem_mem(&(resources.instruction_buffer), 0, 0, 0, FCE_CALL)) != 0)goto FREE;
@@ -74,6 +77,9 @@ int main(int argc, char ** argv){
 
 FREE:
 	fclose(resources.source);
+
+FUNC_TABLE:
+	free_structure_buffer(&(resources.func_table));
 
 INS_BUFF:
 	free_structure_buffer(&(resources.instruction_buffer));
