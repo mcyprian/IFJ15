@@ -1077,7 +1077,7 @@ static inline int cin_i(Resources *resources, TInstruction *instruction) {
     push_stack(&resources->runtime_stack, &tmp);
     tmp->defined = 1;
 
-    scanf("%d", &i);
+    if (scanf("%d", &i)) return TYPE_ERROR;
     tmp->value.i = i;
     instruction->dest.i = i;
 
@@ -1093,7 +1093,7 @@ static inline int cin_d(Resources *resources, TInstruction *instruction) {
     push_stack(&resources->runtime_stack, &tmp);
     tmp->defined = 1;
     
-    scanf("%lf", &d);
+    if (scanf("%lf", &d) != 1) return TYPE_ERROR;
     tmp->value.d = d;
     instruction->dest.d = d;
 
