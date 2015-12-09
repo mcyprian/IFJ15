@@ -75,6 +75,11 @@ int main(int argc, char ** argv){
 	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
 	if ((iRet = check_syntax(GLOBAL, &resources)) != 0)goto FREE;
 	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
+
+	for(index_t i = 1 ; i < resources.func_table.next_free ; i++)
+		debug_print("%lu\n", ((index_t*)(resources.func_table.buffer))[i]);
+
+
 	if ((iRet = run_program(&resources)) != 0)goto FREE;
 
 FREE:

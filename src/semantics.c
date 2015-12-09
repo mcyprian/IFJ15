@@ -179,6 +179,10 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     int is_main;
     arg_counter = 0;
 
+    index_t index_to_func_table;
+    index_t * func_index;
+
+
     switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
         case RETURN_OK:
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
@@ -186,7 +190,14 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
         case NOT_FOUND:
             i = resources->stack.top;
             declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
-            if ( (is_main = strcmp(load_token(&(resources->string_buff), index_to_string_buff), "main")) == 0)
+            resources->definitions_counter++;
+	    if( (save_frame(resources, i, index_to_string_buff, resources->definitions_counter, FUNC)) == NOT_FOUND ){
+	        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
+		return SEMANTIC_ERROR;
+	    } 
+	    new_item(&(resources->func_table), index_to_func_table, func_index);
+
+	    if ( (is_main = strcmp(load_token(&(resources->string_buff), index_to_string_buff), "main")) == 0)
                 set_start(resources, index_to_string_buff);
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return RETURN_OK;
@@ -529,7 +540,6 @@ int define_func(Resources *resources)
     if (strcmp(str,"main") == 0){
         resources->start_main = resources->instruction_buffer.next_free;
     }
-    resources->definitions_counter++;
     save_func_index (resources, currently_analyzed_function, resources->instruction_buffer.next_free);
 
     int argc;
@@ -791,20 +801,13 @@ int save_func_index(Resources *resources, index_t func_name, index_t index_to_st
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     } // after while, tmp is global scope tree
 
-    if( (iret = save_frame(resources, tmp->index_to_struct_buffer, func_name, resources->definitions_counter, FUNC)) != NOT_FOUND ){
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
-        return RETURN_OK;
-    }
-    else {
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
-        return SEMANTIC_ERROR;
-    }
-
-    new_item(&(resources->struct_buff_trees), index_to_func_table, func_index);
-
     debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table to index: ", index_to_func_table);
     debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table index: ", index_to_store);
 
+    if((iret = load_frame(resources, tmp->index_to_struct_buffer, func_name, &index_to_func_table, FUNC)) != RETURN_OK)
+	    return iret;
+
+    dereference_structure(&(resources->func_table), index_to_func_table, (void **)&func_index);
     *func_index = index_to_store;
 
     debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");

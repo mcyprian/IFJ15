@@ -59,6 +59,7 @@ int generate_function_call(Resources *resources, index_t function_id) {
 			if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
 
 			*jump_paddr = resources->instruction_buffer.next_free;
+			debug_print("FUNC_INDEX: %lu\n", func_index);
 			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0, 0, JMP_FUNC )) != 0)goto EXIT;
 		}
 	}

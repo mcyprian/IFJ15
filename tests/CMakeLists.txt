@@ -20,7 +20,7 @@ add_test(scanner run_scanner_test.sh)
 add_test(pa pa_test)
 add_executable(pa_test pa_test.c ../src/precedence_analysis.c ../src/stack.c
     ../src/dynamic_structure_buffer.c ../src/dynamic_buffer.c ../src/scanner.c
-    ../src/syntax_analysis.c ../src/symbol_table.c ../src/semantics.c)
+    ../src/syntax_analysis.c ../src/symbol_table.c ../src/semantics.c ../src/instruction_generator.c)
 target_link_libraries(pa_test check)
 add_test(syntax_tests syntax_check_test.sh)
 add_executable(instructions_test instructions_test.c ../src/dynamic_structure_buffer.c ../src/instructions.c ../src/dynamic_buffer.c ../src/ial.c ../src/built_functions.c)

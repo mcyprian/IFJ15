@@ -1285,17 +1285,20 @@ static inline int jmp_mem(Resources *resources, TInstruction *instruction) {
 static inline int jmp_func(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_FUNC");
 
-    debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu);
-	index_t *jmp_index;
-	int iRet;
+    index_t *jmp_index;
+    int iRet;
 
-	if ((iRet = dereference_structure(&(resources->func_table), instruction->dest.index, (void **)&jmp_index)) != RETURN_OK)
-		return iRet;
-
-	if (*jmp_index == 0)
-		return SEMANTIC_ERROR;
-
+    if ((iRet = dereference_structure(&(resources->func_table), instruction->dest.index, (void **)&jmp_index)) != RETURN_OK)
+	return iRet;
+    
+    debug_print("instruction->dest.index: %lu, jmp_index: %lu\n", instruction->dest.index, *jmp_index);
+    
+    if (*jmp_index == 0){
+        return SEMANTIC_ERROR;
+    }
     resources->ip = *jmp_index - 1lu;
+
+    debug_print("%s %lu\n", "NEW IP ADRESS", resources->ip);
 
     return RETURN_OK;
 }
