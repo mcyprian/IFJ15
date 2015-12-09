@@ -22,7 +22,7 @@
 #include <ial.h>
 #include <built_functions.h>
 
-#define NUM_OF_INSTRUCTIONS 64   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 58   // TODO set final number
 
 
 // Converts token enum to number of instrucrion
@@ -81,20 +81,14 @@ enum instructions
     CIN_DOUBLE,            // 47
     CIN_STRING,            // 48
     CONCAT_MEM_MEM,        // 49
-    CONCAT_MEM_CONST,      // 50   
-    CONCAT_CONST_CONST,    // 51
-    SUBSTR_MEM_MEM,        // 52
-    LENGTH_MEM,            // 53
-    LENGTH_CONST,          // 54
-    FIND_MEM_MEM,          // 55
-    FIND_MEM_CONST,        // 56
-    FIND_CONST_CONST,      // 57
-    SORT_MEM,              // 58
-    SORT_CONST,            // 59
-    COUT_MEM_TYPE,         // 60
-    NO_RETURN,             // 61
-    SET_TYPE,              // 62
-    HALT                   // 63
+    SUBSTR_MEM_MEM,        // 50
+    LENGTH_MEM,            // 51
+    FIND_MEM_MEM,          // 52
+    SORT_MEM,              // 53
+    COUT_MEM_TYPE,         // 54
+    NO_RETURN,             // 55
+    SET_TYPE,              // 56
+    HALT                   // 57
 };
 
 static inline int new_instruction_empty(TDynamic_structure_buffer *buff, int ins) {
@@ -1156,50 +1150,24 @@ static inline int cout_mem_type(Resources *resources, TInstruction *instruction)
 
 static inline int concat_mem_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "CONCAT_MEM_MEM");
-    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined 
-        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined)
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined 
+        && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
         return UNINIT_ERROR;
 
-    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
+    
+    instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
-    = concat(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
-                                        access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index
+    = concat(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index,
+                                        access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
 
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
-    return RETURN_OK;
-}
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index);
+    
+    pop_stack(&resources->runtime_stack); 
 
-static inline int concat_mem_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "CONCAT_MEM_CONST");
-    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
-        return UNINIT_ERROR;
-
-    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
-    = concat(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
-    instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
-    return RETURN_OK;
-}
-
-static inline int concat_const_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "CONCAT_CONST_CONST");
-    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
-    = concat(&(resources->string_buff), instruction->first_op.index, 
-    instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
     return RETURN_OK;
 }
 
@@ -1207,19 +1175,32 @@ static inline int concat_const_const(Resources *resources, TInstruction *instruc
 
 static inline int substr_mem_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SUBSTR_MEM_MEM");
-    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
-    debug_print("%s: %d\n", "OP3 CONTENT", instruction->dest.i);
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->defined 
+        && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined
+        && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
+        return UNINIT_ERROR;
 
-    TStack_variable *var;
-    push_stack(&(resources->runtime_stack), &var);
-    var->value.index = substr(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
-                                                      access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index,
-                                                      access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    var->type = L_STRING;
+    debug_print("%s: %ld\n", "OP1 CONTENT", resources->runtime_stack.next_free - 3);
+    debug_print("%s: %ld\n", "OP2 CONTENT", resources->runtime_stack.next_free - 2);
+    debug_print("%s: %ld\n", "OP3 CONTENT", resources->runtime_stack.next_free - 1);
 
-    var->defined = 1;
-    debug_print("%s\n", "END OF SUBSTR_MEM_MEM");
+    instruction->dest.index = 0;
+
+    // TStack_variable *var;
+    // push_stack(&(resources->runtime_stack), &var);
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index
+    = substr(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index,
+                                        access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index,
+                                        access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
+    // var->type = L_STRING;
+
+    // var->defined = 1;
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->defined = 1;      // Sets inint flag
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index);
+
+    pop_stack(&resources->runtime_stack); 
+    pop_stack(&resources->runtime_stack); 
+
     return RETURN_OK;
 }
 
@@ -1227,28 +1208,19 @@ static inline int substr_mem_mem(Resources *resources, TInstruction *instruction
 
 static inline int length_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "LENGTH_MEM");
-    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
         return UNINIT_ERROR;
 
-    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
     
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
-    = length(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
-    
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return RETURN_OK;
-}
+    instruction->dest.index = 0;
 
-static inline int length_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "LENGTH_CONST");
-    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i
+    = length(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
     
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
-    = length(&(resources->string_buff), instruction->first_op.index);
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined = 1;      // Sets inint flag
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
     
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
     return RETURN_OK;
 }
 
@@ -1256,50 +1228,24 @@ static inline int length_const(Resources *resources, TInstruction *instruction) 
 
 static inline int find_mem_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "FIND_MEM_MEM");
-    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined 
-        && access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->defined)
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined 
+        && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
         return UNINIT_ERROR;
 
-    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
 
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
-    = find(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
-                                     access(resources->runtime_stack.buffer, TStack_variable, instruction->second_op.index + resources->bp)->value.index);
+    instruction->dest.index = 0;
 
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return RETURN_OK;
-}
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i
+    = find(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index,
+                                     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
 
-static inline int find_mem_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "FIND_MEM_CONST");
-    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
-        return UNINIT_ERROR;
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
+    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
+    
+    pop_stack(&resources->runtime_stack); 
 
-    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
-    = find(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index,
-    instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
-    return RETURN_OK;
-}
-
-static inline int find_const_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "FIND_CONST_CONST");
-    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i
-    = find(&(resources->string_buff), instruction->first_op.index, 
-    instruction->second_op.index);
-
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.i);
     return RETURN_OK;
 }
 
@@ -1307,28 +1253,19 @@ static inline int find_const_const(Resources *resources, TInstruction *instructi
 
 static inline int sort_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "SORT_MEM");
-    if (!access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->defined)
+    if (!access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
         return UNINIT_ERROR;
 
-    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
     
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
-    = sort(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, instruction->first_op.index + resources->bp)->value.index);
-    
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
-    return RETURN_OK;
-}
+    instruction->dest.index = 0;
 
-static inline int sort_const(Resources *resources, TInstruction *instruction) {
-    debug_print("%s\n", "SORT_CONST");
-    debug_print("%s: %ld\n", "OP1 CONTENT", instruction->first_op.index);
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index
+    = sort(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
     
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index
-    = sort(&(resources->string_buff), instruction->first_op.index);
+    access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined = 1;      // Sets inint flag
+    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
     
-    access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->defined = 1;      // Sets inint flag
-    debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index + resources->bp)->value.index);
     return RETURN_OK;
 }
 

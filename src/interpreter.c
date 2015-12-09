@@ -67,20 +67,14 @@ int run_program(Resources * resources){
     instrucion_symbols[47] = "CIN_DOUBLE";
     instrucion_symbols[48] = "CIN_STRING";
     instrucion_symbols[49] = "CONCAT_MEM_MEM";
-    instrucion_symbols[50] = "CONCAT_MEM_CONST";
-    instrucion_symbols[51] = "CONCAT_CONST_CONST";
-    instrucion_symbols[52] = "SUBSTR_MEM_MEM";
-    instrucion_symbols[53] = "LENGTH_MEM";
-    instrucion_symbols[54] = "LENGTH_CONST";
-    instrucion_symbols[55] = "FIND_MEM_MEM";
-    instrucion_symbols[56] = "FIND_MEM_CONST";
-    instrucion_symbols[57] = "FIND_CONST_CONST"; 
-    instrucion_symbols[58] = "SORT_MEM";  
-    instrucion_symbols[59] = "SORT_CONST"; 
-    instrucion_symbols[60] = "COUT_MEM_TYPE"; 
-    instrucion_symbols[61] = "NO_RETURN";
-    instrucion_symbols[62] = "SET TYPE";
-    instrucion_symbols[63] = "HALT";
+    instrucion_symbols[50] = "SUBSTR_MEM_MEM";
+    instrucion_symbols[51] = "LENGTH_MEM";
+    instrucion_symbols[52] = "FIND_MEM_MEM";
+    instrucion_symbols[53] = "SORT_MEM";  
+    instrucion_symbols[54] = "COUT_MEM_TYPE"; 
+    instrucion_symbols[55] = "NO_RETURN";
+    instrucion_symbols[56] = "SET TYPE";
+    instrucion_symbols[57] = "HALT";
 
 	debug_print("%s\n", "CREATING VISUALIZATION OF INSTRUCTION BUFFER");
     FILE *fp;
@@ -93,6 +87,7 @@ int run_program(Resources * resources){
 			ins_num = access(resources->instruction_buffer.buffer, TInstruction, tmp_ip)->ins;
             fprintf(fp, " %lu      %s\n", tmp_ip, instrucion_symbols[ins_num]);
         }
+        
         fclose(fp);
     }
 #endif
