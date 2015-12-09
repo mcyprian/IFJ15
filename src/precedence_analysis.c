@@ -241,14 +241,14 @@ int short_reduction(Resources *res, TStack *stack) {
         if (type == L_INT) {
             int value;
             if ((value = to_int(load_token(&res->string_buff, token_to_reduce->token_index))) < 0)
-                return SEMANTIC_ERROR;
+                return LEXICAL_ERROR;
                 catch_internal_error(new_instruction_int_int(&res->instruction_buffer, 0lu, value, 0, PUSH_INT_CONST),
                                      INTERNAL_ERROR, "Failed to generate new ");
         } else 
         if (type == L_DOUBLE) {
             double value;
             if ((value = to_double(load_token(&res->string_buff, token_to_reduce->token_index))) < 0.0)
-                return SEMANTIC_ERROR;
+                return LEXICAL_ERROR;
                 catch_internal_error(new_instruction_dbl_dbl(&res->instruction_buffer, 0lu, value, 0.0, PUSH_DBL_CONST),
                                      INTERNAL_ERROR, "Failed to generate new instruction");
         } else
