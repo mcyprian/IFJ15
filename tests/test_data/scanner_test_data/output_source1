@@ -34,7 +34,8 @@ var 13
 22
 sentance 13
 17
-Long string literal\n 16
+Long string literal
+ 16
 36
 22
 empty 13
@@ -44,7 +45,8 @@ empty 13
 22
 special 13
 17
-This \n \" is \\ special \x73tring  16
+This 
+ " is \ special string  16
 36
 28
 11
