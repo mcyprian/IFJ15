@@ -1,4 +1,4 @@
-/**
+/*
  * @file scanner.c
  * @author Tomas Scavnicky <xscavn00@stud.fit.vutbr.cz> Michal Durista <xduris04@stud.fit.vutbr.cz>
  *
@@ -133,8 +133,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 		switch (state) 
 		{
 			case START:
-				//new_item(struct_buffer, index, token); // pridat overenie, ci to vyslo
-
 				if ((c > 64 && c < 91) || (c > 96 && c < 123) || c == '_') // A-Z || a-z || _
 				{
 					state = IDENTIFIER;
@@ -521,7 +519,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					token->token_type = L_STRING;
 					token->token_index = save_token(buffer);
-					//printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
 					state = START;
 					return index;
 				}
