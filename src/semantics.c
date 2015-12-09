@@ -642,8 +642,8 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
         return RETURN_OK;
     }
     else if ((frst_token_type == L_STRING) || (scnd_token_type == L_STRING)) {
-        debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
-        return SEMANTIC_ERROR;
+        debug_print("%s\n", "CHECK_TOKENS_TYPE_ERROR");
+        return TYPE_ERROR;
     }
     else if (frst_token_type == L_DOUBLE)
         return TYPE_CAST_SECOND;  //pretypuj druhy token
