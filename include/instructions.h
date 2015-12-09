@@ -956,7 +956,7 @@ static inline int push_empty(Resources *resources, TInstruction *instruction) {
     if ((iRet = dereference_structure(&resources->runtime_stack, index, 
                                       (void **)&new_top)) != RETURN_OK) return iRet; 
     new_top->value.index = instruction->first_op.index;
-    new_top->defined = 1;
+    new_top->defined = 0;
     return RETURN_OK;
 }
 
