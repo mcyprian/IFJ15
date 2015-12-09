@@ -781,7 +781,7 @@ int save_func_index(Resources *resources, index_t func_name, index_t index_to_st
 {
     debug_print("%s\n","SAVE_FUNC_INDEX");
     index_t *func_index;
-    Tree *tmp;
+    TTree *tmp;
     int iret;
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
