@@ -1180,9 +1180,9 @@ static inline int substr_mem_mem(Resources *resources, TInstruction *instruction
         && access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->defined)
         return UNINIT_ERROR;
 
-    debug_print("%s: %ld\n", "OP1 CONTENT", resources->runtime_stack.next_free - 3);
-    debug_print("%s: %ld\n", "OP2 CONTENT", resources->runtime_stack.next_free - 2);
-    debug_print("%s: %ld\n", "OP3 CONTENT", resources->runtime_stack.next_free - 1);
+    debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index);
+    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index);
+    debug_print("%s: %d\n", "OP3 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
 
     instruction->dest.index = 0;
 
@@ -1195,6 +1195,7 @@ static inline int substr_mem_mem(Resources *resources, TInstruction *instruction
     // var->type = L_STRING;
 
     // var->defined = 1;
+	access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->type = L_STRING;      // Sets inint flag
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->defined = 1;      // Sets inint flag
     debug_print("%s: %ld\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index);
 
@@ -1279,6 +1280,17 @@ static inline int jmp_mem(Resources *resources, TInstruction *instruction) {
 
     return RETURN_OK;
 }
+
+static inline int jmp_func(Resources *resources, TInstruction *instruction) {
+    debug_print("%s\n", "JMP_FUNC");
+
+    debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu);
+
+    resources->ip = instruction->dest.index - 1lu;
+
+    return RETURN_OK;
+}
+
 
 static inline int jmp_true_mem(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_TRUE_MEM");

@@ -38,6 +38,7 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 	if (add_str(b, new_string) == INTERNAL_ERROR)
 		return 0;
 
+	printf("Toto je novy index, kde je rewrite string: %ld \n", temporary_w_index);
 	int new_string_length = (int)strlen(new_string);
 	char *rewrite_string = load_token(b, temporary_w_index);
     printf("v tomto retazci chceme prepisovat: %s \n", rewrite_string);
@@ -48,6 +49,8 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 	if (add_str(b, rewrite_string) == INTERNAL_ERROR)
 		return 0;
 
+	printf("toto je return index: %ld \n", return_w_index);
+	printf("toto je posledny writing index bufferu: %ld \n", b->writing_index);
 	//index_t return_index = save_token(b);
     printf("toto som ulozil na koniec bufferu, nas novy substr: %s\n", load_token(b, return_w_index));
     printf("\n\n\nnovy vypis bufferu: ");
@@ -71,8 +74,9 @@ index_t concat(TDynamic_buffer *b, index_t index1, index_t index2)
 
 	if (add_str(b, string2) == INTERNAL_ERROR)
 		return 0;
-	
+
 	index_t index = save_token(b);
 
+	printf("\nconcat string: %s\n", load_token(b, index));
 	return index;
 }
