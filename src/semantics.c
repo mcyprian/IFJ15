@@ -530,7 +530,7 @@ int define_func(Resources *resources)
         resources->start_main = resources->instruction_buffer.next_free;
     }
     resources->definitions_counter++;
-    save_func_index (resources, resources->instruction_buffer.next_free);
+    save_func_index (resources, currently_analyzed_function, resources->instruction_buffer.next_free);
 
     int argc;
     int data_type;
@@ -777,10 +777,27 @@ debug_print("%s%s\n", "GET_VAR_TYPE var name: ", load_token(&(resources->string_
     }
 }
 
-int save_func_index(Resources *resources, index_t index_to_store)
+int save_func_index(Resources *resources, index_t func_name, index_t index_to_store)
 {
     debug_print("%s\n","SAVE_FUNC_INDEX");
     index_t *func_index;
+    Tree *tmp;
+    int iret;
+
+    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+
+    while(tmp->next != ZERO_INDEX) {
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
+    } // after while, tmp is global scope tree
+
+    if( (iret = save_frame(resources, tmp->index_to_struct_buffer, func_name, resources->definitions_counter, FUNC)) != NOT_FOUND ){
+        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
+        return RETURN_OK;
+    }
+    else {
+        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
+    }
 
     catch_internal_error(
     dereference_structure(&(resources->func_table), resources->definitions_counter, (void **)&func_index),
