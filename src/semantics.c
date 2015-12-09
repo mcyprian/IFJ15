@@ -802,6 +802,9 @@ int save_func_index(Resources *resources, index_t func_name, index_t index_to_st
 
     new_item(&(resources->struct_buff_trees), index_to_func_table, func_index);
 
+    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table to index: ", index_to_func_table);
+    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table index: ", index_to_store);
+
     *func_index = index_to_store;
 
     debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
