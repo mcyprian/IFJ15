@@ -782,6 +782,7 @@ int save_func_index(Resources *resources, index_t func_name, index_t index_to_st
     debug_print("%s\n","SAVE_FUNC_INDEX");
     index_t *func_index;
     TTree *tmp;
+    index_t index_to_func_table;
     int iret;
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
@@ -799,11 +800,7 @@ int save_func_index(Resources *resources, index_t func_name, index_t index_to_st
         return SEMANTIC_ERROR;
     }
 
-    catch_internal_error(
-    dereference_structure(&(resources->func_table), resources->definitions_counter, (void **)&func_index),
-    INTERNAL_ERROR,
-        "Failed to dereference structure buffer."
-    );
+    new_item(&(resources->struct_buff_trees), index_to_func_table, func_index);
 
     *func_index = index_to_store;
 
