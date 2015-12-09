@@ -93,6 +93,21 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 	args_assert(buffer != NULL && struct_buffer != NULL, INTERNAL_ERROR);
 	debug_print("%s\n", "GET_TOKEN");
 
+	// TDynamic_buffer string_buffer;
+	// init_buffer(&string_buffer, 1024);
+
+	// add_char(&string_buffer, 'a');
+	// add_char(&string_buffer, 'b');
+	// add_char(&string_buffer, 'c');
+	// add_char(&string_buffer, '\n');
+	// add_char(&string_buffer, 'd');
+	// add_char(&string_buffer, 'e');
+	// add_char(&string_buffer, '\n');
+	// add_char(&string_buffer, 'f');
+	// index_t x = save_token(&string_buffer);
+
+	// printf("%s\n", load_token(&string_buffer, x));
+
 
 	int c;
 	int previous = 0;
@@ -524,7 +539,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				}
 				else if (c == '\\')
 				{
-					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
+					// catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = L_STRING_BACKSLASH;
 				}
 				else
@@ -535,7 +550,37 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				break;
 
 			case L_STRING_BACKSLASH:
-				catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
+				switch(c) {
+					case 'n':
+						catch_token_internal_error(add_char(buffer, '\n'), INTERNAL_ERROR, token, index);
+						state = L_STRING;
+						break;
+					case 't':
+						catch_token_internal_error(add_char(buffer, '\t'), INTERNAL_ERROR, token, index);
+						state = L_STRING;
+						break;
+					case '"':
+						catch_token_internal_error(add_char(buffer, '"'), INTERNAL_ERROR, token, index);
+						state = L_STRING;
+						break;
+					case '\\':
+						catch_token_internal_error(add_char(buffer, '\\'), INTERNAL_ERROR, token, index);
+						state = L_STRING;
+						break;
+					case 'x':
+						state = L_STRING;
+						break;
+					default:
+						token->token_type = ERRORT;
+						token->token_index = save_token(buffer);
+						ungetc(c,fin);
+						state = START;
+						return index;
+
+				}
+
+
+				// catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 				state = L_STRING;
 				break;
 
