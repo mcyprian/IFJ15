@@ -529,7 +529,8 @@ int define_func(Resources *resources)
     if (strcmp(str,"main") == 0){
         resources->start_main = resources->instruction_buffer.next_free;
     }
-    save_func_index (resources, currently_analyzed_function, resources->instruction_buffer.next_free);
+    resources->definitions_counter++;
+    save_func_index (resources, resources->instruction_buffer.next_free);
 
     int argc;
     int data_type;
@@ -776,26 +777,21 @@ debug_print("%s%s\n", "GET_VAR_TYPE var name: ", load_token(&(resources->string_
     }
 }
 
-int save_func_index(Resources *resources, index_t func_name, index_t index_to_store)
+int save_func_index(Resources *resources, index_t index_to_store)
 {
     debug_print("%s\n","SAVE_FUNC_INDEX");
-    TTree *tmp;
-    int iret;
+    index_t *func_index;
 
-    dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
+    catch_internal_error(
+    dereference_structure(&(resources->func_table), resources->definitions_counter, (void **)&func_index),
+    INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
-    while(tmp->next != ZERO_INDEX) {
-        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
-    } // after while, tmp is global scope tree
+    *func_index = index_to_store;
 
-    if( (iret = save_frame(resources, tmp->index_to_struct_buffer, func_name, index_to_store, FUNC)) != NOT_FOUND ){
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
-        return RETURN_OK;
-    }
-    else {
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
-        return SEMANTIC_ERROR;
-    }
+    debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
+    return RETURN_OK;
 }
 
 int save_var_index(Resources *resources, index_t var_name, index_t index_to_store)

@@ -61,6 +61,8 @@ int main(int argc, char ** argv){
 	if ((iRet = init_stack(&(resources.stack))) != RETURN_OK)
 		goto FUNC_TABLE;
 
+	resources.definitions_counter = 0;
+
 	resources.source = NULL;
 	if((resources.source = fopen(argv[1], "r")) == NULL){
 		fprintf(stderr, "%s:%d Cannot open a file: %20s\n", __func__, __LINE__,  argv[1]);

@@ -40,6 +40,7 @@ struct res{
 	index_t ip;
 	index_t bp;
 	struct stack_variable return_value;
+	int definitions_counter;
 };
 
 struct instruction{
