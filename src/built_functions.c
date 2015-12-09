@@ -21,9 +21,11 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
     printf("Vypis buffer: ");
     for (unsigned j = 0; j < b->writing_index; j++)
         putchar(b->buffer[j]);
-    //putchar('\n');
+    
     printf("\nkoniec vypisu \n");
+
 	save_token(b);	// whatever is in b, puts '\0' after that
+
 	char *check_string = load_token(b, index);
     printf("Toto je string v ktorom hladam: %s\n", load_token(b, index));
 	int lenght = (int)strlen(check_string);
@@ -51,6 +53,7 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
     printf("\n\n\nnovy vypis bufferu: ");
     for (unsigned i = 0; i < b->writing_index; i++)
         putchar(b->buffer[i]);
+    
     putchar('\n');
     printf("koniec noveho vypisu\n\n");
 	return return_w_index;
