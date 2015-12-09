@@ -4,12 +4,18 @@
 #include <syntax_analysis.h>
 
 int generate_function_call(Resources *resources, index_t function_id) {
-		
+
+	debug_print("%s\n","GENERATE_FUNCTION_CAL");
 	int built_in, iRet;
 	index_t func_index;
 	index_t *jump_paddr = NULL;
 	char *func_str;
 	int cmp;
+
+	if ( (iRet = is_func_declared(resources, function_id)) != RETURN_OK){
+		debug_print("%s%d\n","GENERATE_FUNCTION_CALL_RETURN ", iRet);
+		return iRet;
+	}
 
 	if ( (built_in = is_built_in(resources, function_id)) == SEMANTIC_ERROR){
 		debug_print("%s\n","GENERATE_FUNCTION_CALL_RETURN_SEMANTIC_ERROR");
@@ -64,8 +70,10 @@ int generate_function_call(Resources *resources, index_t function_id) {
 		}
 	}
 	
+	debug_print("%s\n","GENERATE_FUNCTION_CAL_RETURN_OK");
 	return RETURN_OK;
 
 	EXIT:
+	debug_print("%s%d\n","GENERATE_FUNCTION_CALL_RETURN ", iRet);
 	return iRet;
 }
