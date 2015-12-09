@@ -22,7 +22,7 @@
 #include <ial.h>
 #include <built_functions.h>
 
-#define NUM_OF_INSTRUCTIONS 58   // TODO set final number
+#define NUM_OF_INSTRUCTIONS 59   // TODO set final number
 
 
 // Converts token enum to number of instrucrion
@@ -74,21 +74,22 @@ enum instructions
     POP_EMPTY,             // 40   
     JMP_MEM,               // 41   
     JMP_TRUE_MEM,          // 42   
-    JMP_FALSE_MEM,         // 43  
-    FCE_CALL,              // 44
-    FCE_RETURN,            // 45
-    CIN_INT,               // 46
-    CIN_DOUBLE,            // 47
-    CIN_STRING,            // 48
-    CONCAT_MEM_MEM,        // 49
-    SUBSTR_MEM_MEM,        // 50
-    LENGTH_MEM,            // 51
-    FIND_MEM_MEM,          // 52
-    SORT_MEM,              // 53
-    COUT_MEM_TYPE,         // 54
-    NO_RETURN,             // 55
-    SET_TYPE,              // 56
-    HALT                   // 57
+    JMP_FALSE_MEM,         // 43
+    JMP_FUNC,  		   // 44
+    FCE_CALL,              // 45
+    FCE_RETURN,            // 46
+    CIN_INT,               // 47
+    CIN_DOUBLE,            // 48
+    CIN_STRING,            // 49
+    CONCAT_MEM_MEM,        // 50
+    SUBSTR_MEM_MEM,        // 51
+    LENGTH_MEM,            // 52
+    FIND_MEM_MEM,          // 53
+    SORT_MEM,              // 54
+    COUT_MEM_TYPE,         // 55
+    NO_RETURN,             // 56
+    SET_TYPE,              // 57
+    HALT                   // 58
 };
 
 static inline int new_instruction_empty(TDynamic_structure_buffer *buff, int ins) {
@@ -1285,8 +1286,16 @@ static inline int jmp_func(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "JMP_FUNC");
 
     debug_print("%s %lu\n", "NEW IP ADRESS", access(resources->runtime_stack.buffer, TStack_variable, instruction->dest.index)->value.index - 1lu);
+	index_t *jmp_index;
+	int iRet;
 
-    resources->ip = instruction->dest.index - 1lu;
+	if ((iRet = dereference_structure(&(resources->func_table), instruction->dest.index, (void **)&jmp_index)) != RETURN_OK)
+		return iRet;
+
+	if (*jmp_index == 0)
+		return SEMANTIC_ERROR;
+
+    resources->ip = *jmp_index - 1lu;
 
     return RETURN_OK;
 }
