@@ -274,7 +274,13 @@ int check_syntax(int term, Resources * resources){
 	            debug_print("func_call---------%s\n", access(resources->string_buff.buffer, char, last_id));
 	            if ((iRet = load_func_index(resources, last_id, &last_id)) != 0)goto EXIT;
 	            if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), last_id, 0lu, 0lu, FCE_CALL)) != 0)goto EXIT;
+				jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
+
+				*jump_paddr = resources->instruction_buffer.next_free;
+				if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), last_id, 0, 0, JMP_MEM )) != 0)goto EXIT;			
+					
 				if ((iRet = new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY)) != 0)goto EXIT;
 			}
 			else goto SYN_ERR;

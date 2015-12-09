@@ -108,7 +108,8 @@ int run_program(Resources * resources){
 	}
 
 	resources->ip = 1;
-	access(resources->instruction_buffer.buffer, TInstruction, 1)->dest.index = resources->start_main;
+	access(resources->instruction_buffer.buffer, TInstruction, 1)->dest.index = 2;
+	access(resources->instruction_buffer.buffer, TInstruction, 2)->dest.index = resources->start_main;
 
 	debug_print("%s :%lu\n", "START POINT", resources->start_main);
 

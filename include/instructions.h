@@ -1377,14 +1377,14 @@ static inline int jmp_false_mem(Resources *resources, TInstruction *instruction)
 
 
 //****************************** FUNCTIONS ******************************// 
-// Expecting adress of function in instruction->dest.index
+// Expecting adress of ources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))unction in instruction->dest.index
 static inline int function_call(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "FUNCTION CALL");
 
     TStack_variable *tmp;                           //    Stack
     push_stack(&resources->runtime_stack, &tmp);    //    ?
-    debug_print("%s %lu\n", "RETURNING IP", resources->ip);
-    tmp->value.index = resources->ip;               //    ip  ?
+    debug_print("%s %lu\n", "RETURNING IP", instruction->dest.index);
+    tmp->value.index = instruction->dest.index;               //    ip  ?
     tmp->defined = 1;
     push_stack(&resources->runtime_stack, &tmp);    //    bp  ip  ?
 
