@@ -14,6 +14,7 @@
 #include <error_macros.h>
 #include <precedence_analysis.h>
 #include <resources.h>
+#include <instruction_generator.h>
 #include <datatypes.h>
 #include <stack.h>
 #include <scanner.h>
@@ -509,51 +510,44 @@ int check_expression(Resources *res, TToken **last_token, index_t *last_index) {
             catch_undefined_error(is_func_declared(res, last_id),
                                  SEMANTIC_ERROR, "Function declaration check failed.", 1
             );
+            
+            dereference_structure(&res->struct_buff, input_index, (void **)last_token);
 
-            if ((iRet = load_func_index(res, last_id, &last_id)) != 0)
-                goto EXIT;
-            if ((iRet = new_instruction_mem_mem(&(res->instruction_buffer), last_id, 0lu, 0lu, FCE_CALL)) != 0)
-                goto EXIT;
+            if ((iRet = generate_function_call(res, last_id)) != 0) goto EXIT;
             return_type = get_return_type(res, top_token->token_index);
             catch_internal_error(return_type, SYNTAX_ERROR, "Failed to get function return type.");
 
-            dereference_structure(&res->struct_buff, input_index, (void **)last_token);
-            iRet = check_syntax(FUNC_CALL, res);
-            if (iRet != RETURN_OK) {
+            // Reduction of function call
+            if((iRet = reduce(&res->struct_buff, &stack, return_type)) != RETURN_OK)
                 goto EXIT;
-            } else {
-                // Reduction of function call
-                if((iRet = reduce(&res->struct_buff, &stack, return_type)) != RETURN_OK)
-                    goto EXIT;
 
-                top_index = stack.top;
-                catch_syntax_error(
-                    get_first_token(&res->struct_buff, &stack, &top_index),
-                    INTERNAL_ERROR,
-                    "Failed to get first token", 1
-                );
-                input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
-                catch_internal_error(
-                    dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
-                    INTERNAL_ERROR,
-                    "Failed to dereference structure buffer."
-                );
+            top_index = stack.top;
+            catch_syntax_error(
+                get_first_token(&res->struct_buff, &stack, &top_index),
+                INTERNAL_ERROR,
+                "Failed to get first token", 1
+            );
+            input_index = get_token(res->source, &res->string_buff, &res->struct_buff);
+            catch_internal_error(
+                dereference_structure(&res->struct_buff, input_index, (void **)&input_token),
+                INTERNAL_ERROR,
+                "Failed to dereference structure buffer."
+            );
 
-                if (input_token->token_type == ERRORT) {
-                    iRet = LEXICAL_ERROR;
-                    goto EXIT;
-                }
-
-                catch_internal_error(
-                    dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
-                    INTERNAL_ERROR,
-                    "Failed to dereference structure buffer."
-                );
-                if (type_filter(top_token->token_type) == END_OF_EXPR &&
-                    type_filter(input_token->token_type) == END_OF_EXPR)
-                    break;
-
+            if (input_token->token_type == ERRORT) {
+                iRet = LEXICAL_ERROR;
+                goto EXIT;
             }
+
+            catch_internal_error(
+                dereference_structure(&res->struct_buff, top_index, (void **)&top_token),
+                INTERNAL_ERROR,
+                "Failed to dereference structure buffer."
+            );
+            if (type_filter(top_token->token_type) == END_OF_EXPR &&
+                type_filter(input_token->token_type) == END_OF_EXPR)
+                break;
+
         }
 
         switch(precedence_table[type_filter(top_token->token_type)]
