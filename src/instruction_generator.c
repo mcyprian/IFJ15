@@ -1,4 +1,5 @@
 #include <instruction_generator.h>
+#include <semantics.h>
 
 int generate_function_call(Resources *resouces, index_t function_id) {
 		
