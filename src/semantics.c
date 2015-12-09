@@ -176,6 +176,7 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     debug_print("%s\n", "DECLARE_FUNC");
     currently_analyzed_function = index_to_string_buff;
     index_t i;
+    int is_main;
     arg_counter = 0;
 
     switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
@@ -185,6 +186,8 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
         case NOT_FOUND:
             i = resources->stack.top;
             declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
+            if ( (is_main = strcmp(load_token(&(resources->string_buff), index_to_string_buff), "main")) == 0)
+                set_start(resources, index_to_string_buff);
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return RETURN_OK;
         case SEMANTIC_ERROR:
@@ -384,6 +387,12 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
 {
     debug_print("%s\n", "SET_ARG");
     index_t i = resources->stack.top;
+    int is_main;
+
+    if ( (is_main = is_start(resources, currently_analyzed_function)) == true){
+        debug_print("%s\n", "SET_ARG_RETURN_2");
+        return SYNTAX_ERROR;
+    }
 
     arg_counter++;
     if(!check_declaration_status(resources, i, currently_analyzed_function)){
@@ -793,7 +802,7 @@ int save_var_index(Resources *resources, index_t var_name, index_t index_to_stor
 {
     debug_print("%s\n","SAVE_VAR_INDEX");
     TTree *tmp;
-    int iret;
+    int iret = NOT_FOUND;
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
@@ -843,7 +852,7 @@ int load_var_index(Resources *resources, index_t var_name, index_t *load_index)
 {
     debug_print("%s\n","SAVE_VAR_INDEX");
     TTree *tmp;
-    int iret;
+    int iret = NOT_FOUND;
     index_t tmp_load_index;
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
