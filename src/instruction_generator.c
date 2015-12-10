@@ -27,33 +27,29 @@ int generate_function_call(Resources *resources, index_t function_id) {
 
 			if ( (cmp = strcmp (func_str, "concat")) == 0 ){
 				if ((iRet = load_func_index(resources, function_id, &func_index)) != 0)goto EXIT;
-	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, CONCAT_MEM_MEM)) != 0)goto EXIT;
-
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
+	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, CONCAT_MEM_MEM)) != 0)goto EXIT;
 			}
 			else if ( (cmp = strcmp (func_str, "substr")) == 0 ){
 				if ((iRet = load_func_index(resources, function_id, &func_index)) != 0)goto EXIT;
+				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
 	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, SUBSTR_MEM_MEM)) != 0)goto EXIT;
 
-				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
 			}
 			else if ( (cmp = strcmp (func_str, "length")) == 0 ){
 				if ((iRet = load_func_index(resources, function_id, &func_index)) != 0)goto EXIT;
-	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, LENGTH_MEM)) != 0)goto EXIT;
-
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
+	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, LENGTH_MEM)) != 0)goto EXIT;
 			}
 			else if ( (cmp = strcmp (func_str, "find")) == 0 ){
 				if ((iRet = load_func_index(resources, function_id, &func_index)) != 0)goto EXIT;
-	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, FIND_MEM_MEM)) != 0)goto EXIT;
-
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
+	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, FIND_MEM_MEM)) != 0)goto EXIT;
 			}
 			else if ( (cmp = strcmp (func_str, "sort")) == 0 ){
 				if ((iRet = load_func_index(resources, function_id, &func_index)) != 0)goto EXIT;
-	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, SORT_MEM)) != 0)goto EXIT;
-
 				if ((iRet = check_syntax(FUNC_CALL, resources)) != 0)goto EXIT;
+	        		if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), func_index, 0lu, 0lu, SORT_MEM)) != 0)goto EXIT;
 			}
 
 		}
