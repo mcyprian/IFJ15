@@ -501,7 +501,7 @@ debug_print("%s%s\n", "CHECK_VAR_TYPE var name: ", load_token(&(resources->strin
         }
         else if (i == L_DOUBLE || i == L_INT){
             debug_print("%s%d\n", "CHECK_VAR_TYPE_RETURN_",i);
-            return i;
+            return TYPE_CAST;
         }
         else if (i == SEMANTIC_ERROR){
             debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
