@@ -596,6 +596,20 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(K_RETURN, resources)) != 0)goto EXIT;
 			if ((iRet = check_expression(resources, &token, &token_index)) != 0)goto EXIT;
 			
+			if ((iRet = check_return_value_type(resources, token->original_type)) == TYPE_ERROR)goto EXIT;   
+			else if (iRet == TYPE_CAST){                                                                                                                    
+				debug_print("%s\n", "RETURN_CAST");                                                                                                            
+				if (token->original_type == L_DOUBLE){                                                                                          
+					debug_print("%s\n", "TO INT");                                                                                                 
+					if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_DBL_MEM )) != 0)goto EXIT;          
+				}                                                                                                   
+				else {                                                                                                                                                                                           
+					debug_print("%s\n", "TO DOUBLE");                                                                                                                                                            
+					if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, CAST_INT_MEM )) != 0)goto EXIT;          
+				}                                                                                                                                                                                                
+			}                                                                                                                                                                                                    
+			else if (iRet != 0)goto EXIT;
+
 			if ((iRet = declared_var_cnt(resources, &type)) != 0)goto EXIT;
 			debug_print("%s: %d\n", "Number of POPs", type);
 			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, type, 0, FCE_RETURN)) != 0)goto EXIT;
