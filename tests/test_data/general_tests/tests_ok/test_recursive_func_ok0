@@ -1,0 +1,22 @@
+int function(int a);
+
+int main()
+{
+    int a=1;
+    int tmp = function(a);
+    return 0;
+}
+
+int function(int a)
+{
+    if (a < 100){
+        a=2*a;
+        int tmp = function(a);
+        cout << a << "\n";
+    }
+    else {
+        return a;
+    }
+
+    return 0;
+}

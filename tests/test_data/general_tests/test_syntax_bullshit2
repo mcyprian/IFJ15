@@ -1,0 +1,8 @@
+dfd_ 7 		//some bullshit
+
+int main()
+{
+	int a=5;
+	cout << a << "\n"; 
+	return 1;
+}

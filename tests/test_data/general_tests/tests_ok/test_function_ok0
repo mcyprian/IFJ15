@@ -1,0 +1,14 @@
+int func(int k)
+{
+	k=5+k;
+	return k;
+}
+
+int main()
+{
+	int a=5;
+	int b;
+	b=func(a);
+	cout << b << "\n"; 
+	return 0;
+}

@@ -1,0 +1,5 @@
+int main()
+{
+	int a;
+	cout << a << "\n";
+	return a;

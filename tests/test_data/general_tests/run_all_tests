@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in $(ls tests_ok/ | grep -v '\.out') 
+do
+	./test.sh $i
+done

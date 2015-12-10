@@ -1,0 +1,28 @@
+int main()
+{
+    int a;
+    double x;
+    string s;
+    
+    s = "ab\x43def";
+    a = length(s);
+    cout <<a << "\n";
+
+    s = "x";
+    a = length(s);
+    cout << a << "\n";
+
+    s = "2w.a;[{}d";
+    x = length(s);
+    cout << x <<"\n"; 
+
+    s = "";
+    x = length(s);
+    cout << x <<"\n"; 
+
+    s = "x\nz";
+    x = length(s);
+    cout << x <<"\n"; 
+
+    return 42;
+}

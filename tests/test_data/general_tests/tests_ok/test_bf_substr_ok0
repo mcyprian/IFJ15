@@ -1,0 +1,32 @@
+int main()
+{
+    string s;
+    string sub;
+    
+    s = "qwerty";
+    sub = substr(s, 1, 2);
+    cout << sub << "\n";
+
+    s = "qwerty";
+    sub = substr(s, 6, 2.43);
+    cout << sub << "\n"; 
+    
+    s = "";
+    sub = substr(s, 0, 3);
+    cout << sub << "\n";
+
+    s = "qwerty";
+    sub = substr(s, 2, 2.43);
+    cout << sub << "\n"; 
+    
+    s = "qwerty";
+    sub = substr(s, 0, 2.43);
+    cout << sub << "\n"; 
+    
+    s = "qwerty";
+    sub = substr(s, 2, 24.3);
+    cout << sub << "\n"; 
+
+    return 42;
+}
+

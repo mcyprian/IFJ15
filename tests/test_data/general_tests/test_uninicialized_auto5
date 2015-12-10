@@ -1,0 +1,13 @@
+int func(int k)
+{
+	k=5+k;
+	return k;
+}
+
+int main()
+{
+	auto a;
+	int b = a + 1;  // a is not initialized
+	cout << b << "\n";
+	return 1;
+}
