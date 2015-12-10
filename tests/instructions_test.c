@@ -28,11 +28,11 @@ int main() {
         goto STR_BUFF;
 
     index_t first_string = 1;
-    add_str(&resources.string_buff, "abcdef");
+    add_str(&resources.string_buff, "dabfec");
     add_char(&resources.string_buff, '\0');
 
     index_t second_string = ++resources.string_buff.writing_index;
-    add_str(&resources.string_buff, "SECONDS");
+    add_str(&resources.string_buff, "ec");
     printf("first %s second %s\n", load_token(&resources.string_buff, first_string), load_token(&resources.string_buff, second_string));
 
     debug_print("%s\n", "GENERATING INSTRUCTIONS");
@@ -181,17 +181,37 @@ int main() {
         new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 0lu, 0lu, MOV_TOP_MEM);
         new_instruction_int_int(&resources.instruction_buffer, 0lu, L_INT, 0, SET_TYPE);
         new_instruction_empty(&resources.instruction_buffer,  COUT_MEM_TYPE);
-        new_instruction_mem_mem(&resources.instruction_buffer, 0lu, first_string, 0lu, PUSH_INDEX_CONST);
+        
+	// substr
+	new_instruction_mem_mem(&resources.instruction_buffer, 0lu, first_string, 0lu, PUSH_INDEX_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, 1lu, 0lu, PUSH_INDEX_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, 3, 0lu, PUSH_INT_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 3lu, 2lu, SUBSTR_MEM_MEM);
 	new_instruction_empty(&resources.instruction_buffer, COUT_MEM_TYPE);
 
+	//concat
 	new_instruction_mem_mem(&resources.instruction_buffer, 0lu, first_string, 0lu, PUSH_INDEX_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, second_string, 0lu, PUSH_INDEX_CONST);
         new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 3lu, 2lu, CONCAT_MEM_MEM);
-
         new_instruction_empty(&resources.instruction_buffer, COUT_MEM_TYPE);
+        
+	// length
+	new_instruction_mem_mem(&resources.instruction_buffer, 0lu, second_string, 0lu, PUSH_INDEX_CONST);
+	new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 3lu, 2lu, LENGTH_MEM);
+	new_instruction_empty(&resources.instruction_buffer, COUT_MEM_TYPE);
+
+	// find
+	new_instruction_mem_mem(&resources.instruction_buffer, 0lu, first_string, 0lu, PUSH_INDEX_CONST);
+        new_instruction_mem_mem(&resources.instruction_buffer, 0lu, second_string, 0lu, PUSH_INDEX_CONST);
+        new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 3lu, 2lu, FIND_MEM_MEM);
+        new_instruction_empty(&resources.instruction_buffer, COUT_MEM_TYPE);
+
+	// sort
+	new_instruction_mem_mem(&resources.instruction_buffer, 0lu, first_string, 0lu, PUSH_INDEX_CONST);
+        new_instruction_mem_mem(&resources.instruction_buffer, 4lu, 3lu, 2lu, SORT_MEM);
+        new_instruction_empty(&resources.instruction_buffer, COUT_MEM_TYPE);
+	
+
         new_instruction_mem_mem(&resources.instruction_buffer, 0lu, 0lu, 0lu, HALT);
 //       new_instruction_empty(&resources.instruction_buffer, EQ_STR_MEM_MEM);
 //        new_instruction_empty(&resources.instruction_buffer, G_STR_MEM_MEM);

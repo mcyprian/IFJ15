@@ -1134,7 +1134,7 @@ static inline int cout_mem_type(Resources *resources, TInstruction *instruction)
             break;
         case L_DOUBLE:
             debug_print("%s: %g\n", "TYPE DBL OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d);
-            printf("%lf", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d);
+            printf("%g", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.d);
             break;
         case L_STRING:
             debug_print("%s: %ld\n", "TYPE STRING OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
