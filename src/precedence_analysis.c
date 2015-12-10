@@ -350,6 +350,8 @@ int long_reduction(Resources *res, TStack *stack, int rule) {
 
         if (rule >= 0 && rule <= 5) // Relational operation type of result is L_INT
                 original_type = L_INT;
+        if (rule > 5 && original_type == L_STRING)
+            return TYPE_ERROR;
     }
 
     err = reduce(&res->struct_buff, stack, original_type);
