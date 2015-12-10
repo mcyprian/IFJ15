@@ -538,7 +538,8 @@ int define_func(Resources *resources)
     char *str = load_token(&(resources->string_buff), currently_analyzed_function);
     catch_internal_error(str, NULL, "Failed to load token string.");
     if (strcmp(str,"main") == 0){
-        resources->start_main = resources->instruction_buffer.next_free;
+        resources->start_main = resources->definitions_counter;
+	debug_print("%s%d\n", "DEFINE_FUNC saved main to func table on index: ", resources->definitions_counter);
     }
     save_func_index (resources, currently_analyzed_function, resources->instruction_buffer.next_free);
 
