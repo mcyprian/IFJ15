@@ -389,6 +389,7 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
     int is_declared_now = -5;
 
     if ( (is_main = is_start(resources, currently_analyzed_function)) == true){
+	debug_print("%s%s\n", "SET_ARG name of function: ", load_token(&(resources->string_buff), currently_analyzed_function));
         debug_print("%s\n", "SET_ARG_RETURN_2");
         return SYNTAX_ERROR;
     }
