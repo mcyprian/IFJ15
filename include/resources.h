@@ -39,6 +39,7 @@ struct res{
 	index_t start_main;
 	index_t ip;
 	index_t bp;
+    index_t tmp_bp;
 	struct stack_variable return_value;
 	int definitions_counter;
 };

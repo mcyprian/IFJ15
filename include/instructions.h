@@ -1297,6 +1297,7 @@ static inline int jmp_func(Resources *resources, TInstruction *instruction) {
         return SEMANTIC_ERROR;
     }
     resources->ip = *jmp_index - 1lu;
+    resources->bp = resources->tmp_bp;
 
     debug_print("%s %lu\n", "NEW IP ADRESS", resources->ip);
 
@@ -1353,8 +1354,8 @@ static inline int function_call(Resources *resources, TInstruction *instruction)
     tmp->value.index = resources->bp;
     tmp->defined = 1;
 
-    debug_print("%s: %ld\n", "NEW VALUE IN BP", instruction->first_op.index);
-    resources->bp = resources->runtime_stack.next_free - 1;      // sets bp to stack top
+    debug_print("%s: %ld\n", "NEW VALUE IN TMP BP", instruction->first_op.index);
+    resources->tmp_bp = resources->runtime_stack.next_free - 1;      // sets bp to stack top
 
     return RETURN_OK;
 }

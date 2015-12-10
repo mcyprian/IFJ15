@@ -71,7 +71,7 @@ int main(int argc, char ** argv){
 	}
 
 	if ((iRet = new_instruction_mem_mem(&(resources.instruction_buffer), 0, 0, 0, FCE_CALL)) != 0)goto FREE;
-	if ((iRet = new_instruction_mem_mem(&(resources.instruction_buffer), 0, 0, 0, JMP_MEM )) != 0)goto FREE;
+	if ((iRet = new_instruction_mem_mem(&(resources.instruction_buffer), 0, 0, 0, JMP_FUNC)) != 0)goto FREE;
 	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
 	if ((iRet = check_syntax(GLOBAL, &resources)) != 0)goto FREE;
 	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
