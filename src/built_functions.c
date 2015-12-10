@@ -16,9 +16,6 @@ int length(TDynamic_buffer *b, index_t index)
 
 index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 {
-    for (unsigned j = 0; j < b->writing_index; j++)
-        putchar(b->buffer[j]);
-
 	save_token(b);	// whatever is in b, puts '\0' after that
 
 	char *check_string = load_token(b, index);
@@ -26,7 +23,6 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 	if (i >= (unsigned)lenght)
 		return 0;
 
-	char *new_string = load_token(b, index + i);
 	index_t temporary_w_index = b->writing_index;
 	if (add_str_index(b, index + i) == INTERNAL_ERROR)
 		return 0;
@@ -36,15 +32,10 @@ index_t substr(TDynamic_buffer *b, index_t index, index_t i, int n)
 	if (n < new_string_length)
 		rewrite_string[n] = '\0';
 
-	index_t return_w_index = b->writing_index;
-	if (add_str_index(b, temporary_w_index) == INTERNAL_ERROR)
-		return 0;
+	//index_t return_w_index = b->writing_index;
+	//if (add_str_index(b, temporary_w_index) == INTERNAL_ERROR)
+	//	return 0;
 
-	//index_t return_index = save_token(b);
-    for (unsigned i = 0; i < b->writing_index; i++)
-        putchar(b->buffer[i]);
-    
-    putchar('\n');
 	//return return_w_index;
 	return temporary_w_index;
 }
