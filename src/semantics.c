@@ -185,11 +185,17 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
 
     switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
         case RETURN_OK:
+	    unset_declaration_flag(resources, resources->stack.top, index_to_string_buff);
+	    debug_print("%s\n", "DECLARE_FUNC: unsetting declaration flag");
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return RETURN_OK;
         case NOT_FOUND:
             i = resources->stack.top;
             declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
+
+	    set_declaration_flag(resources, i, index_to_string_buff);
+	    debug_print("%s\n", "DECLARE_FUNC: setting declaration flag");
+
             resources->definitions_counter++;
 	    if( (save_frame(resources, i, index_to_string_buff, resources->definitions_counter, FUNC)) == NOT_FOUND ){
 	        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
@@ -220,11 +226,8 @@ int declare_builtin_funcs(Resources *resources)
 
     add_str(&(resources->string_buff), "sort");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_STRING),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
+    declare_func(resources, string_index, L_STRING);
+    
     add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -240,11 +243,7 @@ int declare_builtin_funcs(Resources *resources)
     add_str(&(resources->string_buff), "find");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
     if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
-        catch_internal_error(
-            declare_function(resources, string_index, &i, L_INT),
-            INTERNAL_ERROR,
-            "Failed to declare function."
-        );
+	declare_func(resources, string_index, L_INT);
     add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -263,11 +262,7 @@ int declare_builtin_funcs(Resources *resources)
     add_str(&(resources->string_buff), "length");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
     if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
-        catch_internal_error(
-            declare_function(resources, string_index, &i, L_INT),
-            INTERNAL_ERROR,
-            "Failed to declare function."
-        );
+        declare_func(resources, string_index, L_INT);
     add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -283,11 +278,7 @@ int declare_builtin_funcs(Resources *resources)
     add_str(&(resources->string_buff), "concat");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
     if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
-        catch_internal_error(
-            declare_function(resources, string_index, &i, L_STRING),
-            INTERNAL_ERROR,
-            "Failed to declare function."
-        );
+        declare_func(resources, string_index, L_STRING);
     add_str(&(resources->string_buff), "s1");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -306,11 +297,7 @@ int declare_builtin_funcs(Resources *resources)
     add_str(&(resources->string_buff), "substr");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
     if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
-        catch_internal_error(
-            declare_function(resources, string_index, &i, L_STRING),
-            INTERNAL_ERROR,
-            "Failed to declare function."
-        );
+        declare_func(resources, string_index, L_STRING);
     add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
@@ -399,6 +386,7 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
     debug_print("%s\n", "SET_ARG");
     index_t i = resources->stack.top;
     int is_main;
+    int is_declared_now = -5;
 
     if ( (is_main = is_start(resources, currently_analyzed_function)) == true){
         debug_print("%s\n", "SET_ARG_RETURN_2");
@@ -406,13 +394,15 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
     }
 
     arg_counter++;
-    if(!check_declaration_status(resources, i, currently_analyzed_function)){
+    if( (is_declared_now = check_declaration_status(resources, i, currently_analyzed_function)) == true){
+	debug_print("%s%d\n", "SET_ARG is_declared_now: ", is_declared_now);
         add_arg(resources, name_of_arg, sem_type_filter(data_type));
         debug_print("%s\n", "SET_ARG_RETURN_OK");
         return RETURN_OK;
     }
     else {
-        if(check_arg_declaration(resources, name_of_arg, sem_type_filter(data_type), arg_counter)){
+	debug_print("%s%d\n", "SET_ARG is_declared_now: ", is_declared_now);
+        if(!check_arg_declaration(resources, name_of_arg, sem_type_filter(data_type), arg_counter)){
             debug_print("%s\n", "SET_ARG_RETURN_OK");
             return RETURN_OK;
         }

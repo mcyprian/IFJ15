@@ -151,6 +151,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->definition = false;
 	    new_node->var_cnt = 0;
 	    new_node->is_definition_scope = 0;
+	    new_node->is_declared_now = 0;
         }
         else
             create_function_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -169,6 +170,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->definition = false;
 	    new_node->var_cnt = 0;
 	    new_node->is_definition_scope = 0;
+	    new_node->is_declared_now = 0;
         }
         else
             create_function_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -190,6 +192,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
         new_node->definition = false;
 	new_node->var_cnt = 0;
 	new_node->is_definition_scope = 0;
+	new_node->is_declared_now = 0;
     }
     return RETURN_OK;
 }
@@ -222,6 +225,7 @@ int declare_function(Resources *resources, index_t index_to_string, index_t *ind
         new_node->definition = false;
 	new_node->var_cnt = 0;
 	new_node->is_definition_scope = 0;
+	new_node->is_declared_now = 0;
     }
     else
         create_function_node(*index_to_root_node, new_node_index, key, &(resources->struct_buff_trees), index_to_string, ret_val);
@@ -909,4 +913,50 @@ int is_start(Resources *resources, index_t func_name)
         debug_print("%s\n","IS_START_RETURN_SEMANTIC_ERROR");
         return SEMANTIC_ERROR;
     }
+}
+
+int set_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id){
+
+    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), index_to_func_id);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, FUNC);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        found_node->is_declared_now = 1;
+            return RETURN_OK;
+    }
+    else
+        return NOT_FOUND;
+}
+
+int unset_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id){
+
+    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX, INTERNAL_ERROR);
+
+    char *str;
+    index_t found_node_index;
+    int found;
+    TTree *found_node;
+
+    str = load_token(&(resources->string_buff), index_to_func_id);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, FUNC);
+
+    if (found == FOUND){
+        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
+        found_node->is_declared_now = 0;
+            return RETURN_OK;
+    }
+    else
+        return NOT_FOUND;
 }

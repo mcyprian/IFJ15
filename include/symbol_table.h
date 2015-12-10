@@ -243,5 +243,9 @@ int is_built_in(Resources *resoures, index_t func_name);
 
 int is_start(Resources *resoures, index_t func_name);
 
+int set_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+int unset_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
 #endif
 
