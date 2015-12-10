@@ -152,6 +152,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
 	    new_node->var_cnt = 0;
 	    new_node->is_definition_scope = 0;
 	    new_node->is_declared_now = 0;
+	    new_node->start = false;
         }
         else
             create_function_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -171,6 +172,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
 	    new_node->var_cnt = 0;
 	    new_node->is_definition_scope = 0;
 	    new_node->is_declared_now = 0;
+	    new_node->start = false;
         }
         else
             create_function_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -193,6 +195,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
 	new_node->var_cnt = 0;
 	new_node->is_definition_scope = 0;
 	new_node->is_declared_now = 0;
+	new_node->start = false;
     }
     return RETURN_OK;
 }
@@ -226,6 +229,7 @@ int declare_function(Resources *resources, index_t index_to_string, index_t *ind
 	new_node->var_cnt = 0;
 	new_node->is_definition_scope = 0;
 	new_node->is_declared_now = 0;
+	new_node->start = false;
     }
     else
         create_function_node(*index_to_root_node, new_node_index, key, &(resources->struct_buff_trees), index_to_string, ret_val);
@@ -900,7 +904,7 @@ int is_start(Resources *resources, index_t func_name)
 
     if (found == FOUND){
         dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
-        if (found_node->built_in) {
+        if (found_node->start) {
             debug_print("%s\n","IS_START_RETURN_true");
             return true;
         }

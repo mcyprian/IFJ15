@@ -159,8 +159,9 @@ int is_func_declared_withrv(Resources *resources, index_t name_of_func, int retu
     int is_declared = NOT_FOUND;
     currently_analyzed_function = name_of_func;
     index_t i = resources->stack.top;
+    int iRet;
 
-    if (!declaration_test(resources, name_of_func, i, FUNC)) {
+    if ( (iRet = declaration_test(resources, name_of_func, i, FUNC)) == RETURN_OK) {
         if (return_type == get_data_type(resources, resources->stack.top, name_of_func, FUNC))
             is_declared = RETURN_OK;
         else
@@ -182,6 +183,7 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     index_t index_to_func_table;
     index_t * func_index;
 
+    debug_print("%s%s\n", "DECLARE_FUNC, declaring function with name: ", load_token(&(resources->string_buff), index_to_string_buff));
 
     switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
         case RETURN_OK:
@@ -219,7 +221,6 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
 int declare_builtin_funcs(Resources *resources)
 {
     debug_print("%s\n", "DECLARE_FUNC");
-    index_t i = resources->stack.top;
     index_t string_index, first_arg, second_arg, third_arg;
 
     // SORT    
@@ -237,6 +238,7 @@ int declare_builtin_funcs(Resources *resources)
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
 
     // FIND
 
@@ -256,6 +258,7 @@ int declare_builtin_funcs(Resources *resources)
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
 
     // LENGTH
 
@@ -272,6 +275,7 @@ int declare_builtin_funcs(Resources *resources)
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
 
     // CONCAT
 
@@ -291,6 +295,7 @@ int declare_builtin_funcs(Resources *resources)
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
 
     // SUBSTR
 
@@ -313,6 +318,7 @@ int declare_builtin_funcs(Resources *resources)
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
 
     debug_print("%s\n", "DECLARE_FUNC_RETURN_OK");
     return RETURN_OK;
@@ -362,6 +368,12 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
 {
     debug_print("%s\n", "CHECK_ARG_DECLARATION");
     index_t i = resources->stack.top;
+    int cmp;
+
+
+    debug_print("%s%s\n", "CHECK_ARG_DECLARATION name of func: ", load_token(&(resources->string_buff), currently_analyzed_function));
+    debug_print("%s%d\n", "CHECK_ARG_DECLARATION argi: ", argi);
+
 
     int actual_arg_type, iRet;
     index_t actual_name_of_arg;
@@ -371,7 +383,9 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
         return TYPE_ERROR;
     }
     
-    if ((expected_arg_type == actual_arg_type) && (expected_name_of_arg == actual_name_of_arg)){
+    cmp = strcmp( load_token(&(resources->string_buff), expected_name_of_arg), load_token(&(resources->string_buff), actual_name_of_arg));
+
+    if ((expected_arg_type == actual_arg_type) && (cmp == 0)){
         debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_OK");
         return RETURN_OK;
     }
