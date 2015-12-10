@@ -801,12 +801,12 @@ int save_func_index(Resources *resources, index_t func_name, index_t index_to_st
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     } // after while, tmp is global scope tree
 
-    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table to index: ", index_to_func_table);
-    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table index: ", index_to_store);
-
     if((iret = load_frame(resources, tmp->index_to_struct_buffer, func_name, &index_to_func_table, FUNC)) != RETURN_OK)
 	    return iret;
 
+    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table to index: ", index_to_func_table);
+    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table index: ", index_to_store);
+    
     dereference_structure(&(resources->func_table), index_to_func_table, (void **)&func_index);
     *func_index = index_to_store;
 
