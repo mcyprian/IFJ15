@@ -92,21 +92,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 	args_assert(buffer != NULL && struct_buffer != NULL, INTERNAL_ERROR);
 	debug_print("%s\n", "GET_TOKEN");
 
-	// TDynamic_buffer string_buffer;
-	// init_buffer(&string_buffer, 1024);
-
-	// add_char(&string_buffer, 'a');
-	// add_char(&string_buffer, 'b');
-	// add_char(&string_buffer, 'c');
-	// add_char(&string_buffer, '\n');
-	// add_char(&string_buffer, 'd');
-	// add_char(&string_buffer, 'e');
-	// add_char(&string_buffer, '\n');
-	// add_char(&string_buffer, 'f');
-	// index_t x = save_token(&string_buffer);
-
-	// printf("%s\n", load_token(&string_buffer, x));
-
 	char hx[2];
 	char x;
 	int c;
@@ -510,24 +495,6 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					state = IDENTIFIER;
 				}
 				break;
-
-			// case O_MINUS:
-			// 	if (c > 47 && c < 58) // 0-9
-			// 	{
-			// 		catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
-			// 		state = L_INT;
-			// 	}
-			// 	else // is '-'
-			// 	{
-			// 		ungetc(c, fin);
-			// 		state = START;
-			// 		token->token_index = save_token(buffer);
-			// 		token->token_type = O_MINUS;
-			// 		// printf("%s    %d\n", load_token(buffer, token->token_index), token->token_type);
-			// 		return index;
-			// 	}
-
-			// 	break;
 
 			case L_STRING:
 				if (c == '"')

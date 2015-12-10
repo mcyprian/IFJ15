@@ -1,6 +1,31 @@
 #!/bin/bash
 
+ITERATION=1
+N_ERROR=1
+all=`ls tests_ok/ | grep -v '\.out' | wc -l`
+
 for i in $(ls tests_ok/ | grep -v '\.out') 
 do
-	./test.sh $i
+	#echo ========================================
+	#echo $ITERATION
+	#echo $i
+	(( ITERATION += 1 ))
+	../../../bin/interpreter tests_ok/"$i" > out 2> /dev/null
+	
+	#if [ $? -ne 0 ]; then
+	#	echo WRONG RETURN VALUE $N_ERROR
+	#	(( N_ERROR += 1 ))
+	#fi
+	
+	if [ "`cat out`" != "`cat tests_ok/"$i".out`" ]; then
+		echo ========================================
+		echo $N_ERROR z $all
+	        echo $i
+		echo my output:
+	        echo "`cat out`"
+		echo ----------------------------------------
+		echo correct output:
+		echo "`cat tests_ok/"$i".out`"
+		(( N_ERROR += 1 ))
+	fi
 done

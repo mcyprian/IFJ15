@@ -72,8 +72,7 @@ int add_str_index(TDynamic_buffer *b, index_t index) {
     unsigned len = strlen(word);
     if (b->writing_index + len + 1 > b->length)
         catch_internal_error(realloc_buffer(b, len), INTERNAL_ERROR, "Failed to realloc buffer.");
-
-    //printf("From add_str_index: %s\n", load_token(b, index));
+    
     strcpy(&b->buffer[b->writing_index], load_token(b, index));
     b->writing_index += len;
     return 0;
