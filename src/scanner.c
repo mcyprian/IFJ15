@@ -11,7 +11,7 @@
 #include <token.h>
 
 #define L_STRING_BACKSLASH 123
-#define SEPARATOR c == '+' || c == '-' || c == '*' || c == '/' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}' || isspace(c)
+#define SEPARATOR c == '+' || c == '-' || c == '*' || c == '/' || c == '<' || c == '>' || c == '=' || c == '!' || c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}' || isspace(c) || c == EOF
 
 int reservedWord(char *identifier)
 {
@@ -102,6 +102,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 	bool wrong_identifier = false;
 	bool is_number_after_sign = false;
 	bool is_number_after_dot = false;
+	bool is_end = true;
 	index_t index = 0;
 	TToken *token;
 
@@ -112,7 +113,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 		{	
 			c = fgetc(fin);
 
-			if (feof(fin))
+			if (feof(fin) && is_end)
 			{
 				if (state == BLOCK_COMMENT)	{
 					token->token_index = save_token(buffer);
@@ -162,6 +163,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case '/':
 							state = COMMENT;
+							is_end = false;
 							break;
 
 						case '*':
@@ -208,22 +210,27 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 						case '=':
 							state = O_EQUALS;
+							is_end = false;
 							break;
 
 						case '<':
 							state = O_L;
+							is_end = false;
 							break;
 
 						case '>':
 							state = O_G;
+							is_end = false;
 							break;
 
 						case '!':
 							state = UO_EXCLAMATION;
+							is_end = false;
 							break;
 						
 						case '"':
 							state = L_STRING;
+							is_end = false;
 							break;
 
 						default:
@@ -377,6 +384,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 
 				if ((c > 64 && c < 91) || (c > 96 && c < 123) || (c > 47 && c < 58) || c == '_') { // (A-Z, a-z, 0-9, _)
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
+					is_end = false;
 				} 
 				else if (SEPARATOR)
 				{
@@ -396,6 +404,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
+					is_end = false;
 				}
 
 				break;
@@ -404,11 +413,13 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if (c > 47 && c < 58) // 0-9
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
+					is_end = false;
 				}
 				else if (c == 46) // c == "."
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = L_DOUBLE;
+					is_end = false;
 				}
 				else if (SEPARATOR)
 				{
@@ -422,12 +433,14 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = SCIENTIFIC;
+					is_end = false;
 				}
 				else
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 					state = IDENTIFIER;
+					is_end = false;
 				}
 
 				break;
@@ -437,6 +450,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					is_number_after_dot = true;
+					is_end = false;
 				}
 				else if ((SEPARATOR) && is_number_after_dot)
 				{
@@ -458,12 +472,14 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = SCIENTIFIC;
+					is_end = false;
 				}
 				else
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 					state = IDENTIFIER;
+					is_end = false;
 				}
 
 				break;
@@ -474,11 +490,13 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					signed_scientific = true;
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = SCIENTIFIC;
+					is_end = false;
 				}
 				else if (c > 47 && c < 58)
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					is_number_after_sign = true;
+					is_end = false;
 				}
 				else if ((SEPARATOR) && is_number_after_sign)
 				{
@@ -493,6 +511,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 					state = IDENTIFIER;
+					is_end = false;
 				}
 				break;
 
@@ -508,10 +527,12 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				{
 					// catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					state = L_STRING_BACKSLASH;
+					is_end = false;
 				}
 				else
 				{
 					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
+					is_end = false;
 				}
 				
 				break;
@@ -521,18 +542,22 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 					case 'n':
 						catch_token_internal_error(add_char(buffer, '\n'), INTERNAL_ERROR, token, index);
 						state = L_STRING;
+						is_end = false;
 						break;
 					case 't':
 						catch_token_internal_error(add_char(buffer, '\t'), INTERNAL_ERROR, token, index);
 						state = L_STRING;
+						is_end = false;
 						break;
 					case '"':
 						catch_token_internal_error(add_char(buffer, '"'), INTERNAL_ERROR, token, index);
 						state = L_STRING;
+						is_end = false;
 						break;
 					case '\\':
 						catch_token_internal_error(add_char(buffer, '\\'), INTERNAL_ERROR, token, index);
 						state = L_STRING;
+						is_end = false;
 						break;
 					case 'x':
 						
