@@ -353,6 +353,7 @@ debug_print("%s%s\n", "DECLARE_VAR var name: ", load_token(&(resources->string_b
                 "Failed to dereference structure buffer."
             );
             tmp->var_cnt++;
+	    debug_print("%s%d\n", "DECLARE_VAR saved count: ", tmp->var_cnt);
             save_var_index(resources, index_to_string_buff, tmp->var_cnt);
             debug_print("%s\n", "DECLARE_VAR_RETURN_0");
             return RETURN_OK;
@@ -595,10 +596,12 @@ debug_print("%s%d\n", "DEFINE_FUNC num of args: ", argc);
         "Failed to dereference structure buffer."
     );
 
-    for(int i = argc; i > 0; i--) {
+    for(int i = 1; i <= argc; i++) {
         load_arg(resources, general_scope_tree, currently_analyzed_function, i, &name, &data_type);
         declare_variable(resources, name, &r, data_type);
         tmp->var_cnt++;
+	debug_print("%s%s\n", "DEFINE_FUNC arg name: ", load_token(&(resources->string_buff), name));
+	debug_print("%s%d\n", "DEFINE_FUNC saved var count: ", tmp->var_cnt);
         save_var_index(resources, name, tmp->var_cnt);
 
         // generuj funkciu PUSH
@@ -893,7 +896,7 @@ int load_func_index(Resources *resources, index_t func_name, index_t *load_index
 
 int load_var_index(Resources *resources, index_t var_name, index_t *load_index)
 {
-    debug_print("%s\n","SAVE_VAR_INDEX");
+    debug_print("%s\n","LOAD_VAR_INDEX");
     TTree *tmp;
     int iret = NOT_FOUND;
     index_t tmp_load_index;
@@ -909,12 +912,14 @@ int load_var_index(Resources *resources, index_t var_name, index_t *load_index)
         }
 
     if( iret != NOT_FOUND ){
+	debug_print("%s%s\n","LOAD_VAR_INDEX var name: ", load_token(&(resources->string_buff), var_name));
+	debug_print("%s%lu\n","LOAD_VAR_INDEX loading index: ", tmp_load_index);
         *load_index = tmp_load_index;
-        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_OK");
+        debug_print("%s\n","LOAD_VAR_INDEX_RETURN_OK");
         return RETURN_OK;
     }
     else {
-        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_SEMANTIC_ERROR");
+        debug_print("%s\n","LOAD_VAR_INDEX_RETURN_SEMANTIC_ERROR");
         return SEMANTIC_ERROR;
     }
 }
