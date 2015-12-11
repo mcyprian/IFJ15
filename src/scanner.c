@@ -252,10 +252,12 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				if (c == '/')  // //
 				{
 					state = LINE_COMMENT;
+					is_end = false;
 				}
 				else if (c == '*')  // /*
 				{
 					state = BLOCK_COMMENT;
+					is_end = false;
 				}
 				else // /
 				{
@@ -269,23 +271,32 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				break;
 
 			case LINE_COMMENT:
+				is_end = true;
 				if (c == '\n')
+				{
 					state = START;
+				}
 
 				break;
 
 			case BLOCK_COMMENT:
+				is_end = true;
 				if (c == '*')
+				{
 					state = BLOCK_COMMENT_END;
+				}
 
 				break;
 
 			case BLOCK_COMMENT_END:
 				if (c == '/')
+				{
 					state = START;
+					is_end = true;
+				}
 				else
 					state = BLOCK_COMMENT;
-
+				
 				break;
 
 			case O_EQUALS:
