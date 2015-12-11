@@ -1182,7 +1182,7 @@ static inline int substr_mem_mem(Resources *resources, TInstruction *instruction
         return UNINIT_ERROR;
 
     debug_print("%s: %ld\n", "OP1 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index);
-    debug_print("%s: %ld\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index);
+    debug_print("%s: %d\n", "OP2 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     debug_print("%s: %d\n", "OP3 CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
 
     instruction->dest.index = 0;
@@ -1191,7 +1191,7 @@ static inline int substr_mem_mem(Resources *resources, TInstruction *instruction
     // push_stack(&(resources->runtime_stack), &var);
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index
     = substr(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 3)->value.index,
-                                        access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index,
+                                        access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i,
                                         access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.i);
     // var->type = L_STRING;
 
