@@ -1401,7 +1401,7 @@ static inline int function_return(Resources *resources, TInstruction *instructio
 static inline int no_return(Resources *resources, TInstruction *instruction) {
     instruction->first_op.i = 0;
     resources->return_value = resources->return_value;
-    return SYNTAX_ERROR;
+    return RUNTIME_ERROR;
 }
 
 static inline int set_type(Resources *resources, TInstruction *instruction) {

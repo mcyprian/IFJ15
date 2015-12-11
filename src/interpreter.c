@@ -99,7 +99,7 @@ int run_program(Resources * resources){
     register int instruction_ret;
 
 	if (resources->start_main == ZERO_INDEX){
-		iRet = RUNTIME_ERROR;
+		iRet = SEMANTIC_ERROR;
 		goto DEFAULT;
 	}
 
