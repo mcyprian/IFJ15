@@ -183,13 +183,19 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     index_t i;
     int is_main;
     arg_counter = 0;
-
     index_t index_to_func_table;
     index_t * func_index;
+    int type = sem_type_filter(return_type);
 
     debug_print("%s%s\n", "DECLARE_FUNC, declaring function with name: ", load_token(&(resources->string_buff), index_to_string_buff));
 
-    switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
+    is_main = strcmp(load_token(&(resources->string_buff), index_to_string_buff), "main");
+    if (is_main == 0 && type != L_INT){
+	debug_print("%s\n", "DECLARE_FUNC_RETURN_SEMANTIC_ERROR");
+	return SEMANTIC_ERROR;
+    }
+
+    switch (is_func_declared_withrv(resources, index_to_string_buff, type)) {
         case RETURN_OK:
 	    unset_declaration_flag(resources, resources->stack.top, index_to_string_buff);
 	    debug_print("%s\n", "DECLARE_FUNC: unsetting declaration flag");
@@ -197,7 +203,7 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
             return RETURN_OK;
         case NOT_FOUND:
             i = resources->stack.top;
-            declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
+            declare_function(resources, index_to_string_buff, &i, type);
 
 	    set_declaration_flag(resources, i, index_to_string_buff);
 	    debug_print("%s\n", "DECLARE_FUNC: setting declaration flag");
@@ -209,12 +215,12 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
 	    } 
 	    new_item(&(resources->func_table), index_to_func_table, func_index);
 
-	    if ( (is_main = strcmp(load_token(&(resources->string_buff), index_to_string_buff), "main")) == 0)
+	    if (is_main == 0)
                 set_start(resources, index_to_string_buff);
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return RETURN_OK;
         case SEMANTIC_ERROR:
-            debug_print("%s\n", "DECLARE_FUNC_RETURN_1");
+            debug_print("%s\n", "DECLARE_FUNC_RETURN_SEMANTIC_ERROR");
             return SEMANTIC_ERROR; // odsledovat v synt an pre hlasenie sem. chyby
         default:
             debug_print("%s\n", "DECLARE_FUNC_RETURN_-1");
@@ -414,7 +420,7 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
     if ( (is_main = is_start(resources, currently_analyzed_function)) == true){
 	debug_print("%s%s\n", "SET_ARG name of function: ", load_token(&(resources->string_buff), currently_analyzed_function));
         debug_print("%s\n", "SET_ARG_RETURN_2");
-        return SYNTAX_ERROR;
+        return SEMANTIC_ERROR;
     }
 
     arg_counter++;
