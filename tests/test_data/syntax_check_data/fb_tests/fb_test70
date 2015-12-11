@@ -1,0 +1,16 @@
+string one() {
+    return "";
+}
+
+double fce() {
+    return 0.0;
+}
+
+int third() {
+    return 1;
+}
+
+int main() {
+    int a = one();
+    return 0;
+}

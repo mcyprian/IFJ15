@@ -23,9 +23,6 @@ fb_expected_retVals=(0 0 0 3 3 0 0 1 1 1 2 2 2 2 2 2 3 3 3 3 3 3 3 3 4 4 4 4 4 5
 
 
 for ((num=0; num < 67; ++num)); do
-    if [ $num -eq 22 ]; then
-        continue
-    fi
     assert_retval "$num" "../bin/interpreter
     ./test_data/syntax_check_data/fb_tests/fb_test$num" ${fb_expected_retVals[$num]}
 done
