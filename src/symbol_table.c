@@ -33,6 +33,38 @@ int hash_key(char *str, unsigned long *hash) {
     return RETURN_OK;
 }
 
+
+int make_root_for_def_scope(Resources *resources, index_t *index_to_root_node, index_t index_to_func_id, index_t index_to_string){
+
+    args_assert(resources != NULL, INTERNAL_ERROR);
+
+    index_t new_node_index;
+    TTree *new_node;
+    unsigned long key;
+    char *str = NULL;
+
+    new_item(&(resources->struct_buff_trees), new_node_index, new_node);
+
+    str = load_token(&(resources->string_buff), index_to_string);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+
+    hash_key(str, &key);
+
+        *index_to_root_node = new_node_index;
+        new_node->right = new_node->left = new_node->next_node = ZERO_INDEX;
+        new_node->key = key;
+        new_node->data_type = NO_DATA_TYPE;
+        new_node->type = VAR; 
+        new_node->args = NULL;
+        new_node->index_to_dynamic_buff = index_to_string;
+        new_node->definition = false;
+	new_node->var_cnt = 0;
+	new_node->is_definition_scope = 0;
+	new_node->defined_function_id = index_to_func_id;
+
+	return RETURN_OK;
+}
+
 int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned long key, TDynamic_structure_buffer *struct_buff_nodes, index_t index_to_dynamic_buffer, int data_type){
 
     args_assert(struct_buff_nodes != NULL, INTERNAL_ERROR);
@@ -53,6 +85,8 @@ int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->index_to_dynamic_buff = index_to_dynamic_buffer;
             new_node->definition = false;
 	    new_node->var_cnt = 0;
+	    new_node->is_definition_scope = 0;
+	    new_node->defined_function_id = 0;
         }
         else
             create_variable_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, data_type);
@@ -70,6 +104,7 @@ int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned
             new_node->definition = false;
 	    new_node->var_cnt = 0;
 	    new_node->is_definition_scope = 0;
+	    new_node->defined_function_id = 0;
         }
         else
             create_variable_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, data_type);
@@ -90,6 +125,7 @@ int create_variable_node(index_t index_to_node, index_t new_node_index, unsigned
         new_node->definition = false;
 	new_node->var_cnt = 0;
 	new_node->is_definition_scope = 0;
+	new_node->defined_function_id = 0;
     }
     return RETURN_OK;
 }
@@ -121,6 +157,7 @@ int declare_variable(Resources *resources, index_t index_to_string, index_t *ind
         new_node->definition = false;
 	new_node->var_cnt = 0;
 	new_node->is_definition_scope = 0;
+	new_node->defined_function_id = 0;
     }
     else
         create_variable_node(*index_to_root_node, new_node_index, key, &(resources->struct_buff_trees), index_to_string, data_type);
@@ -153,6 +190,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
 	    new_node->is_definition_scope = 0;
 	    new_node->is_declared_now = 0;
 	    new_node->start = false;
+	    new_node->defined_function_id = 0;
         }
         else
             create_function_node(actual_node->right, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -173,6 +211,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
 	    new_node->is_definition_scope = 0;
 	    new_node->is_declared_now = 0;
 	    new_node->start = false;
+	    new_node->defined_function_id = 0;
         }
         else
             create_function_node(actual_node->left, new_node_index, key, struct_buff_nodes, index_to_dynamic_buffer, ret_val);
@@ -196,6 +235,7 @@ int create_function_node(index_t index_to_node, index_t new_node_index, unsigned
 	new_node->is_definition_scope = 0;
 	new_node->is_declared_now = 0;
 	new_node->start = false;
+	new_node->defined_function_id = 0;
     }
     return RETURN_OK;
 }
@@ -230,6 +270,7 @@ int declare_function(Resources *resources, index_t index_to_string, index_t *ind
 	new_node->is_definition_scope = 0;
 	new_node->is_declared_now = 0;
 	new_node->start = false;
+	new_node->defined_function_id = 0;
     }
     else
         create_function_node(*index_to_root_node, new_node_index, key, &(resources->struct_buff_trees), index_to_string, ret_val);
@@ -964,3 +1005,40 @@ int unset_declaration_flag(Resources *resources, index_t index_to_root_node, ind
     else
         return NOT_FOUND;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

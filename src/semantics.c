@@ -29,7 +29,7 @@ int enter_scope(Resources *resources)
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
-debug_print("%s%d\n", "ENTER_SCOPE is_definition_scope is: ", tmp->is_definition_scope);
+    debug_print("%s%d\n", "ENTER_SCOPE is_definition_scope is: ", tmp->is_definition_scope);
     if (tmp->is_definition_scope == 1){
         tmp->is_definition_scope = 0;
         x = 1;
@@ -38,7 +38,11 @@ debug_print("%s%d\n", "ENTER_SCOPE is_definition_scope is: ", tmp->is_definition
 
     add_char(&(resources->string_buff), '$');
     index_t test = save_token(&(resources->string_buff));
-    declare_variable(resources, test, &i, NO_DATA_TYPE);
+
+    if (x == 1)
+	make_root_for_def_scope(resources, &i, currently_analyzed_function, test);
+    else
+        declare_variable(resources, test, &i, NO_DATA_TYPE);
 
     catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp),
@@ -499,6 +503,8 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
     } // while; tmp is global scope tree
     actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_name, FUNC);
 
+    debug_print("%s%s\n", "CHECK_RETURN_TYPE name of function: ", load_token(&(resources->string_buff), func_name));
+
     return (actual_data_type == sem_type_filter(expected_data_type) ? RETURN_OK : TYPE_ERROR);
 }
 
@@ -926,9 +932,10 @@ int declared_var_cnt(Resources *resources, int *cnt)
 
 int check_return_value_type(Resources *resources, int type)
 {
-	debug_print("%s\n", "CHECK_RETURN_TYPE");
+	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE");
 	TTree *tmp;
 	int actual_data_type;
+	index_t func_id = 0;
 
 	catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
@@ -936,25 +943,29 @@ int check_return_value_type(Resources *resources, int type)
         "Failed to dereference structure buffer."
     );
 
+	func_id = tmp->defined_function_id;
+
     while (tmp->next != ZERO_INDEX) {
         catch_internal_error(
             dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
             INTERNAL_ERROR,
             "Failed to dereference structure buffer."
         );
+	if (!func_id)
+	    func_id = tmp->defined_function_id;
     } // while; tmp is global scope tree
-    actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, currently_analyzed_function, FUNC);
+    actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_id, FUNC);
 
     if (actual_data_type == type){
-    	debug_print("%s\n", "CHECK_RETURN_TYPE_RETURN_OK");
+    	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE_RETURN_OK");
     	return RETURN_OK;
     }
     else if (type == L_STRING || actual_data_type == L_STRING){
-    	debug_print("%s\n", "CHECK_RETURN_TYPE_RETURN_TYPE_ERROR");
+    	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE_RETURN_TYPE_ERROR");
     	return TYPE_ERROR;
     }
     else {
-    	debug_print("%s\n", "CHECK_RETURN_TYPE_RETURN_TYPE_CAST");
+    	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE_RETURN_TYPE_CAST");
     	return TYPE_CAST;
     }
 }

@@ -59,6 +59,7 @@ typedef struct tree {
 	int start;
 	int var_cnt;
 	int is_definition_scope;
+	index_t defined_function_id;
 }TTree;
 
 
@@ -246,6 +247,8 @@ int is_start(Resources *resoures, index_t func_name);
 int set_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
 
 int unset_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+int make_root_for_def_scope(Resources *resources, index_t *index_to_root_node, index_t index_to_func_id, index_t index_to_string);
 
 #endif
 
