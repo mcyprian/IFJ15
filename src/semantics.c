@@ -389,9 +389,13 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
         debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_OK");
         return RETURN_OK;
     }
-    else {
+    else if (expected_arg_type != actual_arg_type) {
         debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_TYPE_ERROR");
         return TYPE_ERROR;
+    }
+    else {
+	debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
     }
 }
 
@@ -401,6 +405,7 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
     index_t i = resources->stack.top;
     int is_main;
     int is_declared_now = -5;
+    int iRet;
 
     if ( (is_main = is_start(resources, currently_analyzed_function)) == true){
 	debug_print("%s%s\n", "SET_ARG name of function: ", load_token(&(resources->string_buff), currently_analyzed_function));
@@ -417,14 +422,18 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
     }
     else {
 	debug_print("%s%d\n", "SET_ARG is_declared_now: ", is_declared_now);
-        if(!check_arg_declaration(resources, name_of_arg, sem_type_filter(data_type), arg_counter)){
+        if( (iRet = check_arg_declaration(resources, name_of_arg, sem_type_filter(data_type), arg_counter)) == RETURN_OK){
             debug_print("%s\n", "SET_ARG_RETURN_OK");
             return RETURN_OK;
         }
-        else{
-            debug_print("%s\n", "SET_ARG_RETURN_TYPE_ERROR");    
+        else if (iRet == TYPE_ERROR) {
+           debug_print("%s\n", "SET_ARG_RETURN_TYPE_ERROR");    
            return TYPE_ERROR;
         }
+	else {
+	   debug_print("%s\n", "SET_ARG_RETURN_SEMANTIC_ERROR");    
+           return SEMANTIC_ERROR;
+	}
     }
 }
 
