@@ -34,7 +34,7 @@ int find(TDynamic_buffer *b, index_t string, index_t substring)
 		return 0;
 
 	int *fail = malloc((search_lenght) * sizeof(int));
-	if (!fail)	// need to use sth from error module
+	if (!fail)
 	 	return -2;	// return INTERNAL_ERROR
 
 	fail[0] = 0;

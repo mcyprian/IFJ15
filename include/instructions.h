@@ -1243,6 +1243,9 @@ static inline int find_mem_mem(Resources *resources, TInstruction *instruction) 
     = find(&(resources->string_buff), access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.index,
                                      access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 1)->value.index);
 
+    if (access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i == -2)
+	    return INTERNAL_ERROR;
+
     access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->defined = 1;      // Sets inint flag
     debug_print("%s: %d\n", "REGISTER CONTENT", access(resources->runtime_stack.buffer, TStack_variable, resources->runtime_stack.next_free - 2)->value.i);
     
