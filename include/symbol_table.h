@@ -19,21 +19,13 @@
 #define ARG_FOUND (-2)
 #define NO_DATA_TYPE 0
 
-enum data_types{
-	INTEGER,
-	FLOAT,
-	STRING
-};
-
 enum types_of_tokens{ 
 	VAR, 
 	FUNC 
 };
 
 typedef union Values {
-	int i;	//value of integer variable or number of arguments of function
-	float f;	//value of float variable
-	index_t index_to_dynamic_buff;	//index to buffer with value of string variable
+	int i;	//number of arguments of function
 }TValues;
 
 typedef struct func_args {
@@ -231,23 +223,81 @@ int check_declaration_status(Resources *resources, index_t index_to_root_node, i
  */
 int check_var_data_types(Resources *resources, index_t index_to_root_node, index_t index_to_string, int expected_data_type);
 
+/** Saves value to frame_index in symbol table node tree
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param id index to dynamic buffer (string of identifier)
+ * @param index_to_store index_t variable storing value to save in symbol table
+ * @param type int variable says wether saving tu function or variable node
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
 int save_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t index_to_store, int type);
 
-
+/** Loads value of frame_index in symbol table node tree
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param id index to dynamic buffer (string of identifier)
+ * @param load_index pointer to variable to store found value
+ * @param type int variable says wether loading from function or variable node
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
 int load_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t *load_index, int type);
 
+/** Sets builtin flag
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
 int set_built_in(Resources *resoures, index_t func_name);
 
+/** Sets start flag
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
 int set_start(Resources *resoures, index_t func_name);
 
+/** Says wether function has builtin flag set
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns tru if is set, false if i not, SEMANTIC_ERROR if function or variable not declared, INTERNALL_ERROR on error
+ */
 int is_built_in(Resources *resoures, index_t func_name);
 
+/** Says wether function has start flag set
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns tru if is set, false if i not, SEMANTIC_ERROR if function or variable not declared, INTERNALL_ERROR on error
+ */
 int is_start(Resources *resoures, index_t func_name);
 
+/** Sets declaration flag that says function is currently being declared for the firt time
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
 int set_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
 
+/** Sets declaration flag that says function is currently being declared for the firt time
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
 int unset_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
 
+/** Create special node in symbol table tree that represents root node of function definition scope
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node pointer to index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @param index_to_string index to dynamic buffer (any string to make hash from)
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
 int make_root_for_def_scope(Resources *resources, index_t *index_to_root_node, index_t index_to_func_id, index_t index_to_string);
 
 #endif

@@ -850,6 +850,9 @@ int save_var_index(Resources *resources, index_t var_name, index_t index_to_stor
     TTree *tmp;
     int iret = NOT_FOUND;
 
+    debug_print("%s%s\n","SAVE_VAR_INDEX variable name: ", load_token(&(resources->string_buff), var_name));
+    debug_print("%s%lu\n","SAVE_VAR_INDEX index_to_store: ", index_to_store);
+
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
         for (int i = resources->stack.length - 1; i > 0; i--) {
@@ -872,7 +875,7 @@ int save_var_index(Resources *resources, index_t var_name, index_t index_to_stor
 
 int load_func_index(Resources *resources, index_t func_name, index_t *load_index)
 {
-    debug_print("%s\n","SAVE_FUNC_INDEX");
+    debug_print("%s\n","LOAD_FUNC_INDEX");
     TTree *tmp;
     int iret;
     index_t tmp_load_index;
@@ -884,12 +887,12 @@ int load_func_index(Resources *resources, index_t func_name, index_t *load_index
     } // after while, tmp is global scope tree
 
     if( (iret = load_frame(resources, tmp->index_to_struct_buffer, func_name, &tmp_load_index, FUNC)) != NOT_FOUND ){
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
+        debug_print("%s\n","LOAD_FUNC_INDEX_RETURN_OK");
         *load_index = tmp_load_index;
         return RETURN_OK;
     }
     else {
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
+        debug_print("%s\n","LOAD_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
         return SEMANTIC_ERROR;
     }
 }

@@ -157,18 +157,62 @@ int check_arg_type(Resources *resources, int type);
  */
 int check_argc_function_call(Resources *resources);
 
+/** Gives return data type of a function
+ * @param resources pointer to structure with buffers
+ * @param func_name index to dynamic_buffer
+ * @return data type of function, INTERNAL_ERROR on error
+ */
 int get_return_type(Resources *resources, index_t func_name);
 
+/** Gives data type of a variable
+ * @param resources pointer to structure with buffers
+ * @param var_name index to dynamic_buffer
+ * @return data type of variable, INTERNAL_ERROR on error
+ */
 int get_var_type(Resources *resources, index_t var_name);
 
+/** Saves function's address to func_table
+ * @param resources pointer to structure with buffers
+ * @param func_name index to dynamic_buffer
+ * @param index_to_store index_t variable with addres of function
+ * @return RETURN_OK on succes, SEMANTIC_ERROR if function not declared
+ */
 int save_func_index(Resources *resources, index_t func_name, index_t index_to_store);
 
+/** Saves order of declared variable to symbol table
+ * @param resources pointer to structure with buffers
+ * @param var_name index to dynamic_buffer
+ * @param index_to_store index_t variable with variable order
+ * @return RETURN_OK on succes, SEMANTIC_ERROR if variable not declared
+ */
 int save_var_index(Resources *resources, index_t var_name, index_t index_to_store);
 
+/** Loads order of function declaration
+ * @param resources pointer to structure with buffers
+ * @param func_name index to dynamic_buffer
+ * @param load_index pointer to variable to store loaded number
+ * @return RETURN_OK on succes, SEMANTIC_ERROR if function not declared
+ */
 int load_func_index(Resources *resources, index_t func_name, index_t *load_index);
 
+/** Loads order of variable declaration
+ * @param resources pointer to structure with buffers
+ * @param var_name index to dynamic_buffer
+ * @param load_index pointer to variable to store loaded number
+ * @return RETURN_OK on succes, SEMANTIC_ERROR if function not declared
+ */
 int load_var_index(Resources *resources, index_t var_name, index_t *load_index);
 
+/** Loads number of active variables in current scope
+ * @param resources pointer to structure with buffers
+ * @param cnt pointer to variable to store loaded number
+ * @return RETURN_OK on succes, INTERNAL_ERROR on error
+ */
 int declared_var_cnt(Resources *resources, int *cnt);
 
+/** Checks return value of a function urrently being defined
+ * @param resources pointer to structure with buffers
+ * @param type data type to compare with
+ * @return RETURN_OK if types are ok, TYPE_ERROR if types cannot be type casted, TYPE_CAST if types can be type casted, INTERNAL_ERROR on error
+ */
 int check_return_value_type(Resources *resources, int type);
