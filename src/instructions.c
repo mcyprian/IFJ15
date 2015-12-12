@@ -1,3 +1,14 @@
+/**
+ * @file instrucrions.c
+ * @author Michal Cyprian
+ *
+ * @section DESCRIPTION
+ *
+ * Definition and initialization of array of pointers to functions, which is
+ * used to run instrucrions in interpreter
+ *
+ */
+
 #include <instructions.h>
 
 
@@ -48,7 +59,7 @@ int (*execute_instruction[NUM_OF_INSTRUCTIONS])(Resources *resources, TInstructi
         jmp_true_mem,
         jmp_false_mem,
         jmp_func,
-	function_call,
+    	function_call,
         function_return,
         cin_i,
         cin_d,

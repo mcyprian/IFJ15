@@ -1,6 +1,6 @@
 /**
  * @file interpret.h
- * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz>
+ * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz> Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
  * 
  * @section DESCRIPTION
  *  
