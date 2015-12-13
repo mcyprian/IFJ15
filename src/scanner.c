@@ -519,10 +519,11 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 				}
 				else
 				{
-					catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
+				//	catch_token_internal_error(add_char(buffer, c), INTERNAL_ERROR, token, index);
 					wrong_identifier = true;
 					state = IDENTIFIER;
 					is_end = false;
+					ungetc(c, fin);
 				}
 				break;
 
