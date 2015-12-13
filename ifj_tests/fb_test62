@@ -1,0 +1,19 @@
+/* Program 2: Vypocet faktorialu (rekurzivne) */
+int factorial( int n ) // Definice funkce pro vypocet hodnoty faktorialu
+{
+  int temp_resulta;
+  auto decremented_n = n - 1;
+  if( n < 2 ) {
+    return 1;
+  } else {
+    temp_result = factorial( decremented_n );
+    return n * temp_result;
+  }
+}
+
+int main( ) {
+  int vysl = factorial( 10 );
+
+  if( vysl == 3628800 ) 
+    return 0;
+}

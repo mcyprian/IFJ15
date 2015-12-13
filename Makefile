@@ -54,4 +54,4 @@ clean_all:
 	rm -rf *.o interpreter
 
 pack:
-	tar -zcvf xscavn00.tgz *.h *.c Makefile rozsireni dokumentace.pdf
+	tar -zcvf xscavn00.tgz *.h *.c Makefile rozsireni rozdeleni dokumentace.pdf
