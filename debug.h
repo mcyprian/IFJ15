@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file debug.h
  * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
  * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz>
@@ -8,7 +9,7 @@
  * Macro to print debug messages
  */
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG
 /** Prints debug message to stderr

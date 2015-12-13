@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file syntax_analysis.h
  * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz>
  *
@@ -34,7 +35,6 @@ typedef enum non_terminals {
 	TAIL_STATEMENT,
 	CONSTRUCTION,
 	IF_ELSE,
-	TAIL_IF,
 	ELSE,
 	FOR_CYCLE,
 	FOR_FIRST,

@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file dynamic_structure.h
  * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz>
  *

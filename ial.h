@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file ial.h
  * @author Michal Durista <xduris04@stud.fit.vutbr.cz>
  *
@@ -7,29 +8,335 @@
  * Header file for ial.c module
  */
 
+#ifndef IAL_H
+#define IAL_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "dynamic_buffer.h"
 #include <string.h>
+#include "datatypes.h"
+#include "resources.h"
+
+
+#define NOT_FOUND (-1)
+#define FOUND 0
+#define ARG_FOUND (-2)
+#define NO_DATA_TYPE 0
+
+enum types_of_tokens{ 
+	VAR, 
+	FUNC 
+};
+
+typedef union Values {
+	int i;	//number of arguments of function
+}TValues;
+
+typedef struct func_args {
+	int data_type;
+	index_t index_to_string_identifier;
+}TFunc_args;
+
+typedef struct tree {
+	index_t next;
+	index_t index_to_struct_buffer;
+	unsigned long key;
+	index_t index_to_dynamic_buff;
+	index_t right, left, next_node;
+	int type;	//function or variable
+	union Values value;
+	int data_type;	//(for function it means return value) one of enum data_types
+	TFunc_args *args;
+	bool definition;
+	bool is_declared_now;
+	index_t frame_index;
+	index_t var_declar_count;
+	int built_in;
+	int start;
+	int var_cnt;
+	int is_definition_scope;
+	index_t defined_function_id;
+}TTree;
+
+
+/** Inserts new node of variable to symbol talbe tree
+ * @param resources pointer to structure with buffers
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param index_to_root_node pointer to index_t variable storing index to dynamic structure buffer
+ * @param data_type data type of new variable
+ * @return 0 on success, INTERNAL_ERROR on error
+ */
+int declare_variable(Resources *resources, index_t index_to_string, index_t *index_to_root_node, int data_type);
+
+/** Sets value to float variable
+ * @param resources pointer to structure with buffers
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param index_to_root_node pointer to index_t variable storing index to dynamic structure buffer
+ * @param value value of variable to be stored in symbol table
+ * @return 0 on success, INTERNAL_ERROR on error
+ */
+int set_float_value(Resources *resources, index_t index_to_string, index_t index_to_root_node, float value);
+
+/** Sets value to integer variable
+ * @param resources pointer to structure with buffers
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param value value of variable to be stored in symbol table
+ * @return 0 on success, NOT_FOUND if varieble is not in symbol table, INTERNAL_ERROR on error
+ */
+int set_int_value(Resources *resources, index_t index_to_string, index_t index_to_root_node, int value);
+
+/** Sets value to string variable
+ * @param resources pointer to structure with buffers
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_dynamic_buff index to string stored in dynamic buffer
+ * @return 0 on success, NOT_FOUND if varieble is not in symbol table, INTERNAL_ERROR on error
+ */
+int set_string_value(Resources *resources, index_t index_to_string, index_t index_to_root_node, index_t index_to_dynamic_buff);
+
+/** Inserts new node of function to symbol talbe tree
+ * @param resources pointer to structure with buffers
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param ret_val data type of return value of the function
+ * @return 0 on success, NOT_FOUND if varieble is not in symbol table, INTERNAL_ERROR on error
+ */
+int declare_function(Resources *resources, index_t index_to_string, index_t *index_to_root_node, int ret_val);
+
+/** Adds another argument to declared function in symbol table
+ * @param resources pointer to structure with buffers
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param index_to_root_node pointer to index_t variable storing index to dynamic structure buffer
+ * @param data_type data type of the argument
+ * @param index_to_dynamic_buff index to string of argument's identifier in dynamic buffer
+ * @return 0 on success, INTERNAL_ERROR on malloc or realloc error, NOT_FOUND if function is not declared, ARG_FOUND if argument of given string is already declared
+ */
+int add_func_arg(Resources *resources, index_t index_to_string, index_t index_to_root_node, int data_type, index_t index_to_dynamic_buff);
+
+/** Finds out wether the function or variable was declared before
+ * @param resources pointer to structure with buffers
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param type differentiates between function and variable (use enum types_of_tokens)
+ * @return 0 if declared, 1 if not declared, INTERNAL_ERROR on error
+ */
+int declaration_test(Resources *resources, index_t index_to_string, index_t index_to_root_node, int type);
+
+/** Deallocs memory used to store funtion arguments
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ */
+void free_memory(Resources *resources, index_t index_to_root_node);
+
+/** Gives data type of variable or data type of function return value
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @return returns int value, one of enum data_types
+ */
+int get_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string, int type);
+
+/** Gives value of float variable
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param value pointer to float variable to store variable data
+ * @param type defferentiates between variable data type and function return value data type (one of enum types_of_tokens)
+ * @return returns RETURN_OK on succes, NOT_FOUND if variable is not in symbol_table or INTERNAL_ERROR on error
+ */
+int load_float_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, float *value);
+
+/** Gives value of integer variable
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param value pointer to integer variable to store variable data
+ * @return returns RETURN_OK on succes, NOT_FOUND if variable is not in symbol_table or INTERNAL_ERROR on error
+ */
+int load_integer_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, int *value);
+
+/** Gives value of string variable
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param value pointer to index_t variable to store variable data
+ * @return returns RETURN_OK on succes, NOT_FOUND if variable is not in symbol_table or INTERNAL_ERROR on error
+ */
+int load_string_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, index_t *value);
+
+/** Gives number of arguments of a function
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param int pointer to variable to store number of function's arguments
+ * @return returns RETURN_OK on succes, NOT_FOUND if function is not in symbol_table or INTERNAL_ERROR on error
+ */
+int load_num_of_args(Resources *resources, index_t index_to_root_node, index_t index_to_string, int *num);
+
+/** Gives number of arguments of a function
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param arg_index integer index to array of function's arguments 
+ * @return returns data type of x-th argument (x is value in arg_index), NOT_FOUND if function or argument is not in symbol table or INTERNAL_ERROR on error
+ */
+int load_arg_data_type(Resources *resources, index_t index_to_root_node, index_t index_to_string, int arg_index);
+
+/** Loads index to identifier and data type of function x-th argument (x is arg_index)
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @param arg_index choose number of argument (indexed from 1)
+ * @param index_to_arg_id variable to store index to argument's id
+ * @param data_type variable to store argument's data type
+ * @return returns true if function was defined, false if was not, NOT_FOUND if was not declared or INTERNAL_ERROR on error
+ */
+int load_arg(Resources *resources, index_t index_to_root_node, index_t index_to_func_id, int arg_index, index_t *index_to_arg_id, int *data_type);
+
+/** Checks if function was definied
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @return returns true if function was defined, false if was not, NOT_FOUND if was not declared or INTERNAL_ERROR on error
+ */
+int check_definition_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Sets definition flag up
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on succes, NOT_FOUND if function was not declared or INTERNAL_ERROR on error
+ */
+int set_definition_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Checks if function is currently being declared
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @return returns true if function is being delared, false if not, INTERNALL_ERROR on error
+ */
+int check_declaration_status(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Control variable data type
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param index_to_string index to dynamic buffer (string of identifier)
+ * @param exected_data_type data type to compare with
+ * @return returns RETURN_OK on succes, SEMANTIC_ERROR if wrong data types, INTERNAL_ERROR on error, NOT_FOUND if variable was not declared
+ */
+int check_var_data_types(Resources *resources, index_t index_to_root_node, index_t index_to_string, int expected_data_type);
+
+/** Saves value to frame_index in symbol table node tree
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param id index to dynamic buffer (string of identifier)
+ * @param index_to_store index_t variable storing value to save in symbol table
+ * @param type int variable says wether saving tu function or variable node
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
+int save_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t index_to_store, int type);
+
+/** Loads value of frame_index in symbol table node tree
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param id index to dynamic buffer (string of identifier)
+ * @param load_index pointer to variable to store found value
+ * @param type int variable says wether loading from function or variable node
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
+int load_frame(Resources *resources, index_t index_to_root_node, index_t id, index_t *load_index, int type);
+
+/** Sets builtin flag
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
+int set_built_in(Resources *resoures, index_t func_name);
+
+/** Sets start flag
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
+int set_start(Resources *resoures, index_t func_name);
+
+/** Says wether function has builtin flag set
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns tru if is set, false if i not, SEMANTIC_ERROR if function or variable not declared, INTERNALL_ERROR on error
+ */
+int is_built_in(Resources *resoures, index_t func_name);
+
+/** Says wether function has start flag set
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns tru if is set, false if i not, SEMANTIC_ERROR if function or variable not declared, INTERNALL_ERROR on error
+ */
+int is_start(Resources *resoures, index_t func_name);
+
+/** Sets declaration flag that says function is currently being declared for the firt time
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
+int set_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Sets declaration flag that says function is currently being declared for the firt time
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node index_t variable storing index to dynamic structure buffer
+ * @param func_name index to dynamic buffer (string of identifier)
+ * @return returns RETURN_OK on success, NOT_FOUND if function or variable not declared, INTERNALL_ERROR on error
+ */
+int unset_declaration_flag(Resources *resources, index_t index_to_root_node, index_t index_to_func_id);
+
+/** Create special node in symbol table tree that represents root node of function definition scope
+ * @param resources pointer to structure with buffers
+ * @param index_to_root_node pointer to index_t variable storing index to dynamic structure buffer
+ * @param index_to_func_id index to dynamic buffer (string of identifier)
+ * @param index_to_string index to dynamic buffer (any string to make hash from)
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
+int make_root_for_def_scope(Resources *resources, index_t *index_to_root_node, index_t index_to_func_id, index_t index_to_string);
 
 /** Finds the first occurrence of a string search (in buffer c) in a string s (in buffer b)
  * @param b pointer to TDyanmic buffer where string s is 
  * @index string index in the buffer where the string "string" starts
- * @param c pointer to TDyanmic buffer where string search is (can be mutual with b)
  * @index string index in the buffer where the string "search" starts
  * @return The first occurence of the "search" on success, 0 if "search" is empty, -1 if "search" is not found, -2 on error
  */
-int find(TDynamic_buffer *b, index_t string, TDynamic_buffer *c, index_t substring);
+int find(TDynamic_buffer *b, index_t string, index_t substring);
 
 /** Sorts characters in the given string according to their values in ASCII table
  * @param b pointer to TDyanmic buffer where string s is 
  * @param string index in the buffer where the string is
  * @return index to string where sorted string is
-*/
+ */
 index_t sort(TDynamic_buffer *b, index_t string);
 
+/** Algorithm for reconstructing the heap
+ * @param a pointer to the given string
+ * @param left left element
+ * @param right right element
+ */
 void SiftDown(char *a, int left, int right);
 
+/** Sorts characters in the given string using HeapSort algorithm
+ * @param a pointer to the given string
+ */
 void HeapSort(char *a);
 
+/** Computes the length of given string
+ * @param string pointer to the given string
+ * @return the length of given string
+ */
+int str_length(char *string);
+
+#endif // !IAL_H

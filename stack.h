@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file stack.h
  * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
  *

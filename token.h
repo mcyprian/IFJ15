@@ -1,6 +1,8 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file token.h
- * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz> Tomas Scavnicky <xscavn00@stud.fit.vutbr.cz>
+ * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz> 
+ * @author Tomas Scavnicky <xscavn00@stud.fit.vutbr.cz>
  *
  * @section DESCRIPTION
  *
@@ -19,7 +21,6 @@ typedef struct {
     index_t token_index;           // Index to token string in dynamic_buffer
     int token_type;
     int original_type;
-    char status;
 } TToken;
 
 enum token_types
@@ -29,11 +30,11 @@ enum token_types
 	O_L, // 2                        <
     O_GE, // 3                       >=
     O_LE, // 4                       <=
-    O_PLUS,  // 5                    +
-	O_MINUS, // 6                    -
-    O_MUL,   // 7                    *
-    O_DIV,   // 8                    /
-    O_NE,  // 9                      !=
+    O_NE,  // 5                      !=
+    O_PLUS,  // 6                    +
+	O_MINUS, // 7                    -
+    O_MUL,   // 8                    *
+    O_DIV,   // 9                    /
 	CLOSING_BRACKET, // 10           )
     OPENING_BRACKET, // 11           (
     END_OF_EXPR,     // 12

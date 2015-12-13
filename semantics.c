@@ -1,6 +1,9 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file sematics.c
- * @author Tomáš Ščavnický <xscavn00@stud.fit.vutbr.cz> Tomáš Sýkora <xsykor25@stud.fit.vutbr.cz> Michal Ďurista <xduris04@stud.fit.vutbr.cz>
+ * @author Tomáš Ščavnický <xscavn00@stud.fit.vutbr.cz> 
+ * @author Tomáš Sýkora <xsykor25@stud.fit.vutbr.cz> 
+ * @author Michal Ďurista <xduris04@stud.fit.vutbr.cz>
  *
  * @section DESCRIPTION
  *
@@ -20,19 +23,47 @@ int enter_scope(Resources *resources)
 {
     debug_print("%s\n", "ENTER_SCOPE");
     TTree *tmp;
-    index_t i = 0;
+    index_t i = 0; 
+    int x = 0;
+    int next_cnt;
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    debug_print("%s%d\n", "ENTER_SCOPE is_definition_scope is: ", tmp->is_definition_scope);
+    if (tmp->is_definition_scope == 1){
+        tmp->is_definition_scope = 0;
+        x = 1;
+    }
+    next_cnt = tmp->var_cnt;
 
     add_char(&(resources->string_buff), '$');
     index_t test = save_token(&(resources->string_buff));
-    declare_variable(resources, test, &i, NO_DATA_TYPE);
+
+    if (x == 1)
+	make_root_for_def_scope(resources, &i, currently_analyzed_function, test);
+    else
+        declare_variable(resources, test, &i, NO_DATA_TYPE);
+
     catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), i, (void **)&tmp),
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
 
+    //indexes above 8 are indexes of functions' definitions
+debug_print("%s%lu\n", "ENTER_SCOPE actual i is: ", i);
+debug_print("%s%d\n", "ENTER_SCOPE actual x is: ", x);
+    if (i > 8 && x != 1){
+debug_print("%s\n", "ENTER_SCOPE i'm in cindition if (i > 8 && x != 1) ");
+        
+debug_print("%s%d\n", "ENTER_SCOPE tmp_next->var_cnt is: ", next_cnt);
+        tmp->var_cnt = next_cnt;
+    }
+
     tmp->index_to_struct_buffer = i;
-    tmp->var_declar_count = 0;
     push(&(resources->struct_buff_trees), &(resources->stack), i);
   
     debug_print("%s\n", "ENTER_SCOPE_RETURN_0");
@@ -42,17 +73,29 @@ int enter_scope(Resources *resources)
 int leave_scope(Resources *resources)
 {
     debug_print("%s\n", "LEAVE_SCOPE");
-    TTree *tmp;
+    TTree *tmp, *tmp_next;
     index_t r = resources->stack.top;
+
     catch_internal_error(
         dereference_structure(&(resources->struct_buff_trees), r, (void **)&tmp),
         INTERNAL_ERROR,
         "Failed to dereference structure buffer."
     );
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp_next),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
 
-    for (int i = tmp->var_declar_count; i > 0; i--) {
-        // generuj instrukciu POP
+debug_print("%s%d\n", "LEAVE_SCOPE tmp->var_cnt", tmp->var_cnt);
+debug_print("%s%d\n", "LEAVE_SCOPE tmp_next->var_cnt", tmp_next->var_cnt);
+    for (int i = 0; i < (tmp->var_cnt - tmp_next->var_cnt); i++) {
+        catch_internal_error(new_instruction_empty(&(resources->instruction_buffer), POP_EMPTY),
+            INTERNAL_ERROR,
+            "Failed to generate pop instruction"
+            );
     }
+
     pop(&(resources->struct_buff_trees), &(resources->stack));
     debug_print("%s\n", "LEAVE_SCOPE_RETURN_0");
     return RETURN_OK;
@@ -123,8 +166,9 @@ int is_func_declared_withrv(Resources *resources, index_t name_of_func, int retu
     int is_declared = NOT_FOUND;
     currently_analyzed_function = name_of_func;
     index_t i = resources->stack.top;
+    int iRet;
 
-    if (!declaration_test(resources, name_of_func, i, FUNC)) {
+    if ( (iRet = declaration_test(resources, name_of_func, i, FUNC)) == RETURN_OK) {
         if (return_type == get_data_type(resources, resources->stack.top, name_of_func, FUNC))
             is_declared = RETURN_OK;
         else
@@ -140,19 +184,46 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
     debug_print("%s\n", "DECLARE_FUNC");
     currently_analyzed_function = index_to_string_buff;
     index_t i;
+    int is_main;
     arg_counter = 0;
+    index_t index_to_func_table;
+    index_t * func_index;
+    int type = sem_type_filter(return_type);
 
-    switch (is_func_declared_withrv(resources, index_to_string_buff, sem_type_filter(return_type))) {
+    debug_print("%s%s\n", "DECLARE_FUNC, declaring function with name: ", load_token(&(resources->string_buff), index_to_string_buff));
+
+    is_main = strcmp(load_token(&(resources->string_buff), index_to_string_buff), "main");
+    if (is_main == 0 && type != L_INT){
+	debug_print("%s\n", "DECLARE_FUNC_RETURN_SEMANTIC_ERROR");
+	return SEMANTIC_ERROR;
+    }
+
+    switch (is_func_declared_withrv(resources, index_to_string_buff, type)) {
         case RETURN_OK:
+	    unset_declaration_flag(resources, resources->stack.top, index_to_string_buff);
+	    debug_print("%s\n", "DECLARE_FUNC: unsetting declaration flag");
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return RETURN_OK;
         case NOT_FOUND:
             i = resources->stack.top;
-            declare_function(resources, index_to_string_buff, &i, sem_type_filter(return_type));
+            declare_function(resources, index_to_string_buff, &i, type);
+
+	    set_declaration_flag(resources, i, index_to_string_buff);
+	    debug_print("%s\n", "DECLARE_FUNC: setting declaration flag");
+
+            resources->definitions_counter++;
+	    if( (save_frame(resources, i, index_to_string_buff, resources->definitions_counter, FUNC)) == NOT_FOUND ){
+	        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
+		return SEMANTIC_ERROR;
+	    } 
+	    new_item(&(resources->func_table), index_to_func_table, func_index);
+
+	    if (is_main == 0)
+                set_start(resources, index_to_string_buff);
             debug_print("%s\n", "DECLARE_FUNC_RETURN_0");
             return RETURN_OK;
         case SEMANTIC_ERROR:
-            debug_print("%s\n", "DECLARE_FUNC_RETURN_1");
+            debug_print("%s\n", "DECLARE_FUNC_RETURN_SEMANTIC_ERROR");
             return SEMANTIC_ERROR; // odsledovat v synt an pre hlasenie sem. chyby
         default:
             debug_print("%s\n", "DECLARE_FUNC_RETURN_-1");
@@ -163,94 +234,89 @@ int declare_func(Resources *resources, index_t index_to_string_buff, int return_
 int declare_builtin_funcs(Resources *resources)
 {
     debug_print("%s\n", "DECLARE_FUNC");
-    index_t i = resources->stack.top;
     index_t string_index, first_arg, second_arg, third_arg;
 
-    
+    // SORT    
 
     add_str(&(resources->string_buff), "sort");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_STRING),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
-    add_str(&(resources->string_buff), "string");
+    declare_func(resources, string_index, L_STRING);
+    
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
-    arg_counter = 1;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
+
+    // FIND
 
     add_str(&(resources->string_buff), "find");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_INT),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
-    add_str(&(resources->string_buff), "string");
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+	declare_func(resources, string_index, L_INT);
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
-    add_str(&(resources->string_buff), "substring");
+    add_str(&(resources->string_buff), "search");
     second_arg = save_token(&(resources->string_buff));
     set_arg(resources, second_arg, L_STRING);
-    arg_counter = 2;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
+
+    // LENGTH
 
     add_str(&(resources->string_buff), "length");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_INT),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
-    add_str(&(resources->string_buff), "index");
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+        declare_func(resources, string_index, L_INT);
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
-    arg_counter = 1;
-    check_argc(resources);
-    set_built_in(resources, currently_analyzed_function);
-
-    add_str(&(resources->string_buff), "concat");
-    currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_STRING),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
-    add_str(&(resources->string_buff), "index1");
-    first_arg = save_token(&(resources->string_buff));
-    set_arg(resources, first_arg, L_STRING);
-    add_str(&(resources->string_buff), "index2");
-    second_arg = save_token(&(resources->string_buff));
-    set_arg(resources, second_arg, L_STRING);
-    arg_counter = 2;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
 
+    // CONCAT
+
+    add_str(&(resources->string_buff), "concat");
+    currently_analyzed_function = string_index = save_token(&(resources->string_buff));
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+        declare_func(resources, string_index, L_STRING);
+    add_str(&(resources->string_buff), "s1");
+    first_arg = save_token(&(resources->string_buff));
+    set_arg(resources, first_arg, L_STRING);
+    add_str(&(resources->string_buff), "s2");
+    second_arg = save_token(&(resources->string_buff));
+    set_arg(resources, second_arg, L_STRING);
+    catch_internal_error(
+        check_argc(resources),
+        TYPE_ERROR,
+        "Wrong argument count."
+    );
+    set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
+
+    // SUBSTR
 
     add_str(&(resources->string_buff), "substr");
     currently_analyzed_function = string_index = save_token(&(resources->string_buff));
-    catch_internal_error(
-        declare_function(resources, string_index, &i, L_STRING),
-        INTERNAL_ERROR,
-        "Failed to declare function."
-    );
-    add_str(&(resources->string_buff), "index");
+    if (is_func_declared(resources, currently_analyzed_function) == SEMANTIC_ERROR)
+        declare_func(resources, string_index, L_STRING);
+    add_str(&(resources->string_buff), "s");
     first_arg = save_token(&(resources->string_buff));
     set_arg(resources, first_arg, L_STRING);
     add_str(&(resources->string_buff), "i");
@@ -259,13 +325,13 @@ int declare_builtin_funcs(Resources *resources)
     add_str(&(resources->string_buff), "n");
     third_arg = save_token(&(resources->string_buff));
     set_arg(resources, third_arg, L_INT);
-    arg_counter = 3;
     catch_internal_error(
         check_argc(resources),
         TYPE_ERROR,
         "Wrong argument count."
     );
     set_built_in(resources, currently_analyzed_function);
+    set_definition_flag(resources, resources->stack.top, string_index);
 
     debug_print("%s\n", "DECLARE_FUNC_RETURN_OK");
     return RETURN_OK;
@@ -276,6 +342,7 @@ int declare_builtin_funcs(Resources *resources)
 int declare_var(Resources *resources, index_t index_to_string_buff, int data_type)
 {
     debug_print("%s\n", "DECLARE_VAR");
+debug_print("%s%s\n", "DECLARE_VAR var name: ", load_token(&(resources->string_buff), index_to_string_buff));
     TTree *tmp;
     index_t i = resources->stack.top;
     int is_declared = declaration_test(resources, index_to_string_buff, i, VAR);
@@ -288,8 +355,9 @@ int declare_var(Resources *resources, index_t index_to_string_buff, int data_typ
                 INTERNAL_ERROR,
                 "Failed to dereference structure buffer."
             );
-            tmp->var_declar_count = tmp->var_declar_count + 1;
-            // generuj funkciu PUSH
+            tmp->var_cnt++;
+	    debug_print("%s%d\n", "DECLARE_VAR saved count: ", tmp->var_cnt);
+            save_var_index(resources, index_to_string_buff, tmp->var_cnt);
             debug_print("%s\n", "DECLARE_VAR_RETURN_0");
             return RETURN_OK;
         case FOUND:
@@ -314,6 +382,12 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
 {
     debug_print("%s\n", "CHECK_ARG_DECLARATION");
     index_t i = resources->stack.top;
+    int cmp;
+
+
+    debug_print("%s%s\n", "CHECK_ARG_DECLARATION name of func: ", load_token(&(resources->string_buff), currently_analyzed_function));
+    debug_print("%s%d\n", "CHECK_ARG_DECLARATION argi: ", argi);
+
 
     int actual_arg_type, iRet;
     index_t actual_name_of_arg;
@@ -323,13 +397,19 @@ int check_arg_declaration(Resources *resources, index_t expected_name_of_arg, in
         return TYPE_ERROR;
     }
     
-    if ((expected_arg_type == actual_arg_type) && (expected_name_of_arg == actual_name_of_arg)){
+    cmp = strcmp( load_token(&(resources->string_buff), expected_name_of_arg), load_token(&(resources->string_buff), actual_name_of_arg));
+
+    if ((expected_arg_type == actual_arg_type) && (cmp == 0)){
         debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_OK");
         return RETURN_OK;
     }
-    else {
+    else if (expected_arg_type != actual_arg_type) {
         debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_TYPE_ERROR");
         return TYPE_ERROR;
+    }
+    else {
+	debug_print("%s\n", "CHECK_ARG_DECLARATION_RETURN_SEMANTIC_ERROR");
+        return SEMANTIC_ERROR;
     }
 }
 
@@ -337,22 +417,37 @@ int set_arg(Resources *resources, index_t name_of_arg, int data_type)
 {
     debug_print("%s\n", "SET_ARG");
     index_t i = resources->stack.top;
+    int is_main;
+    int is_declared_now = -5;
+    int iRet;
+
+    if ( (is_main = is_start(resources, currently_analyzed_function)) == true){
+	debug_print("%s%s\n", "SET_ARG name of function: ", load_token(&(resources->string_buff), currently_analyzed_function));
+        debug_print("%s\n", "SET_ARG_RETURN_2");
+        return SEMANTIC_ERROR;
+    }
 
     arg_counter++;
-    if(!check_declaration_status(resources, i, currently_analyzed_function)){
+    if( (is_declared_now = check_declaration_status(resources, i, currently_analyzed_function)) == true){
+	debug_print("%s%d\n", "SET_ARG is_declared_now: ", is_declared_now);
         add_arg(resources, name_of_arg, sem_type_filter(data_type));
         debug_print("%s\n", "SET_ARG_RETURN_OK");
         return RETURN_OK;
     }
     else {
-        if(check_arg_declaration(resources, name_of_arg, sem_type_filter(data_type), arg_counter)){
+	debug_print("%s%d\n", "SET_ARG is_declared_now: ", is_declared_now);
+        if( (iRet = check_arg_declaration(resources, name_of_arg, sem_type_filter(data_type), arg_counter)) == RETURN_OK){
             debug_print("%s\n", "SET_ARG_RETURN_OK");
             return RETURN_OK;
         }
-        else{
-            debug_print("%s\n", "SET_ARG_RETURN_TYPE_ERROR");    
+        else if (iRet == TYPE_ERROR) {
+           debug_print("%s\n", "SET_ARG_RETURN_TYPE_ERROR");    
            return TYPE_ERROR;
         }
+	else {
+	   debug_print("%s\n", "SET_ARG_RETURN_SEMANTIC_ERROR");    
+           return SEMANTIC_ERROR;
+	}
     }
 }
 
@@ -418,12 +513,16 @@ int check_return_type(Resources *resources, index_t func_name, int expected_data
     } // while; tmp is global scope tree
     actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_name, FUNC);
 
+    debug_print("%s%s\n", "CHECK_RETURN_TYPE name of function: ", load_token(&(resources->string_buff), func_name));
+
     return (actual_data_type == sem_type_filter(expected_data_type) ? RETURN_OK : TYPE_ERROR);
 }
 
 int check_var_type(Resources *resources, index_t var_name, int expected_type)
 {
     debug_print("%s\n", "CHECK_VAR_TYPE");
+debug_print("%s%d\n", "CHECK_VAR_TYPE expected: ", expected_type);
+debug_print("%s%s\n", "CHECK_VAR_TYPE var name: ", load_token(&(resources->string_buff), var_name));
     args_assert(expected_type == 14 || expected_type == 21 || expected_type == 15 || expected_type == 20 || expected_type == 16 || expected_type == 22 || expected_type == 32, INTERNAL_ERROR);
     TTree *tmp;
     int i;
@@ -441,7 +540,11 @@ int check_var_type(Resources *resources, index_t var_name, int expected_type)
         }
         else if (i == L_DOUBLE || i == L_INT){
             debug_print("%s%d\n", "CHECK_VAR_TYPE_RETURN_",i);
-            return i;
+            return TYPE_CAST;
+        }
+        else if (i == SEMANTIC_ERROR){
+            debug_print("%s\n", "CHECK_VAR_TYPE_RETURN_OK");
+            return TYPE_ERROR;
         }
         catch_internal_error(
             dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
@@ -462,6 +565,14 @@ int define_func(Resources *resources)
         return SEMANTIC_ERROR; // sematicka chyba - dve definicia jednej funkcie
     }
 
+    char *str = load_token(&(resources->string_buff), currently_analyzed_function);
+    catch_internal_error(str, NULL, "Failed to load token string.");
+    if (strcmp(str,"main") == 0){
+        resources->start_main = resources->definitions_counter;
+	debug_print("%s%d\n", "DEFINE_FUNC saved main to func table on index: ", resources->definitions_counter);
+    }
+    save_func_index (resources, currently_analyzed_function, resources->instruction_buffer.next_free);
+
     int argc;
     int data_type;
     index_t name;
@@ -470,6 +581,14 @@ int define_func(Resources *resources)
 
     set_definition_flag(resources, resources->stack.top, currently_analyzed_function);
     load_num_of_args(resources, resources->stack.top, currently_analyzed_function, &argc);
+debug_print("%s%d\n", "DEFINE_FUNC num of args: ", argc);
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+    tmp->is_definition_scope = 1;
 
     enter_scope(resources);
     index_t r = resources->stack.top;
@@ -480,10 +599,14 @@ int define_func(Resources *resources)
         "Failed to dereference structure buffer."
     );
 
-    for(int i = argc; i > 0; i--) {
+    for(int i = 1; i <= argc; i++) {
         load_arg(resources, general_scope_tree, currently_analyzed_function, i, &name, &data_type);
         declare_variable(resources, name, &r, data_type);
-        tmp->var_declar_count = tmp->var_declar_count + 1;
+        tmp->var_cnt++;
+	debug_print("%s%s\n", "DEFINE_FUNC arg name: ", load_token(&(resources->string_buff), name));
+	debug_print("%s%d\n", "DEFINE_FUNC saved var count: ", tmp->var_cnt);
+        save_var_index(resources, name, tmp->var_cnt);
+
         // generuj funkciu PUSH
     }
 
@@ -519,7 +642,7 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
             );
         }
         if (frst_token_type == NOT_FOUND)
-	{
+    {
             debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
         }
@@ -549,7 +672,7 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
             );
         }
         if (scnd_token_type == NOT_FOUND)
-	{
+    {
             debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
             return SEMANTIC_ERROR;  //semantic error undeclared variable
         }
@@ -563,8 +686,8 @@ int check_tokens(Resources *resources, index_t frst_token, index_t scnd_token)
         return RETURN_OK;
     }
     else if ((frst_token_type == L_STRING) || (scnd_token_type == L_STRING)) {
-        debug_print("%s\n", "CHECK_TOKENS_SEMANTIC_ERROR");
-        return SEMANTIC_ERROR;
+        debug_print("%s\n", "CHECK_TOKENS_TYPE_ERROR");
+        return TYPE_ERROR;
     }
     else if (frst_token_type == L_DOUBLE)
         return TYPE_CAST_SECOND;  //pretypuj druhy token
@@ -663,7 +786,7 @@ int get_return_type(Resources *resources, index_t func_name) {
 int get_var_type(Resources *resources, index_t var_name)
 {
     debug_print("%s\n", "GET_VAR_TYPE");
-
+debug_print("%s%s\n", "GET_VAR_TYPE var name: ", load_token(&(resources->string_buff), var_name));
     TTree *tmp;
     int is_declared = SEMANTIC_ERROR;
     int type;
@@ -693,14 +816,16 @@ int get_var_type(Resources *resources, index_t var_name)
     }
     else {
         debug_print("%s\n","GET_VAR_TYPE_RETURN_SEMANTIC_ERROR");
-	return SEMANTIC_ERROR;
+    return SEMANTIC_ERROR;
     }
 }
 
 int save_func_index(Resources *resources, index_t func_name, index_t index_to_store)
 {
     debug_print("%s\n","SAVE_FUNC_INDEX");
+    index_t *func_index;
     TTree *tmp;
+    index_t index_to_func_table;
     int iret;
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
@@ -709,21 +834,27 @@ int save_func_index(Resources *resources, index_t func_name, index_t index_to_st
         dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp);
     } // after while, tmp is global scope tree
 
-    if( (iret = save_frame(resources, tmp->index_to_struct_buffer, func_name, index_to_store, FUNC)) != NOT_FOUND ){
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
-        return RETURN_OK;
-    }
-    else {
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
-        return SEMANTIC_ERROR;
-    }
+    if((iret = load_frame(resources, tmp->index_to_struct_buffer, func_name, &index_to_func_table, FUNC)) != RETURN_OK)
+	    return iret;
+
+    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table to index: ", index_to_func_table);
+    debug_print("%s%lu\n","SAVE_FUNC_INDEX saving to func_table index: ", index_to_store);
+    
+    dereference_structure(&(resources->func_table), index_to_func_table, (void **)&func_index);
+    *func_index = index_to_store;
+
+    debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
+    return RETURN_OK;
 }
 
 int save_var_index(Resources *resources, index_t var_name, index_t index_to_store)
 {
     debug_print("%s\n","SAVE_VAR_INDEX");
     TTree *tmp;
-    int iret;
+    int iret = NOT_FOUND;
+
+    debug_print("%s%s\n","SAVE_VAR_INDEX variable name: ", load_token(&(resources->string_buff), var_name));
+    debug_print("%s%lu\n","SAVE_VAR_INDEX index_to_store: ", index_to_store);
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
 
@@ -747,7 +878,7 @@ int save_var_index(Resources *resources, index_t var_name, index_t index_to_stor
 
 int load_func_index(Resources *resources, index_t func_name, index_t *load_index)
 {
-    debug_print("%s\n","SAVE_FUNC_INDEX");
+    debug_print("%s\n","LOAD_FUNC_INDEX");
     TTree *tmp;
     int iret;
     index_t tmp_load_index;
@@ -759,21 +890,21 @@ int load_func_index(Resources *resources, index_t func_name, index_t *load_index
     } // after while, tmp is global scope tree
 
     if( (iret = load_frame(resources, tmp->index_to_struct_buffer, func_name, &tmp_load_index, FUNC)) != NOT_FOUND ){
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_OK");
+        debug_print("%s\n","LOAD_FUNC_INDEX_RETURN_OK");
         *load_index = tmp_load_index;
         return RETURN_OK;
     }
     else {
-        debug_print("%s\n","SAVE_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
+        debug_print("%s\n","LOAD_FUNC_INDEX_RETURN_SEMANTIC_ERROR");
         return SEMANTIC_ERROR;
     }
 }
 
 int load_var_index(Resources *resources, index_t var_name, index_t *load_index)
 {
-    debug_print("%s\n","SAVE_VAR_INDEX");
+    debug_print("%s\n","LOAD_VAR_INDEX");
     TTree *tmp;
-    int iret;
+    int iret = NOT_FOUND;
     index_t tmp_load_index;
 
     dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp);
@@ -787,12 +918,71 @@ int load_var_index(Resources *resources, index_t var_name, index_t *load_index)
         }
 
     if( iret != NOT_FOUND ){
+	debug_print("%s%s\n","LOAD_VAR_INDEX var name: ", load_token(&(resources->string_buff), var_name));
+	debug_print("%s%lu\n","LOAD_VAR_INDEX loading index: ", tmp_load_index);
         *load_index = tmp_load_index;
-        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_OK");
+        debug_print("%s\n","LOAD_VAR_INDEX_RETURN_OK");
         return RETURN_OK;
     }
     else {
-        debug_print("%s\n","SAVE_VAR_INDEX_RETURN_SEMANTIC_ERROR");
+        debug_print("%s\n","LOAD_VAR_INDEX_RETURN_SEMANTIC_ERROR");
         return SEMANTIC_ERROR;
+    }
+}
+
+int declared_var_cnt(Resources *resources, int *cnt)
+{
+    debug_print("%s\n", "DECLARED_VAR_CNT");
+    TTree *tmp;
+
+    catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+    *cnt = tmp->var_cnt;
+
+    debug_print("%s\n", "DECLARED_VAR_CNT_RETURN_0");
+    return RETURN_OK;
+}
+
+int check_return_value_type(Resources *resources, int type)
+{
+	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE");
+	TTree *tmp;
+	int actual_data_type;
+	index_t func_id = 0;
+
+	catch_internal_error(
+        dereference_structure(&(resources->struct_buff_trees), resources->stack.top, (void **)&tmp),
+        INTERNAL_ERROR,
+        "Failed to dereference structure buffer."
+    );
+
+	func_id = tmp->defined_function_id;
+
+    while (tmp->next != ZERO_INDEX) {
+        catch_internal_error(
+            dereference_structure(&(resources->struct_buff_trees), tmp->next, (void **)&tmp),
+            INTERNAL_ERROR,
+            "Failed to dereference structure buffer."
+        );
+	if (!func_id)
+	    func_id = tmp->defined_function_id;
+    } // while; tmp is global scope tree
+    actual_data_type = get_data_type(resources, tmp->index_to_struct_buffer, func_id, FUNC);
+
+    if (actual_data_type == type){
+    	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE_RETURN_OK");
+    	return RETURN_OK;
+    }
+    else if (type == L_STRING || actual_data_type == L_STRING){
+    	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE_RETURN_TYPE_ERROR");
+    	return TYPE_ERROR;
+    }
+    else {
+    	debug_print("%s\n", "CHECK_RETURN_VALUE_TYPE_RETURN_TYPE_CAST");
+    	return TYPE_CAST;
     }
 }

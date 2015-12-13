@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file precedence_analysis.h
  * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
  *
@@ -37,8 +38,17 @@ enum operations {
 
 extern const int precedence_table[NUM_OF_TOKENS][NUM_OF_TOKENS];
 
+/** Converts string to int
+ * @param str pointer to string to be converted
+ * @return value of result after conversion on success, -1 on error
+ */
 long to_int(char *str);
 
+
+/** Converts string to double
+ * @param str pointer to string to be converted
+ * @return value of result after conversion on success, -1 on error
+ */
 double to_double(char *str);
 
 /** Sets index to first non terminal (token) on top of the stack
@@ -66,28 +76,44 @@ int print_stack(TDynamic_structure_buffer *b, TStack *stack);
  */
 int get_types(TDynamic_structure_buffer *b, TStack *stack,  int *values);
 
-int short_reduction(TDynamic_structure_buffer *b, TStack *stack, int original_type, char status);
+/** Checks values of types of items before first SHIFT token
+ * @param b pointer to dynamic_structure_buffer
+ * @param stack pointer to stack
+ * @param values array to write results and number of tokens to index 0
+ * @return RETURN_OK on success, INTERNAL_ERROR on error
+ */
 
-int long_reduction(Resources *res, TToken **reduced_tokens, TStack *stack, int original_type);
+/** Reduces one token on top of the stack to nonterminal
+ * @param res pointer ro resources
+ * @param stack pointer to stack
+ * @return RETURN_OK on success, INTERNAL_ERROR, SEMANTIC_ERROR or SYNTAX_ERROR  on error
+ */
+int short_reduction(Resources *res, TStack *stack);
+
+/** Reduces tree tokens on top of the stack to nonterminal, generates
+ * arithmetic, relational and casting instructions
+ * @param res pointer to resources
+ * @param stack pointer to stack
+ * @return RETURN_OK on success, INTERNAL_ERROR, SEMANTIC_ERROR, SYNTAX_ERROR or TYPE_ERROR  on error
+ */
+int long_reduction(Resources *res, TStack *stack, int rule);
 
 /** Reduce top of the stack to nonterminal RVALUE
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
  * @param original_type original token type of token being reduced
- * @param status current status of non terminal
  * @return RETURN_OK on success, INTERNAL_ERROR on error
  */
-int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type, char status);
+int reduce(TDynamic_structure_buffer *b, TStack *stack, int original_type);
 
 /** Overwrite token type on top of the stack
  * @param b pointer to dynamic_structure_buffer
  * @param stack pointer to stack
  * @param new_type new token type of stack top
  * @param original_type original token type of stack top
- * @param status current status of non terminal
  * @return RETURN_OK on success, INTERNAL_ERROR or SYNTAX_ERROR on error
  */
-int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type, char status);
+int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int original_type);
 
 /** Search for right rule to reduction of stack top
  * @param res pointer to respurces
@@ -96,6 +122,7 @@ int overwrite_top(TDynamic_structure_buffer *b, TStack *stack, int new_type, int
  */
 
 int get_rule(Resources *res, TStack *stack);
+
 /** Checks if expression is syntactically correct
  * @param res pointer to resources structure
  * @param token pointer to pointer to last token from sa

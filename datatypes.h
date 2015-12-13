@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file datatypes.h
  * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz>
  *

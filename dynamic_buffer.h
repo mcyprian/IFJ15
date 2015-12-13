@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file dynamic_buffer.h
  * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
  *
@@ -53,8 +54,15 @@ int add_char(TDynamic_buffer *b, char c);
  */
 int add_str(TDynamic_buffer *b, char* word);
 
+/** Variant of add_str with index to string buffer as second argument
+ * @param b pointer to dynamic buffer
+ * @param index index to the beggining of string in buffer
+ * @return Zero on success, INTERNAL_ERROR on malloc error
+ */
+int add_str_index(TDynamic_buffer *b, index_t index);
+
 /** Reads current content of buffer
- * @oaram b pointer to TDynamic_buffer
+ * @param b pointer to TDynamic_buffer
  * @return Pointer to string stored in buffer, INTERNAL_ERROR on error
  */ 
 char *read_buffer(TDynamic_buffer *b);
@@ -80,7 +88,7 @@ index_t save_token(TDynamic_buffer *b);
 
 /** Dereferance given index in dynamic buffer.
  * @param b pointer to TDynamic_buffer
- * @index index returned from save_token
+ * @param index returned from save_token
  * @return pointer to token string stored in b
  */
 char *load_token(TDynamic_buffer *b, index_t index);

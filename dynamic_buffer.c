@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file dynamic_buffer.c
  * @author Michal Cyprian <xcypri01@stud.fit.vutbr.cz>
  *
@@ -10,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 #include "dynamic_buffer.h"
 #include "error_macros.h"
@@ -18,7 +20,7 @@
 int init_buffer(TDynamic_buffer *b, size_t initial_length) {
     debug_print("%s\n", "BUFFER INIT");
     args_assert(b != NULL && initial_length > 0, INTERNAL_ERROR);
-    b->buffer = malloc(initial_length);
+    b->buffer = calloc(initial_length, CHAR_BIT);
     catch_internal_error(b->buffer, NULL, "Failed to allocate memory for buffer."); 
     b->length = initial_length;
     b->writing_index = 1;
@@ -30,12 +32,13 @@ int init_buffer(TDynamic_buffer *b, size_t initial_length) {
 int realloc_buffer(TDynamic_buffer *b, size_t size) {
     args_assert(b != NULL, INTERNAL_ERROR);
     char *tmp = NULL;
-    b->length *= 2;
-    b->length += size;
     debug_print("%s: %lu\n", "REALLOCATED TO", b->length);
-    tmp = realloc(b->buffer, b->length);	
+    tmp = realloc(b->buffer, b->length * 2 + size);	
 	catch_internal_error(tmp, NULL, "Failed to realloc memory for buffer.");
 	b->buffer = tmp;
+    memset((char *)b->buffer + b->length, 0, b->length + size);
+    b->length *= 2;
+    b->length += size;
     return 0;
 }
 
@@ -60,10 +63,24 @@ int add_str(TDynamic_buffer *b, char* word) {
     unsigned len = strlen(word);
     if (b->writing_index + len + 1 > b->length)
         catch_internal_error(realloc_buffer(b, len), INTERNAL_ERROR, "Failed to realloc buffer.");
+
     strcpy(&b->buffer[b->writing_index], word);
     b->writing_index += len;
     return 0;
 }
+
+int add_str_index(TDynamic_buffer *b, index_t index) {
+    args_assert(b != NULL && index != ZERO_INDEX, INTERNAL_ERROR);
+    char *word = load_token(b, index);
+    unsigned len = strlen(word);
+    if (b->writing_index + len + 1 > b->length)
+        catch_internal_error(realloc_buffer(b, len), INTERNAL_ERROR, "Failed to realloc buffer.");
+    
+    strcpy(&b->buffer[b->writing_index], load_token(b, index));
+    b->writing_index += len;
+    return 0;
+}
+
 
 char *read_buffer(TDynamic_buffer *b) {
     args_assert(b != NULL, NULL);
@@ -90,6 +107,7 @@ char *get_str(TDynamic_buffer *b, unsigned num) {
 index_t save_token(TDynamic_buffer *b) {
     args_assert(b != NULL, INTERNAL_ERROR);
     static index_t start = 1;
+    debug_print("%s %ld\n", "SAVE TOKEN INDEX:", start);
     b->writing_index++;
     index_t previous = start;
     start = b->writing_index;
@@ -98,6 +116,7 @@ index_t save_token(TDynamic_buffer *b) {
 
 char *load_token(TDynamic_buffer *b, index_t index) {
     args_assert(b != NULL, NULL);
+    debug_print("%s %ld\n", "LOAD TOKEN INDEX:", index);
     return b->buffer + index;
 }
 

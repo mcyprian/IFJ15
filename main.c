@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file main.c
  * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz>
  *
@@ -15,7 +16,7 @@
 #include "syntax_analysis.h"
 #include "built_functions.h"
 #include "ial.h"
-#include "symbol_table.h"
+#include "ial.h"
 #include "stack.h"
 #include "datatypes.h"
 #include "interpreter.h"
@@ -30,7 +31,7 @@ int main(int argc, char ** argv){
 	int iRet = RETURN_OK;
 
 	Resources resources;
-	resources.start_main = 1;
+	resources.start_main = ZERO_INDEX;
 	resources.bp = 1;
 	
 	if(argc != 2){
@@ -55,23 +56,38 @@ int main(int argc, char ** argv){
 	if ((iRet = init_structure_buffer(&(resources.instruction_buffer), ALLOC_SIZE, sizeof(TInstruction))) != RETURN_OK)
 		goto RUN_STACK;
 
-	if ((iRet = init_stack(&(resources.stack))) != RETURN_OK)
+	if ((iRet = init_structure_buffer(&(resources.func_table), ALLOC_SIZE / 2, sizeof(index_t))) != RETURN_OK)
 		goto INS_BUFF;
+
+	if ((iRet = init_stack(&(resources.stack))) != RETURN_OK)
+		goto FUNC_TABLE;
+
+	resources.definitions_counter = 0;
 
 	resources.source = NULL;
 	if((resources.source = fopen(argv[1], "r")) == NULL){
 		fprintf(stderr, "%s:%d Cannot open a file: %20s\n", __func__, __LINE__,  argv[1]);
 		iRet = INTERNAL_ERROR;
-		goto INS_BUFF;
+		goto FUNC_TABLE;
 	}
 
-	new_instruction_reg_reg(&(resources.instruction_buffer), 0, 0, 0, HALT);
-
+	if ((iRet = new_instruction_mem_mem(&(resources.instruction_buffer), 0, 0, 0, FCE_CALL)) != 0)goto FREE;
+	if ((iRet = new_instruction_mem_mem(&(resources.instruction_buffer), 0, 0, 0, JMP_FUNC)) != 0)goto FREE;
+	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
 	if ((iRet = check_syntax(GLOBAL, &resources)) != 0)goto FREE;
+	if ((iRet = new_instruction_empty(&(resources.instruction_buffer), HALT)) != 0)goto FREE;
+
+	for(index_t i = 1 ; i < resources.func_table.next_free ; i++)
+		debug_print("%lu\n", ((index_t*)(resources.func_table.buffer))[i]);
+
+
 	if ((iRet = run_program(&resources)) != 0)goto FREE;
 
 FREE:
 	fclose(resources.source);
+
+FUNC_TABLE:
+	free_structure_buffer(&(resources.func_table));
 
 INS_BUFF:
 	free_structure_buffer(&(resources.instruction_buffer));

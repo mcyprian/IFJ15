@@ -1,4 +1,5 @@
 /**
+ * project: Implementace interpretu imperativního jazyka IFJ15
  * @file resources.h
  * @author Radovan Sroka <xsroka00@stud.fit.vutbr.cz>
  *
@@ -15,19 +16,6 @@
 #include "datatypes.h"
 #include "stack.h"
 
-struct res{
-	FILE * source;
-	TStack stack;
-	TDynamic_buffer string_buff;
-	TDynamic_structure_buffer struct_buff;
-	TDynamic_structure_buffer struct_buff_trees;
-	TDynamic_structure_buffer instruction_buffer;
-	TDynamic_structure_buffer runtime_stack;
-	index_t start_main;
-	index_t ip;
-	index_t bp;
-};
-
 union value{ 
 	int i;
 	double d;
@@ -38,6 +26,23 @@ struct stack_variable{
 	int type;
 	int defined;
 	TValue value;
+};
+
+struct res{
+	FILE * source;
+	TStack stack;
+	TDynamic_buffer string_buff;
+	TDynamic_structure_buffer struct_buff;
+	TDynamic_structure_buffer struct_buff_trees;
+	TDynamic_structure_buffer instruction_buffer;
+	TDynamic_structure_buffer runtime_stack;
+	TDynamic_structure_buffer func_table;
+	index_t start_main;
+	index_t ip;
+	index_t bp;
+    index_t tmp_bp;
+	struct stack_variable return_value;
+	int definitions_counter;
 };
 
 struct instruction{
