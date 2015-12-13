@@ -11,9 +11,6 @@
 
 int str_length(char *string)
 {
-    if (*string == '\0')
-        return 0;
-
 	int i = 0;
 	while (*string)
 	{
@@ -30,12 +27,8 @@ int find(TDynamic_buffer *b, index_t string, index_t substring)
 
 	char *search = load_token(b, substring);
 	char *s = load_token(b, string);
-    int search_lenght;
 
-    if (*search == 0)
-        search_lenght = 0;
-    else 
-	    search_lenght = str_length(search);
+	int search_lenght = str_length(search);
 
 	int k,r;
     int i;

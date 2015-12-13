@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 #include <dynamic_buffer.h>
 #include <error_macros.h>
@@ -18,7 +19,7 @@
 int init_buffer(TDynamic_buffer *b, size_t initial_length) {
     debug_print("%s\n", "BUFFER INIT");
     args_assert(b != NULL && initial_length > 0, INTERNAL_ERROR);
-    b->buffer = malloc(initial_length);
+    b->buffer = calloc(initial_length, CHAR_BIT);
     catch_internal_error(b->buffer, NULL, "Failed to allocate memory for buffer."); 
     b->length = initial_length;
     b->writing_index = 1;
@@ -30,12 +31,13 @@ int init_buffer(TDynamic_buffer *b, size_t initial_length) {
 int realloc_buffer(TDynamic_buffer *b, size_t size) {
     args_assert(b != NULL, INTERNAL_ERROR);
     char *tmp = NULL;
-    b->length *= 2;
-    b->length += size;
     debug_print("%s: %lu\n", "REALLOCATED TO", b->length);
-    tmp = realloc(b->buffer, b->length);	
+    tmp = realloc(b->buffer, b->length * 2 + size);	
 	catch_internal_error(tmp, NULL, "Failed to realloc memory for buffer.");
 	b->buffer = tmp;
+    memset((char *)b->buffer + b->length, 0, b->length + size);
+    b->length *= 2;
+    b->length += size;
     return 0;
 }
 
@@ -104,6 +106,7 @@ char *get_str(TDynamic_buffer *b, unsigned num) {
 index_t save_token(TDynamic_buffer *b) {
     args_assert(b != NULL, INTERNAL_ERROR);
     static index_t start = 1;
+    debug_print("%s %ld\n", "SAVE TOKEN INDEX:", start);
     b->writing_index++;
     index_t previous = start;
     start = b->writing_index;
@@ -112,6 +115,7 @@ index_t save_token(TDynamic_buffer *b) {
 
 char *load_token(TDynamic_buffer *b, index_t index) {
     args_assert(b != NULL, NULL);
+    debug_print("%s %ld\n", "LOAD TOKEN INDEX:", index);
     return b->buffer + index;
 }
 
