@@ -1,3 +1,12 @@
+/**
+ * @file instruction_generator.c
+ * @author Tomas Sykora <xsykor25@stud.fit.vutbr.cz>
+ *
+ * @section DESCRIPTION
+ *
+ * Generating of function call instructions
+ */
+
 #include <instruction_generator.h>
 #include <semantics.h>
 #include <instructions.h>
