@@ -335,28 +335,7 @@ int iterate_through_tree(Resources *resources, char *str, index_t actual_node_in
 }
 
 
-int set_float_value(Resources *resources, index_t index_to_string, index_t index_to_root_node, float value){
 
-    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX && index_to_string > 0, INTERNAL_ERROR);
-
-    char *str;
-    index_t found_node_index;
-    int found;
-    TTree *found_node;
-
-    str = load_token(&(resources->string_buff), index_to_string);
-    catch_internal_error(str, NULL, "Failed to load token string.");
-
-    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, VAR);
-
-    if (found == FOUND){
-        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
-        found_node->value.f = value;
-        return RETURN_OK;
-    }
-    else
-        return NOT_FOUND;
-}
 
 
 int set_int_value(Resources *resources, index_t index_to_string, index_t index_to_root_node, int value){
@@ -382,29 +361,6 @@ int set_int_value(Resources *resources, index_t index_to_string, index_t index_t
         return NOT_FOUND;
 }
 
-
-int set_string_value(Resources *resources, index_t index_to_string, index_t index_to_root_node, index_t index_to_dynamic_buff){
-
-    args_assert(resources != NULL && index_to_root_node != ZERO_INDEX && index_to_string > 0, INTERNAL_ERROR);
-
-    char *str;
-    index_t found_node_index;
-    int found;
-    TTree *found_node;
-
-    str = load_token(&(resources->string_buff), index_to_string);
-    catch_internal_error(str, NULL, "Failed to load token string.");
-
-    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, VAR);
-
-    if (found == FOUND){
-        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
-        found_node->value.index_to_dynamic_buff = index_to_dynamic_buff;
-        return RETURN_OK;
-    }
-    else
-        return NOT_FOUND;
-}
 
 
 int check_func_args_id(Resources *resources, index_t index_to_root_node, char *string_of_func_id, index_t index_to_arg_id, index_t *found_node_index){
@@ -567,28 +523,6 @@ int check_var_data_types(Resources *resources, index_t index_to_root_node, index
 }
 
 
-int load_float_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, float *value){
-
-    args_assert(resources != NULL && index_to_string != ZERO_INDEX && index_to_root_node != ZERO_INDEX && value != NULL, INTERNAL_ERROR);
-
-    char *str;
-    index_t found_node_index;
-    int found;
-    TTree *found_node;
-
-    str = load_token(&(resources->string_buff), index_to_string);
-    catch_internal_error(str, NULL, "Failed to load token string.");
-
-    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, VAR);
-
-    if (found == FOUND){
-        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
-        *value = found_node->value.f;
-        return RETURN_OK;
-    }
-    else
-        return NOT_FOUND;
-}
 
 
 int load_integer_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, int *value){
@@ -608,30 +542,6 @@ int load_integer_value(Resources *resources, index_t index_to_root_node, index_t
     if (found == FOUND){
         dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
         *value = found_node->value.i;
-        return RETURN_OK;
-    }
-    else
-        return NOT_FOUND;
-}
-
-
-int load_string_value(Resources *resources, index_t index_to_root_node, index_t index_to_string, index_t *value){
-
-    args_assert(resources != NULL && index_to_string != ZERO_INDEX && index_to_root_node != ZERO_INDEX && value != NULL, INTERNAL_ERROR);
-
-    char *str;
-    index_t found_node_index;
-    int found;
-    TTree *found_node;
-
-    str = load_token(&(resources->string_buff), index_to_string);
-    catch_internal_error(str, NULL, "Failed to load token string.");
-
-    found = iterate_through_tree(resources, str, index_to_root_node, &found_node_index, VAR);
-
-    if (found == FOUND){
-        dereference_structure(&(resources->struct_buff_trees), found_node_index, (void**)&found_node);
-        *value = found_node->value.index_to_dynamic_buff;
         return RETURN_OK;
     }
     else
