@@ -1,0 +1,4 @@
+int main() {
+    cout << "\x42 text" << "\n";
+    return 0;
+}
