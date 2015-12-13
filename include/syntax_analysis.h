@@ -34,7 +34,6 @@ typedef enum non_terminals {
 	TAIL_STATEMENT,
 	CONSTRUCTION,
 	IF_ELSE,
-	TAIL_IF,
 	ELSE,
 	FOR_CYCLE,
 	FOR_FIRST,

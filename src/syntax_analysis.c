@@ -103,11 +103,11 @@ int check_syntax(int term, Resources * resources){
 	static TToken * token = NULL;
 	static index_t token_index = ZERO_INDEX;
 	static index_t last_id = ZERO_INDEX;
-	index_t jump_addr = 0;
-	index_t * jump_paddr = NULL;
+	index_t jump_addr = ZERO_INDEX;
+	index_t for_addr = ZERO_INDEX;
 
-	index_t for_addr = 0;
-	index_t * for_addrp = NULL;
+	index_t addr1 = ZERO_INDEX;
+	index_t addr2 = ZERO_INDEX;
 	
 	int type = 0;
 	index_t id = 0;
@@ -410,51 +410,24 @@ int check_syntax(int term, Resources * resources){
 
 				//jump if 0
 				if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_FALSE_MEM )) != 0)goto EXIT;
-				jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+				addr1 = resources->instruction_buffer.next_free - 1;
 
 				if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(TAIL_IF, resources)) != 0)goto EXIT;
+				if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 				//jump place
 				//
 				if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), 0, 0, 0, JMP_MEM )) != 0)goto EXIT;
-                for_addrp = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+                addr2 = resources->instruction_buffer.next_free - 1;
 				
-				*jump_paddr = resources->instruction_buffer.next_free;
+				access(resources->instruction_buffer.buffer, TInstruction, addr1)->dest.index = resources->instruction_buffer.next_free;
+
 				if ((iRet = check_syntax(ELSE, resources)) != 0)goto EXIT;
-				
-				*for_addrp = resources->instruction_buffer.next_free;
+						
+				access(resources->instruction_buffer.buffer, TInstruction, addr2)->dest.index = resources->instruction_buffer.next_free;
 			}
 			else goto SYN_ERR;
 			break;
 
-//**************** TAIL_IF **********************//
-		case TAIL_IF:
-			if ((token->token_type >= T_DOUBLE && token->token_type <= T_STRING) ||
-				 (token->token_type == AUTO)){
-				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(DEC_VAR, resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
-				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
-			}
-			else if ((token->token_type >= K_CIN && token->token_type <= K_DO) || 
-						(token->token_type >= K_FOR && token->token_type <= K_WHILE)){
-				if ((iRet = check_syntax(CONSTRUCTION, resources)) != 0)goto EXIT;
-			}
-			else if (token->token_type == IDENTIFIER){
-				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(STATEMENT, resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
-				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
-			}
-			else if (token->token_type == OPENING_CURLY_BRACKET){
-				if ((iRet = enter_scope(resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(OPENING_CURLY_BRACKET, resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(BLOCK_STATMENT, resources)) != 0)goto EXIT;
-				if ((iRet = check_syntax(CLOSING_CURLY_BRACKET, resources)) != 0)goto EXIT;
-				if ((iRet = leave_scope(resources)) != 0)goto EXIT;
-			}
-			else goto SYN_ERR;
-			break;
 
 //**************** ELSE **********************//
 		case ELSE:
@@ -478,10 +451,10 @@ int check_syntax(int term, Resources * resources){
 			if ((iRet = check_syntax(SEMICOLON, resources)) != 0)goto EXIT;
 		
 			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_FALSE_MEM )) != 0)goto EXIT;
-            jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+            addr1 = (resources->instruction_buffer.next_free - 1);
 
 			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), 0, 0, 0, JMP_MEM )) != 0)goto EXIT;
-			for_addrp = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+			addr2 = (resources->instruction_buffer.next_free - 1);
 
 			for_addr = resources->instruction_buffer.next_free;
 
@@ -489,14 +462,14 @@ int check_syntax(int term, Resources * resources){
 
 			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), jump_addr, 0, 0, JMP_MEM )) != 0)goto EXIT;
 
-			*for_addrp = resources->instruction_buffer.next_free;
+			access(resources->instruction_buffer.buffer, TInstruction, addr2)->dest.index = resources->instruction_buffer.next_free;
 
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 
 			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), for_addr, 0, 0, JMP_MEM )) != 0)goto EXIT;
 
-			*jump_paddr = resources->instruction_buffer.next_free;
+			access(resources->instruction_buffer.buffer, TInstruction, addr1)->dest.index = resources->instruction_buffer.next_free;
 
 			if ((iRet = leave_scope(resources)) != 0)goto EXIT;
 			break;
@@ -557,14 +530,14 @@ int check_syntax(int term, Resources * resources){
              }
 			//jump if 0  to end
 			if ((iRet = new_instruction_int_int(&(resources->instruction_buffer), 0, STACK_TOP, 0, JMP_FALSE_MEM )) != 0)goto EXIT;
-			jump_paddr = &(access(resources->instruction_buffer.buffer, TInstruction, (resources->instruction_buffer.next_free - 1))->dest.index);
+			addr1 = resources->instruction_buffer.next_free - 1;
 
 			if ((iRet = check_syntax(CLOSING_BRACKET, resources)) != 0)goto EXIT;
 			if ((iRet = check_syntax(TAIL_CONSTR, resources)) != 0)goto EXIT;
 			//jump to start place
 			if ((iRet = new_instruction_mem_mem(&(resources->instruction_buffer), jump_addr, 0, 0, JMP_MEM )) != 0)goto EXIT;
 			//jump end
-			*jump_paddr = resources->instruction_buffer.next_free;
+			access(resources->instruction_buffer.buffer, TInstruction, addr1)->dest.index = resources->instruction_buffer.next_free;			
 			break;
 
 //**************** DO **********************//
