@@ -92,7 +92,7 @@ index_t get_token(FILE *fin, TDynamic_buffer *buffer, TDynamic_structure_buffer 
 	args_assert(buffer != NULL && struct_buffer != NULL, INTERNAL_ERROR);
 	debug_print("%s\n", "GET_TOKEN");
 
-	char hx[2];
+	char hx[3] = {0, 0, '\0'};
 	char x;
 	int c;
 	int previous = 0;
