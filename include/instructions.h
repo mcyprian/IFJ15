@@ -1421,7 +1421,7 @@ static inline int set_type(Resources *resources, TInstruction *instruction) {
 
 static inline int halt(Resources *resources, TInstruction *instruction) {
     debug_print("%s\n", "HALT");
-    fprintf(stderr, "%s: %lu %d \n", "INTERPRETER TERMINATING", instruction->dest.index + resources->bp, *(int*)resources->runtime_stack.buffer);
+    instruction->dest.index = resources->bp;
     return HALT;
 }
 
