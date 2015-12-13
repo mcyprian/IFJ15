@@ -1,0 +1,16 @@
+int main() {
+    string str1 = "V otváracom zápase XV. kontinentálneho šampionátu sa stretne
+    organizátor Francúzsko s Rumunskom v piatok 10. júna v Saint-Denis.
+    Slovákov pri ich prvej účasti na EURO v ére samostatnosti poslala do
+    skupiny ruka Gréka Angelosa Charisteasa a pozíciu B4 určila ruka Antonína
+    Panenku. SR sa na turnaj prebojovaoa z 2. miesta kvalifikačnej C-skupiny,
+    ktorú vyhrali obhajcovia Španieli, ktorí majú spolu s Nemeckom na konte
+    rekordné tri tituly majstrov kontinentu.";
+    string str2 = "second word";
+
+//    cout <<  concat(str1, str2) << "\n";
+//    cout <<  substr(str1, 1, 3) << "\n";
+    cout <<  find(str1, "") << "\n";
+
+    return 0;
+}
